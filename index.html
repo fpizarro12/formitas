@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Pedido de Medalla</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="manifest" href="manifest.json">
+
+    <meta name="theme-color" content="#ef4444">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pedidos Vet">
+
+    <link rel="apple-touch-icon" href="https://i.imgur.com/EyqPrSq.png">
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; 
+        }
+        .font-formitas {
+            font-family: 'Comic Neue', cursive;
+        }
+        .btn-primary {
+            @apply bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+        }
+        .btn-secondary {
+            @apply bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-all duration-300;
+        }
+        .toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center;
+            border-radius: 8px; padding: 16px; position: fixed; z-index: 60; left: 50%;
+            transform: translateX(-50%); bottom: 30px; opacity: 0;
+            transition: all 0.5s ease-in-out;
+        }
+        .toast.show { visibility: visible; opacity: 1; }
+        .modal-backdrop { @apply fixed inset-0 bg-gray-900 bg-opacity-60 z-40; }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 0.5rem; /* rounded-lg */
+            padding: 1.5rem; /* p-6 */
+            width: 100%;
+            max-width: 24rem; /* max-w-sm */
+            z-index: 50;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); /* shadow-2xl */
+        }
+        
+        .form-container {
+            border: 4px solid #06b6d4; /* Borde Cyan */
+            position: relative;
+            background-color: white;
+        }
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">??</text></svg>');
+            background-repeat: repeat;
+            background-size: 120px;
+            opacity: 0.05;
+            z-index: 0;
+        }
+        .header-container {
+            position: relative;
+        }
+        .dog-icon, .cat-icon {
+            position: absolute;
+            bottom: 45px;
+            width: 70px;
+            height: 70px;
+            pointer-events: none;
+        }
+        .dog-icon {
+            left: -20px;
+        }
+        .cat-icon {
+            right: -20px;
+        }
+        #confirmationModal {
+             border: 4px solid #06b6d4;
+        }
+        #confirmationSummary li { @apply border-b border-gray-200 py-2; }
+        #confirmationSummary li strong { @apply font-semibold text-gray-700; }
+
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen py-12">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-lg">
+        
+        <header id="mainHeader" class="text-center mb-6 header-container">
+            <div class="dog-icon">
+                <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5,80 C5,70 25,70 25,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/>
+                    <path d="M95,80 C95,70 75,70 75,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/>
+                    <path d="M10,70 Q50,10 90,70" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/>
+                    <path d="M10,50 C-10,50 0,20 20,30" fill="#A67B5B"/>
+                    <path d="M90,50 C110,50 100,20 80,30" fill="#A67B5B"/>
+                    <circle cx="35" cy="55" r="5" fill="#2c2c2c"/>
+                    <circle cx="65" cy="55" r="5" fill="#2c2c2c"/>
+                    <ellipse cx="50" cy="65" rx="8" ry="5" fill="#2c2c2c"/>
+                </svg>
+            </div>
+             <div class="cat-icon">
+                <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5,80 C5,70 25,70 25,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/>
+                    <path d="M95,80 C95,70 75,70 75,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/>
+                    <path d="M10,70 Q50,20 90,70" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/>
+                    <path d="M10,40 L30,15 L40,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/>
+                    <path d="M90,40 L70,15 L60,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/>
+                    <circle cx="38" cy="55" r="4" fill="#2c2c2c"/>
+                    <circle cx="62" cy="55" r="4" fill="#2c2c2c"/>
+                    <path d="M45,65 Q50,70 55,65" stroke="#2c2c2c" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <path d="M20,60 L35,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M22,65 L35,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M80,60 L65,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M78,65 L65,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h1 class="font-formitas text-6xl md:text-7xl font-bold text-red-500">Formitas</h1>
+            <p class="text-gray-600 -mt-2 text-lg">bijou para mascotas</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-700 mt-6">Nuevo Pedido de Medalla</h2>
+        </header>
+
+        <div id="mainContent" class="form-container p-8 rounded-xl shadow-lg">
+            <div class="relative z-10">
+                <form id="orderForm">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="vetName" class="block text-sm font-medium text-gray-700">Veterinaria</label>
+                            <input type="text" id="vetName" name="vetName" required readonly class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <p id="vetNameStatus" class="text-xs text-red-600 mt-1"></p>
+                        </div>
+                        <div>
+                            <label for="petName" class="block text-sm font-medium text-gray-700">Nombre de la Mascota</label>
+                            <input type="text" id="petName" name="petName" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Tel谷fono / Texto</label>
+                            <input type="text" id="phone" name="phone" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="extraLine" class="block text-sm font-medium text-gray-700">L赤nea Extra</label>
+                            <input type="text" id="extraLine" name="extraLine" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" placeholder="(Opcional)">
+                        </div>
+                        <div>
+                            <label for="shape" class="block text-sm font-medium text-gray-700">Forma de la Medalla <span class="text-red-500">*</span></label>
+                            <select id="shape" name="shape" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                <option value="">Seleccione una forma</option>
+                                <option>Bulldog</option><option>Cat</option><option>Collar</option><option>Corazon</option><option>Estrella</option><option>Hueso Chico</option><option>Hueso Grande</option><option>Huella</option><option>Mini</option><option>Pez</option><option>Recta</option><option>Redonda</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="color" class="block text-sm font-medium text-gray-700">Color de la Medalla <span class="text-red-500">*</span></label>
+                            <select id="color" name="color" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                <option value="">Seleccione un color</option>
+                                <option>Azul</option><option>Negro</option><option>Oro</option><option>Plata</option><option>Rojo</option><option>Violeta</option>
+                            </select>
+                        </div>
+                         <div>
+                            <label for="observations" class="block text-sm font-medium text-gray-700">Observaciones</label>
+                            <textarea id="observations" name="observations" rows="2" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" placeholder="(Opcional)"></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex gap-4">
+                        <button type="button" id="cancelOrderButton" class="w-full btn-secondary">Cancelar Pedido</button>
+                        <button type="submit" id="submitButton" class="w-full btn-primary" disabled>Enviar Pedido</button>
+                    </div>
+                </form>
+                 <div class="mt-4 text-center">
+                    <button id="setupButton" class="btn-secondary text-xs">FORMITAS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <div id="modalBackdrop" class="modal-backdrop hidden"></div>
+    <div id="setupModal" class="modal hidden">
+        <div data-step="password">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Configuraci車n</h3>
+            <p class="text-gray-600 mb-4">Por favor, ingrese la clave de configuraci車n.</p>
+            <input type="password" id="passwordInput" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+            <p id="passwordError" class="text-xs text-red-600 mt-1 hidden">Clave incorrecta.</p>
+        </div>
+        <div class="hidden" data-step="vetName">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Nombre de la Veterinaria</h3>
+            <p class="text-gray-600 mb-4">Clave correcta. Ahora ingrese el nombre.</p>
+            <input type="text" id="newVetNameInput" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" required>
+        </div>
+        <div class="mt-6 flex justify-end gap-4">
+            <button type="button" id="modalCancel" class="btn-secondary">Cancelar</button>
+            <button type="button" id="modalConfirm" class="btn-primary">Siguiente</button>
+        </div>
+    </div>
+    <div id="confirmationModal" class="modal hidden">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Confirmar Pedido</h3>
+        <div id="confirmationSummary" class="text-left text-sm space-y-2"></div>
+        <div class="mt-6 flex justify-end gap-4">
+            <button type="button" id="cancelSendButton" class="btn-secondary">CANCELA</button>
+            <button type="button" id="confirmSendButton" class="btn-primary">OK</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ",
+            authDomain: "pedidos-formitas.firebaseapp.com",
+            projectId: "pedidos-formitas",
+            storageBucket: "pedidos-formitas.appspot.com",
+            messagingSenderId: "745379401007",
+            appId: "1:745379401007:web:c41a2d3d33f4b8582365da"
+        };
+        
+        const appId = 'pet-tags-split-app';
+        const VET_NAME_KEY = 'veterinaryName';
+        const SETUP_PASSWORD = 'formitaspets2025';
+        let db;
+        let pendingOrderData = null;
+
+        // --- DOM Elements ---
+        const orderForm = document.getElementById('orderForm');
+        const submitButton = document.getElementById('submitButton');
+        const setupButton = document.getElementById('setupButton');
+        const vetNameInput = document.getElementById('vetName');
+        const toast = document.getElementById('toast');
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        const setupModal = document.getElementById('setupModal');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalConfirm = document.getElementById('modalConfirm');
+        const passwordInput = document.getElementById('passwordInput');
+        const newVetNameInput = document.getElementById('newVetNameInput');
+        const passwordError = document.getElementById('passwordError');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmationSummary = document.getElementById('confirmationSummary');
+        const confirmSendButton = document.getElementById('confirmSendButton');
+        const cancelSendButton = document.getElementById('cancelSendButton');
+        const cancelOrderButton = document.getElementById('cancelOrderButton');
+        const shapeSelect = document.getElementById('shape');
+        const colorSelect = document.getElementById('color');
+
+        let currentModalStep = 'password';
+
+        // --- UI & Setup Functions ---
+        function showToast(message, isError = false) {
+            toast.textContent = message;
+            toast.style.backgroundColor = isError ? '#ef4444' : '#333';
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+        
+        function checkAndSetupVeterinaryName() {
+            const savedVetName = localStorage.getItem(VET_NAME_KEY);
+            if (savedVetName) {
+                vetNameInput.value = savedVetName;
+                submitButton.disabled = false;
+                setupButton.classList.add('hidden');
+            } else {
+                submitButton.disabled = true;
+                setupButton.classList.remove('hidden');
+            }
+        }
+
+        function openModal(modal) {
+            modal.classList.remove('hidden');
+            modalBackdrop.classList.remove('hidden');
+        }
+
+        function closeModal(modal) {
+            modal.classList.add('hidden');
+            modalBackdrop.classList.add('hidden');
+        }
+
+        function handleSetup() {
+            currentModalStep = 'password';
+            setupModal.querySelector('[data-step="password"]').classList.remove('hidden');
+            setupModal.querySelector('[data-step="vetName"]').classList.add('hidden');
+            passwordInput.value = '';
+            newVetNameInput.value = '';
+            passwordError.classList.add('hidden');
+            modalConfirm.textContent = 'Siguiente';
+            openModal(setupModal);
+            passwordInput.focus();
+        }
+
+        function handleModalConfirmClick() {
+            if (currentModalStep === 'password') {
+                if (passwordInput.value === SETUP_PASSWORD) {
+                    currentModalStep = 'vetName';
+                    setupModal.querySelector('[data-step="password"]').classList.add('hidden');
+                    setupModal.querySelector('[data-step="vetName"]').classList.remove('hidden');
+                    passwordError.classList.add('hidden');
+                    modalConfirm.textContent = 'Guardar';
+                    newVetNameInput.focus();
+                } else {
+                    passwordError.classList.add('hidden');
+                }
+            } else if (currentModalStep === 'vetName') {
+                const newVetName = newVetNameInput.value.trim();
+                if (newVetName) {
+                    localStorage.setItem(VET_NAME_KEY, newVetName);
+                    showToast('?Configuraci車n guardada!');
+                    checkAndSetupVeterinaryName();
+                    closeModal(setupModal);
+                } else {
+                    showToast('El nombre no puede estar vac赤o.', true);
+                }
+            }
+        }
+        
+        function clearForm() {
+            document.getElementById('petName').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('extraLine').value = '';
+            shapeSelect.selectedIndex = 0;
+            colorSelect.selectedIndex = 0;
+            document.getElementById('observations').value = '';
+            document.getElementById('petName').focus();
+        }
+        
+        // --- Form Logic ---
+        function showConfirmation(orderData) {
+            pendingOrderData = orderData;
+            confirmationSummary.innerHTML = `
+                <ul>
+                    ${orderData.petName ? `<li><strong>Mascota:</strong> ${orderData.petName}</li>` : ''}
+                    ${orderData.phone ? `<li><strong>Tel./Texto:</strong> ${orderData.phone}</li>` : ''}
+                    ${orderData.extraLine ? `<li><strong>L赤nea Extra:</strong> ${orderData.extraLine}</li>` : ''}
+                    <li><strong>Forma:</strong> ${orderData.shape}</li>
+                    <li><strong>Color:</strong> ${orderData.color}</li>
+                    ${orderData.observations ? `<li><strong>Obs:</strong> ${orderData.observations}</li>` : ''}
+                </ul>
+            `;
+            openModal(confirmationModal);
+        }
+
+        async function sendOrderToFirebase() {
+            if (!pendingOrderData) return;
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Enviando...';
+            confirmSendButton.disabled = true;
+
+            try {
+                if (!db) throw new Error("DB not initialized");
+                
+                const collectionRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
+                await addDoc(collectionRef, pendingOrderData);
+                
+                showToast('?Pedido enviado con 谷xito!');
+                clearForm();
+                closeModal(confirmationModal);
+            } catch (error) {
+                console.error("Error al agregar el pedido: ", error);
+                showToast('Error al enviar el pedido. Revisa la consola.', true);
+            } finally {
+                if(localStorage.getItem(VET_NAME_KEY)){
+                   submitButton.disabled = false;
+                   submitButton.textContent = 'Enviar Pedido';
+                   confirmSendButton.disabled = false;
+                   pendingOrderData = null;
+                }
+            }
+        }
+
+        function handleOrderFormSubmit(e) {
+            e.preventDefault();
+
+            if (!shapeSelect.value || !colorSelect.value) {
+                showToast('Debe seleccionar una Forma y un Color.', true);
+                return;
+            }
+
+            const orderData = {
+                vetName: vetNameInput.value,
+                petName: document.getElementById('petName').value,
+                phone: document.getElementById('phone').value,
+                extraLine: document.getElementById('extraLine').value,
+                shape: shapeSelect.value,
+                color: colorSelect.value,
+                observations: document.getElementById('observations').value,
+                status: 'Pendiente',
+                timestamp: serverTimestamp()
+            };
+            showConfirmation(orderData);
+        }
+
+        // --- App Initialization ---
+        function main() {
+            checkAndSetupVeterinaryName();
+            
+            setupButton.addEventListener('click', handleSetup);
+            modalCancel.addEventListener('click', () => closeModal(setupModal));
+            modalConfirm.addEventListener('click', handleModalConfirmClick);
+            
+            confirmSendButton.addEventListener('click', sendOrderToFirebase);
+            cancelSendButton.addEventListener('click', () => closeModal(confirmationModal));
+
+            cancelOrderButton.addEventListener('click', clearForm);
+            orderForm.addEventListener('submit', handleOrderFormSubmit);
+            
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                const auth = getAuth(app);
+                onAuthStateChanged(auth, (user) => {
+                    if (!user) {
+                       signInAnonymously(auth).catch((error) => console.error(error));
+                    }
+                });
+            } catch (error) {
+                console.error("Fall車 la inicializaci車n de Firebase:", error);
+                submitButton.textContent = 'Error de Conexi車n';
+                submitButton.disabled = true;
+                showToast('Error de conexi車n. No se pueden enviar pedidos.', true);
+            }
+        }
+
+        main();
+    </script>
+</body>
+</html>
