@@ -149,11 +149,11 @@
                             <input type="text" id="petName" name="petName" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700">Tel谷fono / Texto</label>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Telefono / Texto</label>
                             <input type="text" id="phone" name="phone" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for="extraLine" class="block text-sm font-medium text-gray-700">L赤nea Extra</label>
+                            <label for="extraLine" class="block text-sm font-medium text-gray-700">Linea Extra</label>
                             <input type="text" id="extraLine" name="extraLine" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" placeholder="(Opcional)">
                         </div>
                         <div>
@@ -192,8 +192,8 @@
     <div id="modalBackdrop" class="modal-backdrop hidden"></div>
     <div id="setupModal" class="modal hidden">
         <div data-step="password">
-            <h3 class="text-xl font-bold text-gray-800 mb-2">Configuraci車n</h3>
-            <p class="text-gray-600 mb-4">Por favor, ingrese la clave de configuraci車n.</p>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Configuraci  n</h3>
+            <p class="text-gray-600 mb-4">Por favor, ingrese la clave de configuracion.</p>
             <input type="password" id="passwordInput" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
             <p id="passwordError" class="text-xs text-red-600 mt-1 hidden">Clave incorrecta.</p>
         </div>
@@ -318,11 +318,11 @@
                 const newVetName = newVetNameInput.value.trim();
                 if (newVetName) {
                     localStorage.setItem(VET_NAME_KEY, newVetName);
-                    showToast('?Configuraci車n guardada!');
+                    showToast('?Configuraci  n guardada!');
                     checkAndSetupVeterinaryName();
                     closeModal(setupModal);
                 } else {
-                    showToast('El nombre no puede estar vac赤o.', true);
+                    showToast('El nombre no puede estar vac  o.', true);
                 }
             }
         }
@@ -344,7 +344,7 @@
                 <ul>
                     ${orderData.petName ? `<li><strong>Mascota:</strong> ${orderData.petName}</li>` : ''}
                     ${orderData.phone ? `<li><strong>Tel./Texto:</strong> ${orderData.phone}</li>` : ''}
-                    ${orderData.extraLine ? `<li><strong>L赤nea Extra:</strong> ${orderData.extraLine}</li>` : ''}
+                    ${orderData.extraLine ? `<li><strong>L  nea Extra:</strong> ${orderData.extraLine}</li>` : ''}
                     <li><strong>Forma:</strong> ${orderData.shape}</li>
                     <li><strong>Color:</strong> ${orderData.color}</li>
                     ${orderData.observations ? `<li><strong>Obs:</strong> ${orderData.observations}</li>` : ''}
@@ -366,7 +366,7 @@
                 const collectionRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
                 await addDoc(collectionRef, pendingOrderData);
                 
-                showToast('?Pedido enviado con 谷xito!');
+                showToast('?Pedido enviado con   xito!');
                 clearForm();
                 closeModal(confirmationModal);
             } catch (error) {
@@ -428,10 +428,10 @@
                     }
                 });
             } catch (error) {
-                console.error("Fall車 la inicializaci車n de Firebase:", error);
-                submitButton.textContent = 'Error de Conexi車n';
+                console.error("Fall   la inicializaci  n de Firebase:", error);
+                submitButton.textContent = 'Error de Conexi  n';
                 submitButton.disabled = true;
-                showToast('Error de conexi車n. No se pueden enviar pedidos.', true);
+                showToast('Error de conexi  n. No se pueden enviar pedidos.', true);
             }
         }
 
