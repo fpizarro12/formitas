@@ -19,15 +19,14 @@
 
     <link rel="apple-touch-icon" href="https://i.imgur.com/EyqPrSq.png">
 
-  <style>
-        body {
+    <style>
+        body { 
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
+            background-color: #f0f2f5; 
         }
         .font-formitas {
             font-family: 'Comic Neue', cursive;
         }
-        /* ESTILO DE BOTONES MODIFICADO - SIN @apply */
         .btn-primary {
             background-color: #ef4444; /* bg-red-500 */
             color: white; /* text-white */
@@ -85,7 +84,7 @@
             z-index: 50;
             box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); /* shadow-2xl */
         }
-
+        
         .form-container {
             border: 4px solid #06b6d4; /* Borde Cyan */
             position: relative;
@@ -273,7 +272,7 @@
         const submitButton = document.getElementById('submitButton');
         const setupButton = document.getElementById('setupButton');
         const vetNameInput = document.getElementById('vetName');
-        const vetNameStatus = document.getElementById('vetNameStatus'); // <-- OBTENER ELEMENTO
+        const vetNameStatus = document.getElementById('vetNameStatus'); 
         const toast = document.getElementById('toast');
         const modalBackdrop = document.getElementById('modalBackdrop');
         const setupModal = document.getElementById('setupModal');
@@ -293,13 +292,9 @@
         let currentModalStep = 'password';
 
         // --- UI & Setup Functions ---
-
-        // NUEVA FUNCIÓN PARA HABILITAR/DESHABILITAR FORMULARIO
         function toggleFormElements(disabled) {
-            // Selecciona todos los elementos interactivos DENTRO del formulario
             const formElements = orderForm.querySelectorAll('input, select, textarea, button');
             formElements.forEach(element => {
-                // No deshabilitamos el campo vetName porque es de solo lectura
                 if (element.id !== 'vetName') {
                     element.disabled = disabled;
                 }
@@ -313,18 +308,17 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
         
-        // FUNCIÓN MODIFICADA
         function checkAndSetupVeterinaryName() {
             const savedVetName = localStorage.getItem(VET_NAME_KEY);
             if (savedVetName) {
                 vetNameInput.value = savedVetName;
-                vetNameStatus.textContent = ''; // Limpiar mensaje de error
+                vetNameStatus.textContent = '';
                 setupButton.classList.add('hidden');
-                toggleFormElements(false); // Habilitar formulario
+                toggleFormElements(false);
             } else {
-                vetNameStatus.textContent = 'Debe configurar el nombre de la veterinaria.'; // Mostrar mensaje
+                vetNameStatus.textContent = 'Debe configurar el nombre de la veterinaria.';
                 setupButton.classList.remove('hidden');
-                toggleFormElements(true); // Deshabilitar formulario
+                toggleFormElements(true);
             }
         }
 
@@ -375,6 +369,7 @@
             }
         }
         
+        // FUNCIÓN MODIFICADA
         function clearForm() {
             document.getElementById('petName').value = '';
             document.getElementById('phone').value = '';
@@ -382,7 +377,7 @@
             shapeSelect.selectedIndex = 0;
             colorSelect.selectedIndex = 0;
             document.getElementById('observations').value = '';
-            document.getElementById('petName').focus();
+            // Se elimina la línea document.getElementById('petName').focus();
         }
         
         // --- Form Logic ---
@@ -454,8 +449,6 @@
 
         // --- App Initialization ---
         function main() {
-            // CORRECIÓN: Se quita la lógica de deshabilitar el botón de submit de aquí
-            // porque ahora se maneja dentro de toggleFormElements.
             checkAndSetupVeterinaryName();
             
             setupButton.addEventListener('click', handleSetup);
@@ -489,3 +482,4 @@
     </script>
 </body>
 </html>
+
