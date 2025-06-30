@@ -27,11 +27,12 @@
         .font-formitas {
             font-family: 'Comic Neue', cursive;
         }
+        /* ESTILO DE BOTONES MODIFICADO */
         .btn-primary {
-            @apply bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+            @apply bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-red-700 shadow-md;
         }
         .btn-secondary {
-            @apply bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-all duration-300;
+            @apply bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-all duration-300 border border-gray-400 shadow-md;
         }
         .toast {
             visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center;
@@ -67,7 +68,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">??</text></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐾</text></svg>');
             background-repeat: repeat;
             background-size: 120px;
             opacity: 0.05;
@@ -177,7 +178,7 @@
                     </div>
                     <div class="mt-8 flex gap-4">
                         <button type="button" id="cancelOrderButton" class="w-full btn-secondary">Cancelar Pedido</button>
-                        <button type="submit" id="submitButton" class="w-full btn-primary" disabled>Enviar Pedido</button>
+                        <button type="submit" id="submitButton" class="w-full btn-primary">Enviar Pedido</button>
                     </div>
                 </form>
                  <div class="mt-4 text-center">
@@ -192,7 +193,7 @@
     <div id="modalBackdrop" class="modal-backdrop hidden"></div>
     <div id="setupModal" class="modal hidden">
         <div data-step="password">
-            <h3 class="text-xl font-bold text-gray-800 mb-2">Configuraci  n</h3>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Configuracion</h3>
             <p class="text-gray-600 mb-4">Por favor, ingrese la clave de configuracion.</p>
             <input type="password" id="passwordInput" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
             <p id="passwordError" class="text-xs text-red-600 mt-1 hidden">Clave incorrecta.</p>
@@ -242,6 +243,7 @@
         const submitButton = document.getElementById('submitButton');
         const setupButton = document.getElementById('setupButton');
         const vetNameInput = document.getElementById('vetName');
+        const vetNameStatus = document.getElementById('vetNameStatus'); // <-- OBTENER ELEMENTO
         const toast = document.getElementById('toast');
         const modalBackdrop = document.getElementById('modalBackdrop');
         const setupModal = document.getElementById('setupModal');
@@ -261,6 +263,19 @@
         let currentModalStep = 'password';
 
         // --- UI & Setup Functions ---
+
+        // NUEVA FUNCIÓN PARA HABILITAR/DESHABILITAR FORMULARIO
+        function toggleFormElements(disabled) {
+            // Selecciona todos los elementos interactivos DENTRO del formulario
+            const formElements = orderForm.querySelectorAll('input, select, textarea, button');
+            formElements.forEach(element => {
+                // No deshabilitamos el campo vetName porque es de solo lectura
+                if (element.id !== 'vetName') {
+                    element.disabled = disabled;
+                }
+            });
+        }
+
         function showToast(message, isError = false) {
             toast.textContent = message;
             toast.style.backgroundColor = isError ? '#ef4444' : '#333';
@@ -268,15 +283,18 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
         
+        // FUNCIÓN MODIFICADA
         function checkAndSetupVeterinaryName() {
             const savedVetName = localStorage.getItem(VET_NAME_KEY);
             if (savedVetName) {
                 vetNameInput.value = savedVetName;
-                submitButton.disabled = false;
+                vetNameStatus.textContent = ''; // Limpiar mensaje de error
                 setupButton.classList.add('hidden');
+                toggleFormElements(false); // Habilitar formulario
             } else {
-                submitButton.disabled = true;
+                vetNameStatus.textContent = 'Debe configurar el nombre de la veterinaria.'; // Mostrar mensaje
                 setupButton.classList.remove('hidden');
+                toggleFormElements(true); // Deshabilitar formulario
             }
         }
 
@@ -318,11 +336,11 @@
                 const newVetName = newVetNameInput.value.trim();
                 if (newVetName) {
                     localStorage.setItem(VET_NAME_KEY, newVetName);
-                    showToast('?Configuraci  n guardada!');
+                    showToast('Configuracion guardada!');
                     checkAndSetupVeterinaryName();
                     closeModal(setupModal);
                 } else {
-                    showToast('El nombre no puede estar vac  o.', true);
+                    showToast('El nombre no puede estar vacio.', true);
                 }
             }
         }
@@ -343,8 +361,8 @@
             confirmationSummary.innerHTML = `
                 <ul>
                     ${orderData.petName ? `<li><strong>Mascota:</strong> ${orderData.petName}</li>` : ''}
-                    ${orderData.phone ? `<li><strong>Tel./Texto:</strong> ${orderData.phone}</li>` : ''}
-                    ${orderData.extraLine ? `<li><strong>L  nea Extra:</strong> ${orderData.extraLine}</li>` : ''}
+                    ${orderData.phone ? `<li><strong>Telefono:</strong> ${orderData.phone}</li>` : ''}
+                    ${orderData.extraLine ? `<li><strong>Linea Extra:</strong> ${orderData.extraLine}</li>` : ''}
                     <li><strong>Forma:</strong> ${orderData.shape}</li>
                     <li><strong>Color:</strong> ${orderData.color}</li>
                     ${orderData.observations ? `<li><strong>Obs:</strong> ${orderData.observations}</li>` : ''}
@@ -366,7 +384,7 @@
                 const collectionRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
                 await addDoc(collectionRef, pendingOrderData);
                 
-                showToast('?Pedido enviado con   xito!');
+                showToast('Pedido enviado con exito!');
                 clearForm();
                 closeModal(confirmationModal);
             } catch (error) {
@@ -406,6 +424,8 @@
 
         // --- App Initialization ---
         function main() {
+            // CORRECIÓN: Se quita la lógica de deshabilitar el botón de submit de aquí
+            // porque ahora se maneja dentro de toggleFormElements.
             checkAndSetupVeterinaryName();
             
             setupButton.addEventListener('click', handleSetup);
@@ -428,10 +448,10 @@
                     }
                 });
             } catch (error) {
-                console.error("Fall   la inicializaci  n de Firebase:", error);
-                submitButton.textContent = 'Error de Conexi  n';
+                console.error("Fallo la inicializacion de Firebase:", error);
+                submitButton.textContent = 'Error de Conexion';
                 submitButton.disabled = true;
-                showToast('Error de conexi  n. No se pueden enviar pedidos.', true);
+                showToast('Error de conexion. No se pueden enviar pedidos.', true);
             }
         }
 
