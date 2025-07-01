@@ -30,6 +30,9 @@
         .btn-secondary:hover {
             background-color: #d4d6da;
         }
+        .order-card {
+            border-left: 5px solid #ef4444; /* Borde rojo a la izquierda */
+        }
     </style>
 </head>
 <body class="flex flex-col items-center min-h-screen py-12">
@@ -38,10 +41,10 @@
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
             <h2 class="text-3xl font-bold text-gray-700 mt-2">Mis Pedidos Realizados</h2>
-            <p id="vet-name-display" class="text-lg text-gray-500"></p>
+            <p id="vet-name-display" class="text-lg text-gray-500 font-semibold"></p>
         </header>
 
-        <main id="pedidos-container" class="bg-white p-6 rounded-xl shadow-lg">
+        <main id="pedidos-container" class="bg-white p-6 rounded-xl shadow-lg space-y-4">
             <p id="loading-message" class="text-center text-gray-500">Cargando pedidos...</p>
         </main>
         
@@ -50,5 +53,100 @@
         </footer>
     </div>
 
-    </body>
+    <script type="module">
+        // Importamos las herramientas de Firebase que necesitamos
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // La misma configuración de Firebase que en tu otra página
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ",
+            authDomain: "pedidos-formitas.firebaseapp.com",
+            projectId: "pedidos-formitas",
+            storageBucket: "pedidos-formitas.appspot.com",
+            messagingSenderId: "745379401007",
+            appId: "1:745379401007:web:c41a2d3d33f4b8582365da"
+        };
+        
+        const appId = 'pet-tags-split-app';
+        const VET_NAME_KEY = 'veterinaryName';
+
+        // Inicializamos Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Obtenemos los elementos del HTML que vamos a manipular
+        const vetNameDisplay = document.getElementById('vet-name-display');
+        const pedidosContainer = document.getElementById('pedidos-container');
+        const loadingMessage = document.getElementById('loading-message');
+
+        // --- Función principal para buscar y mostrar los pedidos ---
+        async function fetchAndDisplayOrders() {
+            // 1. Buscamos el nombre de la veterinaria guardado en el navegador
+            const vetName = localStorage.getItem(VET_NAME_KEY);
+
+            if (!vetName) {
+                // Si no hay veterinaria configurada, mostramos un mensaje y paramos.
+                loadingMessage.textContent = 'No hay una veterinaria configurada. Por favor, configure una desde el formulario de pedido.';
+                vetNameDisplay.textContent = 'Veterinaria no configurada';
+                return;
+            }
+
+            // Mostramos el nombre de la veterinaria en el título
+            vetNameDisplay.textContent = `Mostrando pedidos para: ${vetName}`;
+
+            try {
+                // 2. Creamos la consulta a la base de datos
+                const pedidosRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
+                // Creamos una consulta para traer solo los pedidos que coincidan con el vetName
+                // y los ordenamos por fecha, del más nuevo al más viejo.
+                const q = query(pedidosRef, where("vetName", "==", vetName), orderBy("timestamp", "desc"));
+
+                // 3. Ejecutamos la consulta
+                const querySnapshot = await getDocs(q);
+
+                // Limpiamos el contenedor (quitamos el mensaje de "cargando")
+                pedidosContainer.innerHTML = '';
+
+                if (querySnapshot.empty) {
+                    // Si no se encontraron pedidos, mostramos un mensaje
+                    pedidosContainer.innerHTML = '<p class="text-center text-gray-500">No se encontraron pedidos para esta veterinaria.</p>';
+                } else {
+                    // 4. Si hay pedidos, los mostramos en pantalla
+                    querySnapshot.forEach((doc) => {
+                        const pedido = doc.data();
+                        
+                        // Formateamos la fecha para que sea legible
+                        const fecha = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000).toLocaleDateString() : 'Fecha no disponible';
+
+                        // Creamos una "tarjeta" de HTML para cada pedido
+                        const pedidoCard = document.createElement('div');
+                        pedidoCard.className = 'p-4 rounded-md shadow-sm order-card bg-gray-50';
+                        pedidoCard.innerHTML = `
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-lg font-bold text-gray-800">${pedido.petName || 'Sin nombre'}</h3>
+                                <span class="text-sm font-medium text-gray-600">${fecha}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-1">
+                                <strong>Forma:</strong> ${pedido.shape} | <strong>Color:</strong> ${pedido.color}
+                            </p>
+                            ${pedido.phone ? `<p class="text-sm text-gray-700"><strong>Teléfono:</strong> ${pedido.phone}</p>` : ''}
+                            ${pedido.extraLine ? `<p class="text-sm text-gray-700"><strong>Línea Extra:</strong> ${pedido.extraLine}</p>` : ''}
+                        `;
+                        
+                        // Añadimos la tarjeta del pedido al contenedor
+                        pedidosContainer.appendChild(pedidoCard);
+                    });
+                }
+            } catch (error) {
+                console.error("Error buscando los pedidos: ", error);
+                loadingMessage.textContent = 'Hubo un error al cargar los pedidos. Intente de nuevo.';
+            }
+        }
+
+        // Llamamos a la función principal cuando la página carga
+        fetchAndDisplayOrders();
+
+    </script>
+</body>
 </html>
