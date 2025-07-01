@@ -1,3 +1,5 @@
+HTML
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -17,33 +19,60 @@
         .font-formitas {
             font-family: 'Comic Neue', cursive;
         }
+        .btn-primary {
+            background-color: #ef4444;
+            color: white;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid #b91c1c;
+        }
         .btn-secondary {
             background-color: #e5e7eb;
             color: #1f2937;
             font-weight: 600;
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
-            transition: all 0.3s ease-in-out;
             border: 1px solid #6b7280;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-        .btn-secondary:hover {
-            background-color: #d4d6da;
         }
         .order-card {
-            border-left: 5px solid #ef4444; /* Borde rojo a la izquierda */
+            border-left: 5px solid #ef4444;
         }
     </style>
 </head>
 <body class="flex flex-col items-center min-h-screen py-12">
 
-    <div class="container mx-auto p-4 md:p-8 max-w-2xl">
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
-            <h2 class="text-3xl font-bold text-gray-700 mt-2">Mis Pedidos Realizados</h2>
+            <h2 class="text-3xl font-bold text-gray-700 mt-2">Consulta de Pedidos</h2>
             <p id="vet-name-display" class="text-lg text-gray-500 font-semibold"></p>
         </header>
 
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Filtros</h3>
+            <form id="filter-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <div>
+                    <label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label>
+                    <input type="date" id="start-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div>
+                    <label for="end-date" class="block text-sm font-medium text-gray-700">Fecha Hasta</label>
+                    <input type="date" id="end-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div>
+                    <label for="start-name" class="block text-sm font-medium text-gray-700">Mascota Desde</label>
+                    <input type="text" id="start-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="A">
+                </div>
+                <div>
+                    <label for="end-name" class="block text-sm font-medium text-gray-700">Mascota Hasta</label>
+                    <input type="text" id="end-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" value="ZZZZZZ">
+                </div>
+                <div class="md:col-span-2 lg:col-span-1">
+                    <button type="submit" class="w-full btn-primary">Aplicar Filtros</button>
+                </div>
+            </form>
+        </div>
         <main id="pedidos-container" class="bg-white p-6 rounded-xl shadow-lg space-y-4">
             <p id="loading-message" class="text-center text-gray-500">Cargando pedidos...</p>
         </main>
@@ -54,11 +83,9 @@
     </div>
 
     <script type="module">
-        // Importamos las herramientas de Firebase que necesitamos
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // La misma configuración de Firebase que en tu otra página
         const firebaseConfig = {
             apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ",
             authDomain: "pedidos-formitas.firebaseapp.com",
@@ -70,83 +97,111 @@
         
         const appId = 'pet-tags-split-app';
         const VET_NAME_KEY = 'veterinaryName';
-
-        // Inicializamos Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Obtenemos los elementos del HTML que vamos a manipular
         const vetNameDisplay = document.getElementById('vet-name-display');
         const pedidosContainer = document.getElementById('pedidos-container');
         const loadingMessage = document.getElementById('loading-message');
+        const filterForm = document.getElementById('filter-form');
+        
+        let allFetchedOrders = []; // Array para guardar todos los pedidos una vez
 
-        // --- Función principal para buscar y mostrar los pedidos ---
-        async function fetchAndDisplayOrders() {
-            // 1. Buscamos el nombre de la veterinaria guardado en el navegador
+        // --- Muestra los pedidos en pantalla según los filtros ---
+        function displayFilteredOrders() {
+            // Obtenemos los valores de los filtros
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const startName = document.getElementById('start-name').value.toUpperCase();
+            const endName = document.getElementById('end-name').value.toUpperCase();
+
+            // Usamos el array de pedidos ya descargado y lo filtramos
+            const filteredOrders = allFetchedOrders.filter(pedido => {
+                let dateMatch = true;
+                let nameMatch = true;
+
+                // 1. Comprobación de fecha
+                if (startDate && pedido.timestamp) {
+                    const orderDate = new Date(pedido.timestamp.seconds * 1000);
+                    if (orderDate < new Date(startDate)) dateMatch = false;
+                }
+                if (endDate && pedido.timestamp) {
+                    const orderDate = new Date(pedido.timestamp.seconds * 1000);
+                    // Añadimos un día al 'endDate' para incluir todo el día
+                    const endOfDay = new Date(endDate);
+                    endOfDay.setDate(endOfDay.getDate() + 1);
+                    if (orderDate > endOfDay) dateMatch = false;
+                }
+                
+                // 2. Comprobación de nombre
+                const petName = (pedido.petName || '').toUpperCase();
+                if (startName && petName < startName) nameMatch = false;
+                if (endName && petName > endName) nameMatch = false;
+
+                return dateMatch && nameMatch;
+            });
+
+            // Limpiamos el contenedor
+            pedidosContainer.innerHTML = '';
+
+            if (filteredOrders.length === 0) {
+                pedidosContainer.innerHTML = '<p class="text-center text-gray-500">No se encontraron pedidos que coincidan con los filtros.</p>';
+            } else {
+                // Mostramos los pedidos filtrados
+                filteredOrders.forEach(pedido => {
+                    const fecha = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000).toLocaleDateString() : 'N/A';
+                    const pedidoCard = document.createElement('div');
+                    pedidoCard.className = 'p-4 rounded-md shadow-sm order-card bg-gray-50';
+                    pedidoCard.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-gray-800">${pedido.petName || 'Sin nombre'}</h3>
+                            <span class="text-sm font-medium text-gray-600">${fecha}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <strong>Forma:</strong> ${pedido.shape} | <strong>Color:</strong> ${pedido.color}
+                        </p>
+                        ${pedido.phone ? `<p class="text-sm text-gray-700"><strong>Teléfono:</strong> ${pedido.phone}</p>` : ''}
+                        ${pedido.extraLine ? `<p class="text-sm text-gray-700"><strong>Línea Extra:</strong> ${pedido.extraLine}</p>` : ''}
+                    `;
+                    pedidosContainer.appendChild(pedidoCard);
+                });
+            }
+        }
+
+        // --- Descarga todos los pedidos de la veterinaria desde Firebase ---
+        async function fetchAllOrders() {
             const vetName = localStorage.getItem(VET_NAME_KEY);
 
             if (!vetName) {
-                // Si no hay veterinaria configurada, mostramos un mensaje y paramos.
-                loadingMessage.textContent = 'No hay una veterinaria configurada. Por favor, configure una desde el formulario de pedido.';
+                loadingMessage.textContent = 'No hay una veterinaria configurada.';
                 vetNameDisplay.textContent = 'Veterinaria no configurada';
                 return;
             }
 
-            // Mostramos el nombre de la veterinaria en el título
             vetNameDisplay.textContent = `Mostrando pedidos para: ${vetName}`;
 
             try {
-                // 2. Creamos la consulta a la base de datos
                 const pedidosRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
-                // Creamos una consulta para traer solo los pedidos que coincidan con el vetName
-                // y los ordenamos por fecha, del más nuevo al más viejo.
                 const q = query(pedidosRef, where("vetName", "==", vetName), orderBy("timestamp", "desc"));
-
-                // 3. Ejecutamos la consulta
                 const querySnapshot = await getDocs(q);
-
-                // Limpiamos el contenedor (quitamos el mensaje de "cargando")
-                pedidosContainer.innerHTML = '';
-
-                if (querySnapshot.empty) {
-                    // Si no se encontraron pedidos, mostramos un mensaje
-                    pedidosContainer.innerHTML = '<p class="text-center text-gray-500">No se encontraron pedidos para esta veterinaria.</p>';
-                } else {
-                    // 4. Si hay pedidos, los mostramos en pantalla
-                    querySnapshot.forEach((doc) => {
-                        const pedido = doc.data();
-                        
-                        // Formateamos la fecha para que sea legible
-                        const fecha = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000).toLocaleDateString() : 'Fecha no disponible';
-
-                        // Creamos una "tarjeta" de HTML para cada pedido
-                        const pedidoCard = document.createElement('div');
-                        pedidoCard.className = 'p-4 rounded-md shadow-sm order-card bg-gray-50';
-                        pedidoCard.innerHTML = `
-                            <div class="flex justify-between items-center">
-                                <h3 class="text-lg font-bold text-gray-800">${pedido.petName || 'Sin nombre'}</h3>
-                                <span class="text-sm font-medium text-gray-600">${fecha}</span>
-                            </div>
-                            <p class="text-sm text-gray-700 mt-1">
-                                <strong>Forma:</strong> ${pedido.shape} | <strong>Color:</strong> ${pedido.color}
-                            </p>
-                            ${pedido.phone ? `<p class="text-sm text-gray-700"><strong>Teléfono:</strong> ${pedido.phone}</p>` : ''}
-                            ${pedido.extraLine ? `<p class="text-sm text-gray-700"><strong>Línea Extra:</strong> ${pedido.extraLine}</p>` : ''}
-                        `;
-                        
-                        // Añadimos la tarjeta del pedido al contenedor
-                        pedidosContainer.appendChild(pedidoCard);
-                    });
-                }
+                
+                allFetchedOrders = querySnapshot.docs.map(doc => doc.data()); // Guardamos los pedidos en el array
+                
+                displayFilteredOrders(); // Mostramos los resultados iniciales (sin filtros)
             } catch (error) {
                 console.error("Error buscando los pedidos: ", error);
-                loadingMessage.textContent = 'Hubo un error al cargar los pedidos. Intente de nuevo.';
+                loadingMessage.textContent = 'Hubo un error al cargar los pedidos. Revise los índices de Firebase.';
             }
         }
+        
+        // --- Event Listener para el formulario de filtros ---
+        filterForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Evitamos que la página se recargue
+            displayFilteredOrders(); // Llamamos a la función que filtra y muestra
+        });
 
-        // Llamamos a la función principal cuando la página carga
-        fetchAndDisplayOrders();
-
+        // --- Llamada Inicial ---
+        fetchAllOrders();
     </script>
 </body>
 </html>
