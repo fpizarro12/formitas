@@ -1,3 +1,22 @@
+¡Mis disculpas! Entendí mal y nos saltamos la versión que te gustaba. Tienes toda la razón, volvamos al flujo de trabajo anterior que era más limpio, pero con el ajuste del campo "Mascota Desde" vacío.
+
+No te preocupes, he recuperado la versión del código que tenía la lógica correcta de ocultar los filtros y mostrar los resultados, y le he hecho el único cambio que pedías: que el campo "Mascota Desde" venga vacío por defecto.
+
+consulta.html - La Versión Definitiva (Ahora sí)
+Este código combina lo mejor de las dos versiones anteriores:
+
+✅ Flujo Correcto: Al cargar, solo se ven los filtros. Al aplicar, los filtros se ocultan y aparecen los resultados.
+
+✅ Botón "Modificar Filtros": Aparece con los resultados para permitirte hacer una nueva búsqueda.
+
+✅ Fechas Inteligentes: Las fechas por defecto siguen siendo la última semana.
+
+✅ Campo Vacío: El campo "Mascota Desde" ahora empieza completamente vacío, sin texto de ejemplo.
+
+Por favor, reemplaza por última vez el código de consulta.html en GitHub con esta versión.
+
+HTML
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -23,6 +42,7 @@
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
             <h2 class="text-3xl font-bold text-gray-700 mt-2">Consulta de Pedidos</h2>
             <p id="vet-name-display" class="text-lg text-gray-500 font-semibold"></p>
+            <button id="modify-filters-button" class="btn-secondary mt-4 hidden">Modificar Filtros</button>
         </header>
 
         <div id="filter-container" class="bg-white p-6 rounded-xl shadow-lg mb-8">
@@ -38,7 +58,7 @@
                 </div>
                 <div>
                     <label for="start-name" class="block text-sm font-medium text-gray-700">Mascota Desde</label>
-                    <input type="text" id="start-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="(Vacío para buscar desde la A)">
+                    <input type="text" id="start-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                 </div>
                 <div>
                     <label for="end-name" class="block text-sm font-medium text-gray-700">Mascota Hasta</label>
@@ -50,8 +70,8 @@
             </form>
         </div>
 
-        <main id="pedidos-container" class="bg-white p-6 rounded-xl shadow-lg space-y-4">
-            <p id="loading-message" class="text-center text-gray-500">Cargando pedidos...</p>
+        <main id="pedidos-container" class="bg-white p-6 rounded-xl shadow-lg space-y-4 hidden">
+            <p id="loading-message" class="text-center text-gray-500">Aplicando filtros...</p>
         </main>
         
         <footer class="text-center mt-8">
@@ -79,9 +99,11 @@
 
         const vetNameDisplay = document.getElementById('vet-name-display');
         const pedidosContainer = document.getElementById('pedidos-container');
+        const filterContainer = document.getElementById('filter-container');
         const filterForm = document.getElementById('filter-form');
+        const modifyFiltersButton = document.getElementById('modify-filters-button');
         
-        let allFetchedOrders = []; // Array para guardar todos los pedidos una vez
+        let allFetchedOrders = [];
 
         // --- LÓGICA DE LA APLICACIÓN ---
 
@@ -96,8 +118,11 @@
         }
 
         function displayFilteredOrders() {
-            pedidosContainer.innerHTML = '<p class="text-center text-gray-500">Filtrando pedidos...</p>';
-            
+            filterContainer.classList.add('hidden');
+            pedidosContainer.innerHTML = '<p id="loading-message" class="text-center text-gray-500">Aplicando filtros...</p>';
+            pedidosContainer.classList.remove('hidden');
+            modifyFiltersButton.classList.remove('hidden');
+
             const startDate = document.getElementById('start-date').value;
             const endDate = document.getElementById('end-date').value;
             const startName = document.getElementById('start-name').value.toUpperCase();
@@ -148,8 +173,7 @@
         async function fetchAllOrders() {
             const vetName = localStorage.getItem(VET_NAME_KEY);
             if (!vetName) {
-                pedidosContainer.innerHTML = '<p class="text-center text-red-600 font-semibold">No hay una veterinaria configurada. Por favor, configure una desde el formulario de pedido.</p>';
-                document.getElementById('filter-container').style.display = 'none'; // Ocultar filtros si no hay vet
+                filterContainer.innerHTML = '<p class="text-center text-red-600 font-semibold">No hay una veterinaria configurada. Por favor, configure una desde el formulario de pedido.</p>';
                 vetNameDisplay.textContent = 'Veterinaria no configurada';
                 return;
             }
@@ -161,7 +185,7 @@
                 allFetchedOrders = querySnapshot.docs.map(doc => doc.data());
             } catch (error) {
                 console.error("Error buscando los pedidos: ", error);
-                pedidosContainer.innerHTML = `<p class="text-center text-red-600 font-semibold">Hubo un error al cargar los datos iniciales. Error: ${error.message}</p>`;
+                filterContainer.innerHTML = `<p class="text-center text-red-600 font-semibold">Hubo un error al cargar los datos iniciales. Error: ${error.message}</p>`;
             }
         }
         
@@ -172,11 +196,16 @@
             displayFilteredOrders();
         });
 
+        modifyFiltersButton.addEventListener('click', () => {
+            pedidosContainer.classList.add('hidden');
+            modifyFiltersButton.classList.add('hidden');
+            filterContainer.classList.remove('hidden');
+        });
+
         async function main() {
             setDefaultDates();
             await fetchAllOrders();
-            // Inmediatamente después de traer los datos, los mostramos filtrados por los valores por defecto
-            displayFilteredOrders();
+            // Ya no mostramos los pedidos al cargar, esperamos a que el usuario aplique filtros.
         }
 
         main();
