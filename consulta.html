@@ -23,7 +23,6 @@
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
             <h2 class="text-3xl font-bold text-gray-700 mt-2">Consulta de Pedidos</h2>
             <p id="vet-name-display" class="text-lg text-gray-500 font-semibold"></p>
-            <button id="new-filter-button" class="btn-secondary mt-4 hidden">Nueva Búsqueda</button>
         </header>
 
         <div id="filter-container" class="bg-white p-6 rounded-xl shadow-lg mb-8">
@@ -39,7 +38,7 @@
                 </div>
                 <div>
                     <label for="start-name" class="block text-sm font-medium text-gray-700">Mascota Desde</label>
-                    <input type="text" id="start-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="A">
+                    <input type="text" id="start-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="(Vacío para buscar desde la A)">
                 </div>
                 <div>
                     <label for="end-name" class="block text-sm font-medium text-gray-700">Mascota Hasta</label>
@@ -51,8 +50,8 @@
             </form>
         </div>
 
-        <main id="pedidos-container" class="bg-white p-6 rounded-xl shadow-lg space-y-4 hidden">
-            <p id="loading-message" class="text-center text-gray-500">Aplicando filtros...</p>
+        <main id="pedidos-container" class="bg-white p-6 rounded-xl shadow-lg space-y-4">
+            <p id="loading-message" class="text-center text-gray-500">Cargando pedidos...</p>
         </main>
         
         <footer class="text-center mt-8">
@@ -80,36 +79,25 @@
 
         const vetNameDisplay = document.getElementById('vet-name-display');
         const pedidosContainer = document.getElementById('pedidos-container');
-        const filterContainer = document.getElementById('filter-container');
         const filterForm = document.getElementById('filter-form');
-        const newFilterButton = document.getElementById('new-filter-button');
         
-        let allFetchedOrders = [];
+        let allFetchedOrders = []; // Array para guardar todos los pedidos una vez
 
         // --- LÓGICA DE LA APLICACIÓN ---
 
-        // Función para establecer las fechas por defecto
         function setDefaultDates() {
             const endDateInput = document.getElementById('end-date');
             const startDateInput = document.getElementById('start-date');
-
             const today = new Date();
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(today.getDate() - 7);
-
-            // Formato YYYY-MM-DD
             endDateInput.value = today.toISOString().split('T')[0];
             startDateInput.value = sevenDaysAgo.toISOString().split('T')[0];
         }
 
-        // Muestra los pedidos filtrados en pantalla
         function displayFilteredOrders() {
-            filterContainer.classList.add('hidden'); // Ocultamos filtros
-            pedidosContainer.innerHTML = '<p id="loading-message" class="text-center text-gray-500">Aplicando filtros...</p>'; // Mensaje de carga
-            pedidosContainer.classList.remove('hidden'); // Mostramos resultados
-            newFilterButton.classList.remove('hidden'); // Mostramos botón de nueva búsqueda
-
-            // ... (resto de la lógica de filtrado y renderizado es la misma)
+            pedidosContainer.innerHTML = '<p class="text-center text-gray-500">Filtrando pedidos...</p>';
+            
             const startDate = document.getElementById('start-date').value;
             const endDate = document.getElementById('end-date').value;
             const startName = document.getElementById('start-name').value.toUpperCase();
@@ -157,16 +145,15 @@
             }
         }
 
-        // Descarga todos los pedidos de Firebase
         async function fetchAllOrders() {
             const vetName = localStorage.getItem(VET_NAME_KEY);
             if (!vetName) {
-                filterContainer.innerHTML = '<p class="text-center text-red-600 font-semibold">No hay una veterinaria configurada. Por favor, configure una desde el formulario de pedido.</p>';
+                pedidosContainer.innerHTML = '<p class="text-center text-red-600 font-semibold">No hay una veterinaria configurada. Por favor, configure una desde el formulario de pedido.</p>';
+                document.getElementById('filter-container').style.display = 'none'; // Ocultar filtros si no hay vet
                 vetNameDisplay.textContent = 'Veterinaria no configurada';
                 return;
             }
             vetNameDisplay.textContent = `Veterinaria: ${vetName}`;
-
             try {
                 const pedidosRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
                 const q = query(pedidosRef, where("vetName", "==", vetName), orderBy("timestamp", "desc"));
@@ -174,33 +161,27 @@
                 allFetchedOrders = querySnapshot.docs.map(doc => doc.data());
             } catch (error) {
                 console.error("Error buscando los pedidos: ", error);
-                filterContainer.innerHTML = `<p class="text-center text-red-600 font-semibold">Hubo un error al cargar los datos iniciales. Error: ${error.message}</p>`;
+                pedidosContainer.innerHTML = `<p class="text-center text-red-600 font-semibold">Hubo un error al cargar los datos iniciales. Error: ${error.message}</p>`;
             }
         }
         
         // --- EVENT LISTENERS E INICIALIZACIÓN ---
         
-        // Al enviar el formulario de filtros
         filterForm.addEventListener('submit', (e) => {
             e.preventDefault();
             displayFilteredOrders();
         });
 
-        // Al hacer clic en "Nueva Búsqueda"
-        newFilterButton.addEventListener('click', () => {
-            pedidosContainer.classList.add('hidden');
-            newFilterButton.classList.add('hidden');
-            filterContainer.classList.remove('hidden');
-        });
-
-        // Función principal que se ejecuta al cargar la página
         async function main() {
             setDefaultDates();
             await fetchAllOrders();
+            // Inmediatamente después de traer los datos, los mostramos filtrados por los valores por defecto
+            displayFilteredOrders();
         }
 
         main();
     </script>
 </body>
 </html>
+
 
