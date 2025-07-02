@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Pedidos - Formitas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
+        .font-formitas { font-family: 'Comic Neue', cursive; }
+        th { @apply px-4 py-2 bg-gray-200 text-left text-sm font-bold text-gray-700 uppercase; }
+        td { @apply px-4 py-2 border-b border-gray-200; }
+        tr:nth-child(even) { background-color: #f9fafb; }
+    </style>
+</head>
+<body class="py-12">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
+            <h2 class="text-3xl font-bold text-gray-700 mt-2">Panel de Administración</h2>
+        </header>
+
+        <main class="bg-white rounded-xl shadow-lg overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <!-- CABECERAS DE LA TABLA ACTUALIZADAS -->
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Veterinaria</th>
+                        <th>Modelo (Forma)</th>
+                        <th>Color</th>
+                        <th>Mascota</th>
+                        <th>Telefono</th>
+                        <th>Atras (Linea Extra)</th>
+                        <th>Observaciones</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                    <!-- Las filas de los pedidos se cargarán aquí -->
+                    <tr>
+                        <!-- Colspan actualizado a 9 -->
+                        <td colspan="9" class="text-center py-8 text-gray-500">Cargando pedidos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <!-- === INICIO DEL CÓDIGO JAVASCRIPT === -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Misma configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ",
+            authDomain: "pedidos-formitas.firebaseapp.com",
+            projectId: "pedidos-formitas",
+            storageBucket: "pedidos-formitas.appspot.com",
+            messagingSenderId: "745379401007",
+            appId: "1:745379401007:web:c41a2d3d33f4b8582365da"
+        };
+        const appId = 'pet-tags-split-app';
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const tableBody = document.getElementById('orders-table-body');
+
+        async function fetchAllOrders() {
+            try {
+                const pedidosRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
+                const q = query(pedidosRef, orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+
+                tableBody.innerHTML = ''; 
+
+                if (querySnapshot.empty) {
+                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No hay pedidos para mostrar.</td></tr>';
+                    return;
+                }
+
+                querySnapshot.forEach(doc => {
+                    const pedido = doc.data();
+                    const fecha = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
+
+                    const row = document.createElement('tr');
+                    // CONTENIDO DE LA FILA ACTUALIZADO CON EL NUEVO ORDEN Y CAMPOS
+                    row.innerHTML = `
+                        <td>${fecha}</td>
+                        <td>${pedido.vetName || ''}</td>
+                        <td>${pedido.shape || ''}</td>
+                        <td>${pedido.color || ''}</td>
+                        <td>${pedido.petName || ''}</td>
+                        <td>${pedido.phone || ''}</td>
+                        <td>${pedido.extraLine || ''}</td>
+                        <td>${pedido.observations || ''}</td>
+                        <td>${pedido.status || 'Pendiente'}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error("Error al cargar los pedidos: ", error);
+                tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-red-500">Error al cargar pedidos: ${error.message}</td></tr>`;
+            }
+        }
+
+        fetchAllOrders();
+    </script>
+</body>
+</html>
