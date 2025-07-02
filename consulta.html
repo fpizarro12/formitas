@@ -11,9 +11,30 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
-        .btn-primary { background-color: #ef4444; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid #b91c1c; }
-        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; }
-        .order-card { border-left: 5px solid #ef4444; }
+        
+        .btn-primary { /* VERDE */
+            background-color: #16a34a;
+            color: white;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid #14532d;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover { background-color: #15803d; }
+
+        .btn-secondary { /* GRIS */
+            background-color: #e5e7eb;
+            color: #1f2937;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #6b7280;
+            transition: background-color 0.3s;
+        }
+        .btn-secondary:hover { background-color: #d4d6da; }
+
+        .order-card { border-left: 5px solid #16a34a; } /* Borde verde para las tarjetas */
     </style>
 </head>
 <body class="flex flex-col items-center min-h-screen py-12">
@@ -64,29 +85,17 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Configuración y Elementos DOM ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ",
-            authDomain: "pedidos-formitas.firebaseapp.com",
-            projectId: "pedidos-formitas",
-            storageBucket: "pedidos-formitas.appspot.com",
-            messagingSenderId: "745379401007",
-            appId: "1:745379401007:web:c41a2d3d33f4b8582365da"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
         const appId = 'pet-tags-split-app';
         const VET_NAME_KEY = 'veterinaryName';
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
         const vetNameDisplay = document.getElementById('vet-name-display');
         const pedidosContainer = document.getElementById('pedidos-container');
         const filterContainer = document.getElementById('filter-container');
         const filterForm = document.getElementById('filter-form');
         const modifyFiltersButton = document.getElementById('modify-filters-button');
-        
         let allFetchedOrders = [];
-
-        // --- LÓGICA DE LA APLICACIÓN ---
 
         function setDefaultDates() {
             const endDateInput = document.getElementById('end-date');
@@ -103,16 +112,13 @@
             pedidosContainer.innerHTML = '<p id="loading-message" class="text-center text-gray-500">Aplicando filtros...</p>';
             pedidosContainer.classList.remove('hidden');
             modifyFiltersButton.classList.remove('hidden');
-
             const startDate = document.getElementById('start-date').value;
             const endDate = document.getElementById('end-date').value;
             const startName = document.getElementById('start-name').value.toUpperCase();
             const endName = document.getElementById('end-name').value.toUpperCase();
-
             const filteredOrders = allFetchedOrders.filter(pedido => {
                 let dateMatch = true;
                 let nameMatch = true;
-
                 if (startDate && pedido.timestamp) {
                     if (new Date(pedido.timestamp.seconds * 1000) < new Date(startDate)) dateMatch = false;
                 }
@@ -121,14 +127,11 @@
                     endOfDay.setDate(endOfDay.getDate() + 1);
                     if (new Date(pedido.timestamp.seconds * 1000) > endOfDay) dateMatch = false;
                 }
-                
                 const petName = (pedido.petName || '').toUpperCase();
                 if (startName && petName < startName) nameMatch = false;
                 if (endName && petName > endName) nameMatch = false;
-
                 return dateMatch && nameMatch;
             });
-
             pedidosContainer.innerHTML = '';
             if (filteredOrders.length === 0) {
                 pedidosContainer.innerHTML = '<p class="text-center text-gray-500">No se encontraron pedidos que coincidan con los filtros.</p>';
@@ -170,8 +173,6 @@
             }
         }
         
-        // --- EVENT LISTENERS E INICIALIZACIÓN ---
-        
         filterForm.addEventListener('submit', (e) => {
             e.preventDefault();
             displayFilteredOrders();
@@ -186,13 +187,13 @@
         async function main() {
             setDefaultDates();
             await fetchAllOrders();
-            // Ya no mostramos los pedidos al cargar, esperamos a que el usuario aplique filtros.
         }
 
         main();
     </script>
 </body>
 </html>
+
 
 
 
