@@ -12,16 +12,16 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
         
-        /* === ESTILOS DE TABLA MODIFICADOS === */
+        /* Estilos para la tabla tipo Excel */
         th { 
             @apply px-4 py-2 bg-gray-200 text-left text-sm font-bold text-gray-700 uppercase border border-gray-300; 
         }
         td { 
             @apply px-4 py-2 border border-gray-300; 
         }
-        /* === FIN DE ESTILOS MODIFICADOS === */
-
-        tr:nth-child(even) { background-color: #f9fafb; }
+        tr:nth-child(even) td { 
+            background-color: #f9fafb; 
+        }
     </style>
 </head>
 <body class="py-12">
@@ -33,9 +33,9 @@
         </header>
 
         <main class="bg-white rounded-xl shadow-lg overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 border-collapse">
+            <!-- LÍNEA MODIFICADA: Se quitó 'divide-y divide-gray-200' -->
+            <table class="min-w-full border-collapse">
                 <thead>
-                    <!-- CABECERAS DE LA TABLA ACTUALIZADAS -->
                     <tr>
                         <th>Fecha</th>
                         <th>Veterinaria</th>
@@ -49,9 +49,7 @@
                     </tr>
                 </thead>
                 <tbody id="orders-table-body">
-                    <!-- Las filas de los pedidos se cargarán aquí -->
                     <tr>
-                        <!-- Colspan actualizado a 9 -->
                         <td colspan="9" class="text-center py-8 text-gray-500">Cargando pedidos...</td>
                     </tr>
                 </tbody>
@@ -59,12 +57,11 @@
         </main>
     </div>
 
-    <!-- === INICIO DEL CÓDIGO JAVASCRIPT === -->
+    <!-- El código JavaScript no necesita cambios -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Misma configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ",
             authDomain: "pedidos-formitas.firebaseapp.com",
@@ -97,7 +94,6 @@
                     const fecha = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
 
                     const row = document.createElement('tr');
-                    // CONTENIDO DE LA FILA ACTUALIZADO CON EL NUEVO ORDEN Y CAMPOS
                     row.innerHTML = `
                         <td>${fecha}</td>
                         <td>${pedido.vetName || ''}</td>
@@ -122,5 +118,6 @@
     </script>
 </body>
 </html>
+
 
 
