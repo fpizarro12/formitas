@@ -17,38 +17,36 @@
     <link rel="apple-touch-icon" href="https://i.imgur.com/EyqPrSq.png">
 
     <style>
-        body { 
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5; 
-        }
-        .font-formitas {
-            font-family: 'Comic Neue', cursive;
-        }
-        /* === ESTILO MODIFICADO === */
-        .btn-primary {
-            background-color: #16a34a; /* Color Verde (antes rojo) */
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
+        .font-formitas { font-family: 'Comic Neue', cursive; }
+        
+        /* === ESTILOS DE BOTONES ACTUALIZADOS === */
+        .btn-primary { /* VERDE: Confirmar, Aceptar, Enviar */
+            background-color: #16a34a; 
             color: white;
             font-weight: bold;
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             transition: all 0.3s ease-in-out;
-            border: 2px solid #14532d; /* Borde Verde Oscuro (antes rojo) */
+            border: 2px solid #14532d;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        .btn-primary:hover {
-            background-color: #15803d; /* Verde más oscuro para hover */
+        .btn-primary:hover { background-color: #15803d; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-danger { /* ROJO: Cancelar, Borrar */
+            background-color: #ef4444;
+            color: white;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease-in-out;
+            border: 2px solid #b91c1c;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        .btn-primary:focus {
-            outline: none;
-            --tw-ring-color: #16a34a; /* Color del anillo de foco a verde */
-            box-shadow: 0 0 0 3px var(--tw-ring-color);
-        }
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        /* === FIN DE ESTILO MODIFICADO === */
-        .btn-secondary {
+        .btn-danger:hover { background-color: #dc2626; }
+
+        .btn-secondary { /* GRIS: Acciones neutrales */
             background-color: #e5e7eb;
             color: #1f2937;
             font-weight: 600;
@@ -58,58 +56,17 @@
             border: 1px solid #6b7280;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
-        .btn-secondary:hover {
-            background-color: #d4d6da;
-        }
-        .toast {
-            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center;
-            border-radius: 8px; padding: 16px; position: fixed; z-index: 60; left: 50%;
-            transform: translateX(-50%); bottom: 30px; opacity: 0;
-            transition: all 0.5s ease-in-out;
-        }
+        .btn-secondary:hover { background-color: #d4d6da; }
+        /* === FIN DE ESTILOS DE BOTONES === */
+
+        .toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: 30px; opacity: 0; transition: all 0.5s ease-in-out; }
         .toast.show { visibility: visible; opacity: 1; }
         .modal-backdrop { @apply fixed inset-0 bg-gray-900 bg-opacity-60 z-40; }
-        .modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            width: 100%;
-            max-width: 24rem;
-            z-index: 50;
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-        }
-        .form-container {
-            border: 4px solid #06b6d4;
-            position: relative;
-            background-color: white;
-        }
-        .form-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐾</text></svg>');
-            background-repeat: repeat;
-            background-size: 120px;
-            opacity: 0.05;
-            z-index: 0;
-        }
-        .header-container {
-            position: relative;
-        }
-        .dog-icon, .cat-icon {
-            position: absolute;
-            bottom: 45px;
-            width: 70px;
-            height: 70px;
-            pointer-events: none;
-        }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; border-radius: 0.5rem; padding: 1.5rem; width: 100%; max-width: 24rem; z-index: 50; box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); }
+        .form-container { border: 4px solid #06b6d4; position: relative; background-color: white; }
+        .form-container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐾</text></svg>'); background-repeat: repeat; background-size: 120px; opacity: 0.05; z-index: 0; }
+        .header-container { position: relative; }
+        .dog-icon, .cat-icon { position: absolute; bottom: 45px; width: 70px; height: 70px; pointer-events: none; }
         .dog-icon { left: -20px; }
         .cat-icon { right: -20px; }
         #confirmationModal { border: 4px solid #06b6d4; }
@@ -118,21 +75,14 @@
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen py-12">
-
     <div class="container mx-auto p-4 md:p-8 max-w-lg">
-        
         <header id="mainHeader" class="text-center mb-6 header-container">
-            <div class="dog-icon">
-                <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M5,80 C5,70 25,70 25,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M95,80 C95,70 75,70 75,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M10,70 Q50,10 90,70" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M10,50 C-10,50 0,20 20,30" fill="#A67B5B"/><path d="M90,50 C110,50 100,20 80,30" fill="#A67B5B"/><circle cx="35" cy="55" r="5" fill="#2c2c2c"/><circle cx="65" cy="55" r="5" fill="#2c2c2c"/><ellipse cx="50" cy="65" rx="8" ry="5" fill="#2c2c2c"/></svg>
-            </div>
-             <div class="cat-icon">
-                <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M5,80 C5,70 25,70 25,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M95,80 C95,70 75,70 75,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M10,70 Q50,20 90,70" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M10,40 L30,15 L40,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M90,40 L70,15 L60,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><circle cx="38" cy="55" r="4" fill="#2c2c2c"/><circle cx="62" cy="55" r="4" fill="#2c2c2c"/><path d="M45,65 Q50,70 55,65" stroke="#2c2c2c" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M20,60 L35,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M22,65 L35,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M80,60 L65,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M78,65 L65,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/></svg>
-            </div>
+            <div class="dog-icon"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M5,80 C5,70 25,70 25,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M95,80 C95,70 75,70 75,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M10,70 Q50,10 90,70" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M10,50 C-10,50 0,20 20,30" fill="#A67B5B"/><path d="M90,50 C110,50 100,20 80,30" fill="#A67B5B"/><circle cx="35" cy="55" r="5" fill="#2c2c2c"/><circle cx="65" cy="55" r="5" fill="#2c2c2c"/><ellipse cx="50" cy="65" rx="8" ry="5" fill="#2c2c2c"/></svg></div>
+            <div class="cat-icon"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M5,80 C5,70 25,70 25,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M95,80 C95,70 75,70 75,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M10,70 Q50,20 90,70" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M10,40 L30,15 L40,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M90,40 L70,15 L60,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><circle cx="38" cy="55" r="4" fill="#2c2c2c"/><circle cx="62" cy="55" r="4" fill="#2c2c2c"/><path d="M45,65 Q50,70 55,65" stroke="#2c2c2c" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M20,60 L35,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M22,65 L35,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M80,60 L65,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M78,65 L65,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/></svg></div>
             <h1 class="font-formitas text-6xl md:text-7xl font-bold text-red-500">Formitas</h1>
             <p class="text-gray-600 -mt-2 text-lg">bijou para mascotas</p>
             <h2 class="text-2xl md:text-3xl font-bold text-gray-700 mt-6">Nuevo Pedido de Medalla</h2>
         </header>
-
         <div id="mainContent" class="form-container p-8 rounded-xl shadow-lg">
             <div class="relative z-10">
                 <form id="orderForm">
@@ -174,7 +124,7 @@
                         </div>
                     </div>
                     <div class="mt-8 flex gap-4">
-                        <button type="button" id="cancelOrderButton" class="w-full btn-secondary">Cancelar Pedido</button>
+                        <button type="button" id="cancelOrderButton" class="w-full btn-danger">Cancelar Pedido</button>
                         <button type="submit" id="submitButton" class="w-full btn-primary">Enviar Pedido</button>
                     </div>
                 </form>
@@ -209,7 +159,7 @@
         <h3 class="text-xl font-bold text-gray-800 mb-4">Confirmar Pedido</h3>
         <div id="confirmationSummary" class="text-left text-sm space-y-2"></div>
         <div class="mt-6 flex justify-end gap-4">
-            <button type="button" id="cancelSendButton" class="btn-secondary">CANCELA</button>
+            <button type="button" id="cancelSendButton" class="btn-danger">CANCELA</button>
             <button type="button" id="confirmSendButton" class="btn-primary">OK</button>
         </div>
     </div>
@@ -218,23 +168,12 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- Configuration ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ",
-            authDomain: "pedidos-formitas.firebaseapp.com",
-            projectId: "pedidos-formitas",
-            storageBucket: "pedidos-formitas.appspot.com",
-            messagingSenderId: "745379401007",
-            appId: "1:745379401007:web:c41a2d3d33f4b8582365da"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
         const appId = 'pet-tags-split-app';
         const VET_NAME_KEY = 'veterinaryName';
         const SETUP_PASSWORD = 'formitaspets2025';
         let db;
         let pendingOrderData = null;
-
-        // --- DOM Elements ---
         const orderForm = document.getElementById('orderForm');
         const submitButton = document.getElementById('submitButton');
         const setupButton = document.getElementById('setupButton');
@@ -255,10 +194,7 @@
         const cancelOrderButton = document.getElementById('cancelOrderButton');
         const shapeSelect = document.getElementById('shape');
         const colorSelect = document.getElementById('color');
-
         let currentModalStep = 'password';
-
-        // --- UI & Setup Functions ---
         function toggleFormElements(disabled) {
             const formElements = orderForm.querySelectorAll('input, select, textarea, button');
             formElements.forEach(element => {
@@ -337,7 +273,6 @@
             colorSelect.selectedIndex = 0;
             document.getElementById('observations').value = '';
         }
-        // --- Form Logic ---
         function showConfirmation(orderData) {
             pendingOrderData = orderData;
             confirmationSummary.innerHTML = `
@@ -395,7 +330,6 @@
             };
             showConfirmation(orderData);
         }
-        // --- App Initialization ---
         function main() {
             checkAndSetupVeterinaryName();
             setupButton.addEventListener('click', handleSetup);
@@ -425,5 +359,6 @@
     </script>
 </body>
 </html>
+
 
 
