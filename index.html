@@ -10,13 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="manifest" href="manifest.json">
-
     <meta name="theme-color" content="#ef4444">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Pedidos Vet">
-
     <link rel="apple-touch-icon" href="https://i.imgur.com/EyqPrSq.png">
 
     <style>
@@ -27,41 +24,42 @@
         .font-formitas {
             font-family: 'Comic Neue', cursive;
         }
+        /* === ESTILO MODIFICADO === */
         .btn-primary {
-            background-color: #ef4444; /* bg-red-500 */
-            color: white; /* text-white */
-            font-weight: bold; /* font-bold */
-            padding: 0.5rem 1rem; /* py-2 px-4 */
-            border-radius: 0.5rem; /* rounded-lg */
-            transition: all 0.3s ease-in-out; /* transition-all duration-300 */
-            border: 2px solid #b91c1c; /* border-red-700 - Ajusté el grosor a 2px para que se note más */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* shadow-md - Ajusté los valores para una sombra sutil */
+            background-color: #16a34a; /* Color Verde (antes rojo) */
+            color: white;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease-in-out;
+            border: 2px solid #14532d; /* Borde Verde Oscuro (antes rojo) */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         .btn-primary:hover {
-            background-color: #dc2626; /* hover:bg-red-600 */
+            background-color: #15803d; /* Verde más oscuro para hover */
         }
         .btn-primary:focus {
-            outline: none; /* focus:outline-none */
-            ring-width: 2px; /* focus:ring-2 */
-            ring-offset: 2px; /* focus:ring-offset-2 */
-            ring-color: #ef4444; /* focus:ring-red-500 */
+            outline: none;
+            --tw-ring-color: #16a34a; /* Color del anillo de foco a verde */
+            box-shadow: 0 0 0 3px var(--tw-ring-color);
         }
         .btn-primary:disabled {
-            opacity: 0.5; /* disabled:opacity-50 */
-            cursor: not-allowed; /* disabled:cursor-not-allowed */
+            opacity: 0.5;
+            cursor: not-allowed;
         }
+        /* === FIN DE ESTILO MODIFICADO === */
         .btn-secondary {
-            background-color: #e5e7eb; /* bg-gray-200 */
-            color: #1f2937; /* text-gray-800 */
-            font-weight: 600; /* font-semibold */
-            padding: 0.5rem 1rem; /* py-2 px-4 */
-            border-radius: 0.5rem; /* rounded-lg */
-            transition: all 0.3s ease-in-out; /* transition-all duration-300 */
-            border: 1px solid #6b7280; /* border-gray-400 - Ajusté el grosor a 1px */
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* shadow-md - Ajusté los valores */
+            background-color: #e5e7eb;
+            color: #1f2937;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease-in-out;
+            border: 1px solid #6b7280;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         .btn-secondary:hover {
-            background-color: #d4d6da; /* hover:bg-gray-300 */
+            background-color: #d4d6da;
         }
         .toast {
             visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center;
@@ -77,16 +75,15 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background-color: white;
-            border-radius: 0.5rem; /* rounded-lg */
-            padding: 1.5rem; /* p-6 */
+            border-radius: 0.5rem;
+            padding: 1.5rem;
             width: 100%;
-            max-width: 24rem; /* max-w-sm */
+            max-width: 24rem;
             z-index: 50;
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); /* shadow-2xl */
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
         }
-        
         .form-container {
-            border: 4px solid #06b6d4; /* Borde Cyan */
+            border: 4px solid #06b6d4;
             position: relative;
             background-color: white;
         }
@@ -113,18 +110,11 @@
             height: 70px;
             pointer-events: none;
         }
-        .dog-icon {
-            left: -20px;
-        }
-        .cat-icon {
-            right: -20px;
-        }
-        #confirmationModal {
-             border: 4px solid #06b6d4;
-        }
+        .dog-icon { left: -20px; }
+        .cat-icon { right: -20px; }
+        #confirmationModal { border: 4px solid #06b6d4; }
         #confirmationSummary li { @apply border-b border-gray-200 py-2; }
         #confirmationSummary li strong { @apply font-semibold text-gray-700; }
-
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen py-12">
@@ -133,32 +123,10 @@
         
         <header id="mainHeader" class="text-center mb-6 header-container">
             <div class="dog-icon">
-                <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5,80 C5,70 25,70 25,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/>
-                    <path d="M95,80 C95,70 75,70 75,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/>
-                    <path d="M10,70 Q50,10 90,70" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/>
-                    <path d="M10,50 C-10,50 0,20 20,30" fill="#A67B5B"/>
-                    <path d="M90,50 C110,50 100,20 80,30" fill="#A67B5B"/>
-                    <circle cx="35" cy="55" r="5" fill="#2c2c2c"/>
-                    <circle cx="65" cy="55" r="5" fill="#2c2c2c"/>
-                    <ellipse cx="50" cy="65" rx="8" ry="5" fill="#2c2c2c"/>
-                </svg>
+                <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M5,80 C5,70 25,70 25,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M95,80 C95,70 75,70 75,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M10,70 Q50,10 90,70" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M10,50 C-10,50 0,20 20,30" fill="#A67B5B"/><path d="M90,50 C110,50 100,20 80,30" fill="#A67B5B"/><circle cx="35" cy="55" r="5" fill="#2c2c2c"/><circle cx="65" cy="55" r="5" fill="#2c2c2c"/><ellipse cx="50" cy="65" rx="8" ry="5" fill="#2c2c2c"/></svg>
             </div>
              <div class="cat-icon">
-                <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5,80 C5,70 25,70 25,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/>
-                    <path d="M95,80 C95,70 75,70 75,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/>
-                    <path d="M10,70 Q50,20 90,70" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/>
-                    <path d="M10,40 L30,15 L40,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/>
-                    <path d="M90,40 L70,15 L60,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/>
-                    <circle cx="38" cy="55" r="4" fill="#2c2c2c"/>
-                    <circle cx="62" cy="55" r="4" fill="#2c2c2c"/>
-                    <path d="M45,65 Q50,70 55,65" stroke="#2c2c2c" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    <path d="M20,60 L35,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M22,65 L35,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M80,60 L65,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M78,65 L65,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
+                <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M5,80 C5,70 25,70 25,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M95,80 C95,70 75,70 75,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M10,70 Q50,20 90,70" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M10,40 L30,15 L40,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M90,40 L70,15 L60,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><circle cx="38" cy="55" r="4" fill="#2c2c2c"/><circle cx="62" cy="55" r="4" fill="#2c2c2c"/><path d="M45,65 Q50,70 55,65" stroke="#2c2c2c" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M20,60 L35,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M22,65 L35,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M80,60 L65,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M78,65 L65,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/></svg>
             </div>
             <h1 class="font-formitas text-6xl md:text-7xl font-bold text-red-500">Formitas</h1>
             <p class="text-gray-600 -mt-2 text-lg">bijou para mascotas</p>
@@ -176,33 +144,33 @@
                         </div>
                         <div>
                             <label for="petName" class="block text-sm font-medium text-gray-700">Nombre de la Mascota</label>
-                            <input type="text" id="petName" name="petName" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                            <input type="text" id="petName" name="petName" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm">
                         </div>
                         <div>
                             <label for="phone" class="block text-sm font-medium text-gray-700">Telefono / Texto</label>
-                            <input type="text" id="phone" name="phone" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                            <input type="text" id="phone" name="phone" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm">
                         </div>
                         <div>
                             <label for="extraLine" class="block text-sm font-medium text-gray-700">Linea Extra</label>
-                            <input type="text" id="extraLine" name="extraLine" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" placeholder="(Opcional)">
+                            <input type="text" id="extraLine" name="extraLine" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm" placeholder="(Opcional)">
                         </div>
                         <div>
                             <label for="shape" class="block text-sm font-medium text-gray-700">Forma de la Medalla <span class="text-red-500">*</span></label>
-                            <select id="shape" name="shape" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                            <select id="shape" name="shape" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm">
                                 <option value="">Seleccione una forma</option>
                                 <option>Bulldog</option><option>Cat</option><option>Collar</option><option>Corazon</option><option>Estrella</option><option>Hueso Chico</option><option>Hueso Grande</option><option>Huella</option><option>Mini</option><option>Pez</option><option>Recta</option><option>Redonda</option>
                             </select>
                         </div>
                         <div>
                             <label for="color" class="block text-sm font-medium text-gray-700">Color de la Medalla <span class="text-red-500">*</span></label>
-                            <select id="color" name="color" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                            <select id="color" name="color" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm">
                                 <option value="">Seleccione un color</option>
                                 <option>Azul</option><option>Negro</option><option>Oro</option><option>Plata</option><option>Rojo</option><option>Violeta</option>
                             </select>
                         </div>
                          <div>
                             <label for="observations" class="block text-sm font-medium text-gray-700">Observaciones</label>
-                            <textarea id="observations" name="observations" rows="2" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" placeholder="(Opcional)"></textarea>
+                            <textarea id="observations" name="observations" rows="2" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm" placeholder="(Opcional)"></textarea>
                         </div>
                     </div>
                     <div class="mt-8 flex gap-4">
@@ -224,13 +192,13 @@
         <div data-step="password">
             <h3 class="text-xl font-bold text-gray-800 mb-2">Configuracion</h3>
             <p class="text-gray-600 mb-4">Por favor, ingrese la clave de configuracion.</p>
-            <input type="password" id="passwordInput" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+            <input type="password" id="passwordInput" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm">
             <p id="passwordError" class="text-xs text-red-600 mt-1 hidden">Clave incorrecta.</p>
         </div>
         <div class="hidden" data-step="vetName">
             <h3 class="text-xl font-bold text-gray-800 mb-2">Nombre de la Veterinaria</h3>
             <p class="text-gray-600 mb-4">Clave correcta. Ahora ingrese el nombre.</p>
-            <input type="text" id="newVetNameInput" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" required>
+            <input type="text" id="newVetNameInput" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm" required>
         </div>
         <div class="mt-6 flex justify-end gap-4">
             <button type="button" id="modalCancel" class="btn-secondary">Cancelar</button>
@@ -260,7 +228,6 @@
             messagingSenderId: "745379401007",
             appId: "1:745379401007:web:c41a2d3d33f4b8582365da"
         };
-        
         const appId = 'pet-tags-split-app';
         const VET_NAME_KEY = 'veterinaryName';
         const SETUP_PASSWORD = 'formitaspets2025';
@@ -300,14 +267,12 @@
                 }
             });
         }
-
         function showToast(message, isError = false) {
             toast.textContent = message;
             toast.style.backgroundColor = isError ? '#ef4444' : '#333';
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
-        
         function checkAndSetupVeterinaryName() {
             const savedVetName = localStorage.getItem(VET_NAME_KEY);
             if (savedVetName) {
@@ -321,17 +286,14 @@
                 toggleFormElements(true);
             }
         }
-
         function openModal(modal) {
             modal.classList.remove('hidden');
             modalBackdrop.classList.remove('hidden');
         }
-
         function closeModal(modal) {
             modal.classList.add('hidden');
             modalBackdrop.classList.add('hidden');
         }
-
         function handleSetup() {
             currentModalStep = 'password';
             setupModal.querySelector('[data-step="password"]').classList.remove('hidden');
@@ -343,7 +305,6 @@
             openModal(setupModal);
             passwordInput.focus();
         }
-
         function handleModalConfirmClick() {
             if (currentModalStep === 'password') {
                 if (passwordInput.value === SETUP_PASSWORD) {
@@ -368,8 +329,6 @@
                 }
             }
         }
-        
-        // FUNCIÓN MODIFICADA
         function clearForm() {
             document.getElementById('petName').value = '';
             document.getElementById('phone').value = '';
@@ -377,9 +336,7 @@
             shapeSelect.selectedIndex = 0;
             colorSelect.selectedIndex = 0;
             document.getElementById('observations').value = '';
-            // Se elimina la línea document.getElementById('petName').focus();
         }
-        
         // --- Form Logic ---
         function showConfirmation(orderData) {
             pendingOrderData = orderData;
@@ -395,20 +352,15 @@
             `;
             openModal(confirmationModal);
         }
-
         async function sendOrderToFirebase() {
             if (!pendingOrderData) return;
-
             submitButton.disabled = true;
             submitButton.textContent = 'Enviando...';
             confirmSendButton.disabled = true;
-
             try {
                 if (!db) throw new Error("DB not initialized");
-                
                 const collectionRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
                 await addDoc(collectionRef, pendingOrderData);
-                
                 showToast('Pedido enviado con exito!');
                 clearForm();
                 closeModal(confirmationModal);
@@ -424,15 +376,12 @@
                 }
             }
         }
-
         function handleOrderFormSubmit(e) {
             e.preventDefault();
-
             if (!shapeSelect.value || !colorSelect.value) {
                 showToast('Debe seleccionar una Forma y un Color.', true);
                 return;
             }
-
             const orderData = {
                 vetName: vetNameInput.value,
                 petName: document.getElementById('petName').value,
@@ -446,21 +395,16 @@
             };
             showConfirmation(orderData);
         }
-
         // --- App Initialization ---
         function main() {
             checkAndSetupVeterinaryName();
-            
             setupButton.addEventListener('click', handleSetup);
             modalCancel.addEventListener('click', () => closeModal(setupModal));
             modalConfirm.addEventListener('click', handleModalConfirmClick);
-            
             confirmSendButton.addEventListener('click', sendOrderToFirebase);
             cancelSendButton.addEventListener('click', () => closeModal(confirmationModal));
-
             cancelOrderButton.addEventListener('click', clearForm);
             orderForm.addEventListener('submit', handleOrderFormSubmit);
-            
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
@@ -477,9 +421,9 @@
                 showToast('Error de conexion. No se pueden enviar pedidos.', true);
             }
         }
-
         main();
     </script>
 </body>
 </html>
+
 
