@@ -11,8 +11,16 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
-        th { @apply px-4 py-2 bg-gray-200 text-left text-sm font-bold text-gray-700 uppercase; }
-        td { @apply px-4 py-2 border-b border-gray-200; }
+        
+        /* === ESTILOS DE TABLA MODIFICADOS === */
+        th { 
+            @apply px-4 py-2 bg-gray-200 text-left text-sm font-bold text-gray-700 uppercase border border-gray-300; 
+        }
+        td { 
+            @apply px-4 py-2 border border-gray-300; 
+        }
+        /* === FIN DE ESTILOS MODIFICADOS === */
+
         tr:nth-child(even) { background-color: #f9fafb; }
     </style>
 </head>
@@ -25,7 +33,7 @@
         </header>
 
         <main class="bg-white rounded-xl shadow-lg overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full divide-y divide-gray-200 border-collapse">
                 <thead>
                     <!-- CABECERAS DE LA TABLA ACTUALIZADAS -->
                     <tr>
@@ -114,3 +122,4 @@
     </script>
 </body>
 </html>
+
