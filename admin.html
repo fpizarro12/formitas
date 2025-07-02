@@ -12,16 +12,30 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
         
-        /* Estilos para la tabla tipo Excel */
-        th { 
-            @apply px-4 py-2 bg-gray-200 text-left text-sm font-bold text-gray-700 uppercase border border-gray-300; 
+        /* === ESTILOS DE TABLA CON CSS PURO === */
+        .excel-table {
+            border-collapse: collapse; /* Une los bordes de las celdas */
+            width: 100%;
         }
-        td { 
-            @apply px-4 py-2 border border-gray-300; 
+
+        .excel-table th, .excel-table td {
+            border: 1px solid #d1d5db; /* Borde gris claro para todas las celdas */
+            padding: 8px 12px; /* Espaciado interno */
+            text-align: left;
         }
-        tr:nth-child(even) td { 
-            background-color: #f9fafb; 
+
+        .excel-table th {
+            background-color: #f3f4f6; /* Fondo gris para los encabezados */
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: #374151;
         }
+
+        .excel-table tr:nth-child(even) td { 
+            background-color: #f9fafb; /* Fondo ligeramente gris para filas pares */
+        }
+        /* === FIN DE ESTILOS DE TABLA === */
     </style>
 </head>
 <body class="py-12">
@@ -33,8 +47,8 @@
         </header>
 
         <main class="bg-white rounded-xl shadow-lg overflow-x-auto">
-            <!-- LÍNEA MODIFICADA: Se quitó 'divide-y divide-gray-200' -->
-            <table class="min-w-full border-collapse">
+            <!-- Se cambió la clase de la tabla a "excel-table" -->
+            <table class="excel-table">
                 <thead>
                     <tr>
                         <th>Fecha</th>
@@ -118,6 +132,7 @@
     </script>
 </body>
 </html>
+
 
 
 
