@@ -12,23 +12,25 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
         
-        /* === ESTILOS DE TABLA CON CSS PURO === */
+        /* === ESTILOS DE TABLA CON CSS PURO - VERSIÓN CORREGIDA === */
         .excel-table {
             border-collapse: collapse; /* Une los bordes de las celdas */
             width: 100%;
+            font-size: 0.875rem; /* Tamaño de letra para las celdas */
         }
 
         .excel-table th, .excel-table td {
-            border: 1px solid #d1d5db; /* Borde gris claro para todas las celdas */
-            padding: 8px 12px; /* Espaciado interno */
+            border: 1px solid #e5e7eb; /* Borde gris claro para todas las celdas */
+            padding: 0.75rem 1rem; /* Espaciado interno (un poco más grande) */
             text-align: left;
+            vertical-align: middle;
         }
 
         .excel-table th {
-            background-color: #f3f4f6; /* Fondo gris para los encabezados */
-            font-weight: bold;
+            background-color: #f9fafb; /* Fondo gris muy claro para los encabezados */
+            font-weight: 600; /* Un poco menos grueso que 'bold' */
             text-transform: uppercase;
-            font-size: 0.75rem;
+            font-size: 0.75rem; /* Letra más pequeña para encabezados */
             color: #374151;
         }
 
@@ -47,7 +49,7 @@
         </header>
 
         <main class="bg-white rounded-xl shadow-lg overflow-x-auto">
-            <!-- Se cambió la clase de la tabla a "excel-table" -->
+            <!-- Se aplica la clase "excel-table" a la tabla -->
             <table class="excel-table">
                 <thead>
                     <tr>
@@ -132,6 +134,7 @@
     </script>
 </body>
 </html>
+
 
 
 
