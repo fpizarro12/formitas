@@ -36,11 +36,23 @@
         .status-select {
             @apply block w-full rounded-md border-gray-300 shadow-sm py-1;
         }
+
+        /* === ESTILOS DE BOTÓN CORREGIDOS CON CSS PURO === */
         .btn {
-            @apply px-3 py-1 rounded-md font-bold text-white shadow-sm transition-colors duration-200 text-xs;
+            padding: 0.25rem 0.75rem; /* py-1 px-3 */
+            border-radius: 0.375rem; /* rounded-md */
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            transition: background-color 0.2s ease-in-out;
+            font-size: 0.75rem; /* text-xs */
+            cursor: pointer;
         }
         .btn-green {
-            @apply bg-green-600 hover:bg-green-700;
+            background-color: #16a34a; /* bg-green-600 */
+        }
+        .btn-green:hover {
+            background-color: #15803d; /* hover:bg-green-700 */
         }
     </style>
 </head>
@@ -65,7 +77,7 @@
                         <th>Atras (Linea Extra)</th>
                         <th>Observaciones</th>
                         <th>Estado</th>
-                        <th>Acción</th> <!-- Nueva columna -->
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody id="orders-table-body">
@@ -79,7 +91,6 @@
 
     <!-- === INICIO DEL CÓDIGO JAVASCRIPT === -->
     <script type="module">
-        // Se importan las nuevas herramientas 'doc' y 'updateDoc'
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, getDocs, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -97,12 +108,9 @@
 
         const tableBody = document.getElementById('orders-table-body');
 
-        // --- NUEVA FUNCIÓN PARA ACTUALIZAR ESTADO ---
         async function updateOrderStatus(orderId, newStatus) {
-            // Creamos una referencia al documento específico del pedido
             const orderRef = doc(db, `/artifacts/${appId}/public/data/pedidos`, orderId);
             try {
-                // Actualizamos el campo 'status' en la base de datos
                 await updateDoc(orderRef, {
                     status: newStatus
                 });
@@ -128,12 +136,11 @@
 
                 querySnapshot.forEach(docSnapshot => {
                     const pedido = docSnapshot.data();
-                    const orderId = docSnapshot.id; // Obtenemos el ID único del pedido
+                    const orderId = docSnapshot.id;
                     const fecha = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
 
                     const row = document.createElement('tr');
                     
-                    // --- HTML DE LA FILA MODIFICADO ---
                     row.innerHTML = `
                         <td>${fecha}</td>
                         <td>${pedido.vetName || ''}</td>
@@ -163,16 +170,12 @@
             }
         }
 
-        // --- NUEVO EVENT LISTENER PARA LOS BOTONES ---
         tableBody.addEventListener('click', (event) => {
-            // Verificamos si el elemento clickeado es un botón de actualizar
             if (event.target.classList.contains('update-btn')) {
                 const orderId = event.target.dataset.id;
-                // Buscamos el menú <select> que corresponde a este botón
                 const selectElement = document.querySelector(`.status-select[data-id="${orderId}"]`);
                 const newStatus = selectElement.value;
                 
-                // Llamamos a la función para actualizar el estado en Firebase
                 updateOrderStatus(orderId, newStatus);
             }
         });
@@ -181,6 +184,7 @@
     </script>
 </body>
 </html>
+
 
 
 
