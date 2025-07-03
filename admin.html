@@ -12,32 +12,42 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
         
+        /* === ESTILOS DE TABLA CON CSS PURO - VERSIÓN CORREGIDA === */
         .excel-table {
-            border-collapse: collapse;
+            border-collapse: collapse; /* Une los bordes de las celdas */
             width: 100%;
-            font-size: 0.875rem;
+            font-size: 0.875rem; /* Tamaño de letra para las celdas */
         }
+
         .excel-table th, .excel-table td {
-            border: 1px solid #e5e7eb;
-            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb; /* Borde gris claro para todas las celdas */
+            padding: 0.75rem 1rem; /* Espaciado interno (un poco más grande) */
             text-align: left;
             vertical-align: middle;
         }
+
         .excel-table th {
-            background-color: #f9fafb;
+            background-color: #f9fafb; /* Fondo gris muy claro para los encabezados */
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.75rem;
+            font-size: 0.75rem; /* Letra más pequeña para encabezados */
             color: #374151;
         }
+
         .excel-table tr:nth-child(even) td { 
-            background-color: #f9fafb;
+            background-color: #f9fafb; /* Fondo ligeramente gris para filas pares */
         }
+        
         .status-select {
-            @apply block w-full rounded-md border-gray-300 shadow-sm py-1;
+            display: block;
+            width: 100%;
+            border-radius: 0.375rem;
+            border-color: #d1d5db;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
         }
 
-        /* === ESTILOS DE BOTÓN CORREGIDOS CON CSS PURO === */
         .btn {
             padding: 0.25rem 0.75rem; /* py-1 px-3 */
             border-radius: 0.375rem; /* rounded-md */
@@ -65,6 +75,7 @@
         </header>
 
         <main class="bg-white rounded-xl shadow-lg overflow-x-auto">
+            <!-- Se aplica la clase "excel-table" a la tabla -->
             <table class="excel-table">
                 <thead>
                     <tr>
@@ -184,6 +195,7 @@
     </script>
 </body>
 </html>
+
 
 
 
