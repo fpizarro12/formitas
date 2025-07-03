@@ -12,32 +12,36 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
         
-        /* === ESTILOS DE TABLA CON CSS PURO - VERSIÓN CORREGIDA === */
         .excel-table {
-            border-collapse: collapse; /* Une los bordes de las celdas */
+            border-collapse: collapse;
             width: 100%;
-            font-size: 0.875rem; /* Tamaño de letra para las celdas */
+            font-size: 0.875rem;
         }
-
         .excel-table th, .excel-table td {
-            border: 1px solid #e5e7eb; /* Borde gris claro para todas las celdas */
-            padding: 0.75rem 1rem; /* Espaciado interno (un poco más grande) */
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem 1rem;
             text-align: left;
             vertical-align: middle;
         }
-
         .excel-table th {
-            background-color: #f9fafb; /* Fondo gris muy claro para los encabezados */
-            font-weight: 600; /* Un poco menos grueso que 'bold' */
+            background-color: #f9fafb;
+            font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.75rem; /* Letra más pequeña para encabezados */
+            font-size: 0.75rem;
             color: #374151;
         }
-
         .excel-table tr:nth-child(even) td { 
-            background-color: #f9fafb; /* Fondo ligeramente gris para filas pares */
+            background-color: #f9fafb;
         }
-        /* === FIN DE ESTILOS DE TABLA === */
+        .status-select {
+            @apply block w-full rounded-md border-gray-300 shadow-sm py-1;
+        }
+        .btn {
+            @apply px-3 py-1 rounded-md font-bold text-white shadow-sm transition-colors duration-200 text-xs;
+        }
+        .btn-green {
+            @apply bg-green-600 hover:bg-green-700;
+        }
     </style>
 </head>
 <body class="py-12">
@@ -49,7 +53,6 @@
         </header>
 
         <main class="bg-white rounded-xl shadow-lg overflow-x-auto">
-            <!-- Se aplica la clase "excel-table" a la tabla -->
             <table class="excel-table">
                 <thead>
                     <tr>
@@ -62,21 +65,23 @@
                         <th>Atras (Linea Extra)</th>
                         <th>Observaciones</th>
                         <th>Estado</th>
+                        <th>Acción</th> <!-- Nueva columna -->
                     </tr>
                 </thead>
                 <tbody id="orders-table-body">
                     <tr>
-                        <td colspan="9" class="text-center py-8 text-gray-500">Cargando pedidos...</td>
+                        <td colspan="10" class="text-center py-8 text-gray-500">Cargando pedidos...</td>
                     </tr>
                 </tbody>
             </table>
         </main>
     </div>
 
-    <!-- El código JavaScript no necesita cambios -->
+    <!-- === INICIO DEL CÓDIGO JAVASCRIPT === -->
     <script type="module">
+        // Se importan las nuevas herramientas 'doc' y 'updateDoc'
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, getDocs, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ",
@@ -92,6 +97,22 @@
 
         const tableBody = document.getElementById('orders-table-body');
 
+        // --- NUEVA FUNCIÓN PARA ACTUALIZAR ESTADO ---
+        async function updateOrderStatus(orderId, newStatus) {
+            // Creamos una referencia al documento específico del pedido
+            const orderRef = doc(db, `/artifacts/${appId}/public/data/pedidos`, orderId);
+            try {
+                // Actualizamos el campo 'status' en la base de datos
+                await updateDoc(orderRef, {
+                    status: newStatus
+                });
+                alert(`El estado del pedido ha sido actualizado a "${newStatus}".`);
+            } catch (error) {
+                console.error("Error al actualizar el estado: ", error);
+                alert("Error al actualizar. Revisa la consola para más detalles.");
+            }
+        }
+
         async function fetchAllOrders() {
             try {
                 const pedidosRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
@@ -101,15 +122,18 @@
                 tableBody.innerHTML = ''; 
 
                 if (querySnapshot.empty) {
-                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No hay pedidos para mostrar.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-gray-500">No hay pedidos para mostrar.</td></tr>';
                     return;
                 }
 
-                querySnapshot.forEach(doc => {
-                    const pedido = doc.data();
+                querySnapshot.forEach(docSnapshot => {
+                    const pedido = docSnapshot.data();
+                    const orderId = docSnapshot.id; // Obtenemos el ID único del pedido
                     const fecha = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
 
                     const row = document.createElement('tr');
+                    
+                    // --- HTML DE LA FILA MODIFICADO ---
                     row.innerHTML = `
                         <td>${fecha}</td>
                         <td>${pedido.vetName || ''}</td>
@@ -119,21 +143,45 @@
                         <td>${pedido.phone || ''}</td>
                         <td>${pedido.extraLine || ''}</td>
                         <td>${pedido.observations || ''}</td>
-                        <td>${pedido.status || 'Pendiente'}</td>
+                        <td>
+                            <select class="status-select" data-id="${orderId}">
+                                <option value="Pendiente" ${pedido.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                                <option value="Completado" ${pedido.status === 'Completado' ? 'selected' : ''}>Completado</option>
+                                <option value="Entregado" ${pedido.status === 'Entregado' ? 'selected' : ''}>Entregado</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn btn-green update-btn" data-id="${orderId}">Actualizar</button>
+                        </td>
                     `;
                     tableBody.appendChild(row);
                 });
 
             } catch (error) {
                 console.error("Error al cargar los pedidos: ", error);
-                tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-red-500">Error al cargar pedidos: ${error.message}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-red-500">Error al cargar pedidos: ${error.message}</td></tr>`;
             }
         }
+
+        // --- NUEVO EVENT LISTENER PARA LOS BOTONES ---
+        tableBody.addEventListener('click', (event) => {
+            // Verificamos si el elemento clickeado es un botón de actualizar
+            if (event.target.classList.contains('update-btn')) {
+                const orderId = event.target.dataset.id;
+                // Buscamos el menú <select> que corresponde a este botón
+                const selectElement = document.querySelector(`.status-select[data-id="${orderId}"]`);
+                const newStatus = selectElement.value;
+                
+                // Llamamos a la función para actualizar el estado en Firebase
+                updateOrderStatus(orderId, newStatus);
+            }
+        });
 
         fetchAllOrders();
     </script>
 </body>
 </html>
+
 
 
 
