@@ -67,7 +67,7 @@
                         <th>Atras (Linea Extra)</th>
                         <th>Observaciones</th>
                         <th>Estado</th>
-                        <!-- Se elimina la columna Acción -->
+                        <!-- La columna "Acción" ha sido eliminada -->
                     </tr>
                 </thead>
                 <tbody id="orders-table-body">
@@ -131,6 +131,7 @@
 
                     const row = document.createElement('tr');
                     
+                    // HTML de la fila sin la columna "Acción"
                     row.innerHTML = `
                         <td>${fecha}</td>
                         <td>${pedido.vetName || ''}</td>
@@ -157,15 +158,12 @@
             }
         }
 
-        // --- EVENT LISTENER MODIFICADO ---
-        // Ahora escucha el evento 'change' en lugar de 'click'
+        // Event listener que se activa al cambiar la selección en la lista
         tableBody.addEventListener('change', (event) => {
-            // Verificamos si el elemento que cambió es un menú de estado
             if (event.target.classList.contains('status-select')) {
                 const orderId = event.target.dataset.id;
                 const newStatus = event.target.value;
                 
-                // Llamamos a la función para actualizar el estado en Firebase
                 updateOrderStatus(orderId, newStatus);
             }
         });
