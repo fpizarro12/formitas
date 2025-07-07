@@ -18,13 +18,11 @@
         .status-select { display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.25rem 0.5rem; background-color: white; cursor: pointer; }
         .btn-primary { background-color: #16a34a; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid #14532d; }
         .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; }
-        
-        /* === ESTILOS PARA LOS CAMPOS DE FILTRO === */
         .form-input {
             margin-top: 0.25rem;
             display: block;
             width: 100%;
-            border: 1px solid #d1d5db; /* Borde siempre visible */
+            border: 1px solid #d1d5db;
             border-radius: 0.375rem;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             padding: 0.5rem 0.75rem;
@@ -40,6 +38,7 @@
             <button id="new-search-button" class="btn-secondary mt-4 hidden">Nueva Búsqueda</button>
         </header>
 
+        <!-- === INICIO DEL FORMULARIO DE FILTROS (DISEÑO VERTICAL) === -->
         <div id="filter-container" class="bg-white p-8 rounded-xl shadow-lg mb-8">
             <h3 class="text-xl font-bold text-gray-800 mb-6">Filtros de Búsqueda</h3>
             <form id="filter-form" class="space-y-6">
@@ -121,6 +120,10 @@
         const filterContainer = document.getElementById('filter-container');
         const resultsContainer = document.getElementById('results-container');
         const newSearchButton = document.getElementById('new-search-button');
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const vetFromInput = document.getElementById('vet-from'); // Nuevo
+        const vetToInput = document.getElementById('vet-to'); // Nuevo
         
         let allOrders = [];
 
@@ -165,7 +168,23 @@
             });
         }
 
+        function setWeeklyDates() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); 
+            const diff = (dayOfWeek - 3 + 7) % 7;
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() - diff);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 6);
+            const toISODate = (date) => date.toISOString().split('T')[0];
+            startDateInput.value = toISODate(startDate);
+            endDateInput.value = toISODate(endDate);
+            endDateInput.min = startDateInput.value;
+            startDateInput.max = endDateInput.value;
+        }
+
         async function initializeAdminPanel() {
+            setWeeklyDates();
             try {
                 const pedidosRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
                 const q = query(pedidosRef, orderBy("timestamp", "desc"));
@@ -183,10 +202,10 @@
             resultsContainer.classList.remove('hidden');
             newSearchButton.classList.remove('hidden');
 
-            const startDate = document.getElementById('start-date').value;
-            const endDate = document.getElementById('end-date').value;
-            const vetFrom = document.getElementById('vet-from').value.toUpperCase();
-            const vetTo = document.getElementById('vet-to').value.toUpperCase();
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+            const vetFrom = vetFromInput.value.toUpperCase();
+            const vetTo = vetToInput.value.toUpperCase();
             const selectedStatus = document.getElementById('status-filter').value;
 
             let filtered = allOrders;
@@ -195,12 +214,14 @@
                 filtered = filtered.filter(order => (order.status || 'Pendiente') === selectedStatus);
             }
             if (startDate) {
-                filtered = filtered.filter(order => order.timestamp && new Date(order.timestamp.seconds * 1000) >= new Date(startDate));
+                const start = new Date(startDate);
+                start.setHours(0,0,0,0);
+                filtered = filtered.filter(order => order.timestamp && new Date(order.timestamp.seconds * 1000) >= start);
             }
             if (endDate) {
-                const endOfDay = new Date(endDate);
-                endOfDay.setHours(23, 59, 59, 999);
-                filtered = filtered.filter(order => order.timestamp && new Date(order.timestamp.seconds * 1000) <= endOfDay);
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                filtered = filtered.filter(order => order.timestamp && new Date(order.timestamp.seconds * 1000) <= end);
             }
             if (vetFrom) {
                 filtered = filtered.filter(order => (order.vetName || '').toUpperCase() >= vetFrom);
@@ -226,10 +247,31 @@
             }
         });
 
+        // Validacion de fechas en tiempo real
+        startDateInput.addEventListener('change', () => {
+            endDateInput.min = startDateInput.value;
+        });
+        endDateInput.addEventListener('change', () => {
+            startDateInput.max = endDateInput.value;
+        });
+
+        // === NUEVA VALIDACIÓN PARA VETERINARIAS ===
+        vetFromInput.addEventListener('change', () => {
+            if (vetToInput.value && vetFromInput.value.toUpperCase() > vetToInput.value.toUpperCase()) {
+                vetToInput.value = vetFromInput.value;
+            }
+        });
+        vetToInput.addEventListener('change', () => {
+            if (vetFromInput.value && vetToInput.value.toUpperCase() < vetFromInput.value.toUpperCase()) {
+                vetFromInput.value = vetToInput.value;
+            }
+        });
+
         initializeAdminPanel();
     </script>
 </body>
 </html>
+
 
 
 
