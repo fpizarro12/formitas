@@ -18,15 +18,7 @@
         .status-select { display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.25rem 0.5rem; background-color: white; cursor: pointer; }
         .btn-primary { background-color: #16a34a; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid #14532d; }
         .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; }
-        .form-input {
-            margin-top: 0.25rem;
-            display: block;
-            width: 100%;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            padding: 0.5rem 0.75rem;
-        }
+        .form-input { margin-top: 0.25rem; display: block; width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.5rem 0.75rem; }
     </style>
 </head>
 <body class="py-12">
@@ -35,10 +27,11 @@
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
             <h2 class="text-3xl font-bold text-gray-700 mt-2">Panel de Administración</h2>
+            <!-- Elemento para la versión, ahora empieza oculto -->
+            <p id="version-timestamp" class="text-xs text-gray-400 font-mono mt-1 hidden"></p>
             <button id="new-search-button" class="btn-secondary mt-4 hidden">Nueva Búsqueda</button>
         </header>
 
-        <!-- === INICIO DEL FORMULARIO DE FILTROS (DISEÑO VERTICAL) === -->
         <div id="filter-container" class="bg-white p-8 rounded-xl shadow-lg mb-8">
             <h3 class="text-xl font-bold text-gray-800 mb-6">Filtros de Búsqueda</h3>
             <form id="filter-form" class="space-y-6">
@@ -81,7 +74,6 @@
             </form>
         </div>
 
-        <!-- Contenedor de resultados (empieza oculto) -->
         <main id="results-container" class="hidden">
             <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
                 <table class="excel-table">
@@ -98,9 +90,7 @@
                             <th>Estado</th>
                         </tr>
                     </thead>
-                    <tbody id="orders-table-body">
-                        <!-- Las filas se llenarán aquí -->
-                    </tbody>
+                    <tbody id="orders-table-body"></tbody>
                 </table>
             </div>
         </main>
@@ -122,10 +112,22 @@
         const newSearchButton = document.getElementById('new-search-button');
         const startDateInput = document.getElementById('start-date');
         const endDateInput = document.getElementById('end-date');
-        const vetFromInput = document.getElementById('vet-from'); // Nuevo
-        const vetToInput = document.getElementById('vet-to'); // Nuevo
+        const vetFromInput = document.getElementById('vet-from');
+        const vetToInput = document.getElementById('vet-to');
+        const versionDiv = document.getElementById('version-timestamp');
         
         let allOrders = [];
+
+        function setVersionTimestamp() {
+            const now = new Date();
+            const pad = (num) => num.toString().padStart(2, '0');
+            const year = now.getFullYear();
+            const month = pad(now.getMonth() + 1);
+            const day = pad(now.getDate());
+            const hours = pad(now.getHours());
+            const minutes = pad(now.getMinutes());
+            versionDiv.textContent = `V.${year}.${month}.${day}-${hours}.${minutes}`;
+        }
 
         async function updateOrderStatus(orderId, newStatus) {
             const orderRef = doc(db, `/artifacts/${appId}/public/data/pedidos`, orderId);
@@ -201,6 +203,7 @@
             filterContainer.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
             newSearchButton.classList.remove('hidden');
+            versionDiv.classList.remove('hidden'); // Mostrar la versión
 
             const startDate = startDateInput.value;
             const endDate = endDateInput.value;
@@ -237,6 +240,7 @@
             resultsContainer.classList.add('hidden');
             newSearchButton.classList.add('hidden');
             filterContainer.classList.remove('hidden');
+            versionDiv.classList.add('hidden'); // Ocultar la versión
         });
 
         tableBody.addEventListener('change', (event) => {
@@ -247,7 +251,6 @@
             }
         });
 
-        // Validacion de fechas en tiempo real
         startDateInput.addEventListener('change', () => {
             endDateInput.min = startDateInput.value;
         });
@@ -255,7 +258,6 @@
             startDateInput.max = endDateInput.value;
         });
 
-        // === NUEVA VALIDACIÓN PARA VETERINARIAS ===
         vetFromInput.addEventListener('change', () => {
             if (vetToInput.value && vetFromInput.value.toUpperCase() > vetToInput.value.toUpperCase()) {
                 vetToInput.value = vetFromInput.value;
@@ -268,9 +270,11 @@
         });
 
         initializeAdminPanel();
+        setVersionTimestamp(); // Llamamos a la función para establecer la versión
     </script>
 </body>
 </html>
+
 
 
 
