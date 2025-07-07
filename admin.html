@@ -27,7 +27,8 @@
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
             <h2 class="text-3xl font-bold text-gray-700 mt-2">Panel de Administración</h2>
-            <!-- Elemento para la versión, ahora empieza oculto -->
+            <!-- LÍNEA AÑADIDA PARA VERIFICACIÓN -->
+            <p class="text-lg text-gray-500">(Beta)</p>
             <p id="version-timestamp" class="text-xs text-gray-400 font-mono mt-1 hidden"></p>
             <button id="new-search-button" class="btn-secondary mt-4 hidden">Nueva Búsqueda</button>
         </header>
@@ -203,7 +204,7 @@
             filterContainer.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
             newSearchButton.classList.remove('hidden');
-            versionDiv.classList.remove('hidden'); // Mostrar la versión
+            versionDiv.classList.remove('hidden'); 
 
             const startDate = startDateInput.value;
             const endDate = endDateInput.value;
@@ -240,7 +241,7 @@
             resultsContainer.classList.add('hidden');
             newSearchButton.classList.add('hidden');
             filterContainer.classList.remove('hidden');
-            versionDiv.classList.add('hidden'); // Ocultar la versión
+            versionDiv.classList.add('hidden');
         });
 
         tableBody.addEventListener('change', (event) => {
@@ -270,10 +271,11 @@
         });
 
         initializeAdminPanel();
-        setVersionTimestamp(); // Llamamos a la función para establecer la versión
+        setVersionTimestamp();
     </script>
 </body>
 </html>
+
 
 
 
