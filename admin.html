@@ -23,12 +23,11 @@
 </head>
 <body class="py-12">
 
-    <div class="container mx-auto p-4 md:p-8 max-w-3xl">
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
             <h2 class="text-3xl font-bold text-gray-700 mt-2">Panel de Administración</h2>
-            <!-- LÍNEA AÑADIDA PARA VERIFICACIÓN -->
-            <p class="text-lg text-gray-500">(Beta)</p>
+            <p class="text-lg text-gray-500">(Beta 1.0)</p>
             <p id="version-timestamp" class="text-xs text-gray-400 font-mono mt-1 hidden"></p>
             <button id="new-search-button" class="btn-secondary mt-4 hidden">Nueva Búsqueda</button>
         </header>
@@ -36,7 +35,6 @@
         <div id="filter-container" class="bg-white p-8 rounded-xl shadow-lg mb-8">
             <h3 class="text-xl font-bold text-gray-800 mb-6">Filtros de Búsqueda</h3>
             <form id="filter-form" class="space-y-6">
-                <!-- Rango de Fechas -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label>
@@ -47,7 +45,6 @@
                         <input type="date" id="end-date" class="form-input">
                     </div>
                 </div>
-                <!-- Rango de Veterinarias -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="vet-from" class="block text-sm font-medium text-gray-700">Veterinaria Desde</label>
@@ -58,7 +55,6 @@
                         <input type="text" id="vet-to" class="form-input" value="ZZZZZZ">
                     </div>
                 </div>
-                <!-- Filtro de Estado -->
                 <div>
                     <label for="status-filter" class="block text-sm font-medium text-gray-700">Estado</label>
                     <select id="status-filter" class="form-input">
@@ -68,7 +64,6 @@
                         <option value="Entregado">Entregados</option>
                     </select>
                 </div>
-                <!-- Botón de Aplicar -->
                 <div class="pt-4">
                     <button type="submit" class="w-full btn-primary">Aplicar Filtros</button>
                 </div>
@@ -99,7 +94,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, getDocs, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, getDocs, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
         const appId = 'pet-tags-split-app';
@@ -195,7 +190,7 @@
                 allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
                 console.error("Error al inicializar: ", error);
-                filterContainer.innerHTML = `<p class="text-center text-red-500 font-semibold">Error al cargar datos iniciales. ${error.message}</p>`;
+                filterContainer.innerHTML = `<p class="text-center text-red-600 font-semibold">Error al cargar datos iniciales. ${error.message}</p>`;
             }
         }
 
@@ -204,7 +199,7 @@
             filterContainer.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
             newSearchButton.classList.remove('hidden');
-            versionDiv.classList.remove('hidden'); 
+            versionDiv.classList.remove('hidden'); // <-- ¡AQUÍ ESTÁ LA CORRECCIÓN!
 
             const startDate = startDateInput.value;
             const endDate = endDateInput.value;
@@ -241,7 +236,7 @@
             resultsContainer.classList.add('hidden');
             newSearchButton.classList.add('hidden');
             filterContainer.classList.remove('hidden');
-            versionDiv.classList.add('hidden');
+            versionDiv.classList.add('hidden'); // Ocultar la versión al volver a los filtros
         });
 
         tableBody.addEventListener('change', (event) => {
@@ -275,6 +270,7 @@
     </script>
 </body>
 </html>
+
 
 
 
