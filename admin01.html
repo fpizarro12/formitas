@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultados de Pedidos - Formitas</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Se eliminó la librería de Excel de aquí -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,20 +19,22 @@
         .status-select { display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.25rem 0.5rem; background-color: white; cursor: pointer; }
         .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; transition: background-color 0.2s; }
         .btn-secondary:hover { background-color: #d1d5db; }
+        .btn-success { background-color: #16a34a; color: white; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #14532d; transition: background-color 0.2s; }
+        .btn-success:hover { background-color: #15803d; }
     </style>
 </head>
 <body class="py-12">
 
-    <!-- Contenedor más ancho para la tabla de resultados -->
     <div class="container mx-auto p-4 md:p-8 max-w-7xl">
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
-            <!-- Título actualizado -->
             <h2 id="main-title" class="text-3xl font-bold text-gray-700 mt-2">Pedidos - V1.01.02</h2>
-            <button id="new-search-button" class="btn-secondary mt-4">Nueva Búsqueda</button>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+                <button id="new-search-button" class="btn-secondary">Nueva Búsqueda</button>
+                <button id="export-excel-button" class="btn-success">Baja a Excel</button>
+            </div>
         </header>
 
-        <!-- Contenedor de la tabla de resultados -->
         <main id="results-container">
             <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
                 <table class="excel-table">
@@ -60,17 +63,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Configuración de Firebase
         const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
         const appId = 'pet-tags-split-app';
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Elementos del DOM
         const tableBody = document.getElementById('orders-table-body');
         const newSearchButton = document.getElementById('new-search-button');
+        const exportExcelButton = document.getElementById('export-excel-button');
 
-        // Función para actualizar el estado de un pedido en Firestore
         async function updateOrderStatus(orderId, newStatus) {
             const orderRef = doc(db, `/artifacts/${appId}/public/data/pedidos`, orderId);
             try {
@@ -82,20 +83,17 @@
             }
         }
 
-        // Función para renderizar las filas de la tabla
         function renderTable(orders) {
             tableBody.innerHTML = '';
             if (orders.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No se encontraron pedidos que coincidan con los filtros.</td></tr>';
                 return;
             }
-            // Ordena los pedidos por fecha más reciente primero
             orders.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
             
             orders.forEach(order => {
                 const fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
                 const row = document.createElement('tr');
-                // LÓGICA DE ESTADOS ACTUALIZADA
                 row.innerHTML = `
                     <td>${fecha}</td>
                     <td>${order.vetName || ''}</td>
@@ -117,11 +115,9 @@
             });
         }
 
-        // Función principal que se ejecuta al cargar la página
         async function loadAndFilterOrders() {
             tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">Cargando pedidos...</td></tr>';
             
-            // Lee los parámetros de la URL
             const params = new URLSearchParams(window.location.search);
             const startDate = params.get('startDate');
             const endDate = params.get('endDate');
@@ -130,20 +126,18 @@
             const selectedStatus = params.get('status');
 
             try {
-                // Obtiene todos los pedidos de Firestore
                 const pedidosRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
                 const q = query(pedidosRef);
                 const querySnapshot = await getDocs(q);
                 let allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // LÓGICA DE FILTRADO ACTUALIZADA
                 let filtered = allOrders;
                 if (selectedStatus && selectedStatus !== 'todos') {
                     if (selectedStatus === 'Realizado') {
                         filtered = filtered.filter(order => order.status === 'Realizado' || order.status === 'Completado');
                     } else if (selectedStatus === 'Cancelado') {
                         filtered = filtered.filter(order => order.status === 'Cancelado' || order.status === 'Entregado');
-                    } else { // Para "Pendiente"
+                    } else {
                         filtered = filtered.filter(order => (order.status || 'Pendiente') === selectedStatus);
                     }
                 }
@@ -172,12 +166,20 @@
             }
         }
 
-        // Evento para el botón de "Nueva Búsqueda"
         newSearchButton.addEventListener('click', () => {
-            window.location.href = 'admin.html'; // Redirige de vuelta a la página de filtros
+            // FIX: Construye la URL de forma robusta
+            const currentUrl = window.location.href;
+            const backUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1) + 'admin.html';
+            window.location.href = backUrl;
         });
 
-        // Evento para detectar cambios en el estado de un pedido
+        exportExcelButton.addEventListener('click', () => {
+             // FIX: Construye la URL de forma robusta
+             const currentUrl = window.location.href;
+             const nextUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1) + 'admin02.html';
+             window.location.href = nextUrl;
+        });
+
         tableBody.addEventListener('change', (event) => {
             if (event.target.classList.contains('status-select')) {
                 const orderId = event.target.dataset.id;
@@ -186,9 +188,9 @@
             }
         });
 
-        // Inicia la carga de datos al abrir la página
         loadAndFilterOrders();
     </script>
 </body>
 </html>
+
 
