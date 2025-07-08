@@ -61,11 +61,12 @@
                 <!-- Filtro de Estado -->
                 <div>
                     <label for="status-filter" class="block text-sm font-medium text-gray-700">Estado</label>
+                    <!-- ESTADOS ACTUALIZADOS -->
                     <select id="status-filter" class="form-input">
                         <option value="todos">Todos</option>
                         <option value="Pendiente">Pendientes</option>
-                        <option value="Completado">Completados</option>
-                        <option value="Entregado">Entregados</option>
+                        <option value="Realizado">Realizados</option>
+                        <option value="Cancelado">Cancelados</option>
                     </select>
                 </div>
                 <!-- Botón de Aplicar -->
@@ -124,7 +125,7 @@
             if (vetTo && vetTo.toUpperCase() !== 'ZZZZZZ') params.append('vetTo', vetTo);
             if (selectedStatus) params.append('status', selectedStatus);
 
-            // FIX: Crea una URL absoluta para evitar errores en entornos restringidos
+            // Crea una URL absoluta para evitar errores en entornos restringidos
             const nextUrl = new URL('admin01.html', window.location.href);
             nextUrl.search = params.toString();
 
@@ -143,6 +144,7 @@
     </script>
 </body>
 </html>
+
 
 
 
