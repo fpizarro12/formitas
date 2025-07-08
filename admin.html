@@ -34,15 +34,13 @@
     <div class="container mx-auto p-4 md:p-8 max-w-3xl">
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
-            <h2 class="text-3xl font-bold text-gray-700 mt-2">Panel de Administración</h2>
+            <h2 class="text-3xl font-bold text-gray-700 mt-2">Consulta de Pedidos - V1.01.01</h2>
             <button id="new-search-button" class="btn-secondary mt-4 hidden">Nueva Búsqueda</button>
         </header>
 
-        <!-- === INICIO DEL FORMULARIO DE FILTROS (DISEÑO VERTICAL) === -->
         <div id="filter-container" class="bg-white p-8 rounded-xl shadow-lg mb-8">
             <h3 class="text-xl font-bold text-gray-800 mb-6">Filtros de Búsqueda</h3>
             <form id="filter-form" class="space-y-6">
-                <!-- Rango de Fechas -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label>
@@ -53,7 +51,6 @@
                         <input type="date" id="end-date" class="form-input">
                     </div>
                 </div>
-                <!-- Rango de Veterinarias -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="vet-from" class="block text-sm font-medium text-gray-700">Veterinaria Desde</label>
@@ -64,7 +61,6 @@
                         <input type="text" id="vet-to" class="form-input" value="ZZZZZZ">
                     </div>
                 </div>
-                <!-- Filtro de Estado -->
                 <div>
                     <label for="status-filter" class="block text-sm font-medium text-gray-700">Estado</label>
                     <select id="status-filter" class="form-input">
@@ -74,14 +70,12 @@
                         <option value="Entregado">Entregados</option>
                     </select>
                 </div>
-                <!-- Botón de Aplicar -->
                 <div class="pt-4">
                     <button type="submit" class="w-full btn-primary">Aplicar Filtros</button>
                 </div>
             </form>
         </div>
 
-        <!-- Contenedor de resultados (empieza oculto) -->
         <main id="results-container" class="hidden">
             <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
                 <table class="excel-table">
@@ -99,8 +93,7 @@
                         </tr>
                     </thead>
                     <tbody id="orders-table-body">
-                        <!-- Las filas se llenarán aquí -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </main>
