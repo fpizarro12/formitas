@@ -95,6 +95,7 @@
             orders.forEach(order => {
                 const fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
                 const row = document.createElement('tr');
+                // LÓGICA DE ESTADOS ACTUALIZADA
                 row.innerHTML = `
                     <td>${fecha}</td>
                     <td>${order.vetName || ''}</td>
@@ -107,8 +108,8 @@
                     <td>
                         <select class="status-select" data-id="${order.id}">
                             <option value="Pendiente" ${order.status === 'Pendiente' || !order.status ? 'selected' : ''}>Pendiente</option>
-                            <option value="Completado" ${order.status === 'Completado' ? 'selected' : ''}>Completado</option>
-                            <option value="Entregado" ${order.status === 'Entregado' ? 'selected' : ''}>Entregado</option>
+                            <option value="Realizado" ${order.status === 'Realizado' || order.status === 'Completado' ? 'selected' : ''}>Realizado</option>
+                            <option value="Cancelado" ${order.status === 'Cancelado' || order.status === 'Entregado' ? 'selected' : ''}>Cancelado</option>
                         </select>
                     </td>
                 `;
@@ -135,10 +136,16 @@
                 const querySnapshot = await getDocs(q);
                 let allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // Aplica los filtros obtenidos de la URL
+                // LÓGICA DE FILTRADO ACTUALIZADA
                 let filtered = allOrders;
                 if (selectedStatus && selectedStatus !== 'todos') {
-                    filtered = filtered.filter(order => (order.status || 'Pendiente') === selectedStatus);
+                    if (selectedStatus === 'Realizado') {
+                        filtered = filtered.filter(order => order.status === 'Realizado' || order.status === 'Completado');
+                    } else if (selectedStatus === 'Cancelado') {
+                        filtered = filtered.filter(order => order.status === 'Cancelado' || order.status === 'Entregado');
+                    } else { // Para "Pendiente"
+                        filtered = filtered.filter(order => (order.status || 'Pendiente') === selectedStatus);
+                    }
                 }
                 if (startDate) {
                     const start = new Date(startDate);
@@ -184,3 +191,4 @@
     </script>
 </body>
 </html>
+
