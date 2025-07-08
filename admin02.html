@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baja de Pedidos a Excel - Formitas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Librería para exportar a Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
+        .font-formitas { font-family: 'Comic Neue', cursive; }
+        .form-input { margin-top: 0.25rem; display: block; width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.5rem 0.75rem; }
+        .btn { font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s; }
+        .btn-green { background-color: #16a34a; color: white; border: 1px solid #14532d; }
+        .btn-green:hover { background-color: #15803d; }
+        .btn-red { background-color: #dc2626; color: white; border: 1px solid #991b1b; }
+        .btn-red:hover { background-color: #b91c1c; }
+    </style>
+</head>
+<body class="py-12">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-2xl">
+        <header class="text-center mb-8">
+            <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
+            <h2 class="text-3xl font-bold text-gray-700 mt-2">Baja Pedidos a Excel</h2>
+        </header>
+
+        <div class="bg-white p-8 rounded-xl shadow-lg mb-8">
+            <form id="export-form" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label>
+                        <input type="date" id="start-date" class="form-input">
+                    </div>
+                    <div>
+                        <label for="end-date" class="block text-sm font-medium text-gray-700">Fecha Hasta</label>
+                        <input type="date" id="end-date" class="form-input">
+                    </div>
+                </div>
+                <div class="flex justify-end items-center space-x-4 pt-4">
+                    <button type="button" id="cancel-button" class="btn btn-red">CANCELA</button>
+                    <button type="submit" id="ok-button" class="btn btn-green">OK</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
+        const appId = 'pet-tags-split-app';
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const exportForm = document.getElementById('export-form');
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const cancelButton = document.getElementById('cancel-button');
+        const okButton = document.getElementById('ok-button');
+
+        function setWeeklyDates() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0=Domingo, 1=Lunes, ..., 3=Miércoles
+            const diff = (dayOfWeek - 3 + 7) % 7;
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() - diff);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 6); // Martes
+
+            const toISODate = (date) => date.toISOString().split('T')[0];
+            startDateInput.value = toISODate(startDate);
+            endDateInput.value = toISODate(endDate);
+            endDateInput.min = startDateInput.value;
+        }
+        
+        // Corregido: El max de la fecha desde debe ser la fecha hasta
+        startDateInput.addEventListener('change', () => { 
+            endDateInput.min = startDateInput.value; 
+        });
+        endDateInput.addEventListener('change', () => { 
+            startDateInput.max = endDateInput.value; 
+        });
+
+        cancelButton.addEventListener('click', () => {
+            // FIX: Construye la URL de forma robusta para volver
+            const currentUrl = window.location.href;
+            const backUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1) + 'admin01.html';
+            window.location.href = backUrl;
+        });
+
+        exportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            okButton.disabled = true;
+            okButton.textContent = 'Generando...';
+
+            try {
+                const startDate = new Date(startDateInput.value);
+                // Ajuste para que la fecha desde incluya todo el día
+                startDate.setUTCHours(0, 0, 0, 0);
+
+                const endDate = new Date(endDateInput.value);
+                // Ajuste para que la fecha hasta incluya todo el día
+                endDate.setUTCHours(23, 59, 59, 999);
+
+                const pedidosRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
+                const q = query(pedidosRef);
+                const querySnapshot = await getDocs(q);
+                const allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                const filtered = allOrders.filter(order => {
+                    if (!order.timestamp) return false;
+                    const orderDate = new Date(order.timestamp.seconds * 1000);
+                    return orderDate >= startDate && orderDate <= endDate;
+                });
+                
+                // Ordenar por fecha y luego por nombre de veterinaria
+                filtered.sort((a, b) => {
+                    if (a.timestamp.seconds !== b.timestamp.seconds) {
+                        return a.timestamp.seconds - b.timestamp.seconds;
+                    }
+                    return (a.vetName || '').localeCompare(b.vetName || '');
+                });
+
+                generateExcel(filtered, endDate);
+
+            } catch (error) {
+                console.error("Error al generar el archivo Excel:", error);
+                alert("Ocurrió un error al generar el archivo. Revisa la consola.");
+            } finally {
+                okButton.disabled = false;
+                okButton.textContent = 'OK';
+            }
+        });
+
+        function generateExcel(orders, deliveryDate) {
+            const formattedDeliveryDate = new Date(deliveryDate).toLocaleDateString('es-AR');
+            
+            const header1 = [`Entrega ${formattedDeliveryDate}`];
+            const header2 = ["Ni", "Fecha", "Veterinaria", "Orden", null, "Modelo", "Color", "Nombre", "Telefono", "Atrás", "Observaciones", null, null, "Ext"];
+            
+            let sheetData = [header1, header2];
+            
+            orders.forEach((order, index) => {
+                let statusText = '';
+                if (order.status === 'Realizado' || order.status === 'Completado') {
+                    statusText = 'OK';
+                } else if (order.status === 'Cancelado' || order.status === 'Entregado') {
+                    statusText = 'NO';
+                }
+
+                const row = [
+                    index + 1, // Ni
+                    order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : '', // Fecha
+                    order.vetName || '', // Veterinaria
+                    index + 1, // Orden
+                    null, // Columna E vacía
+                    order.shape || '', // Modelo
+                    order.color || '', // Color
+                    order.petName || '', // Nombre
+                    order.phone || '', // Telefono
+                    order.extraLine || '', // Atras
+                    order.observations || '', // Observaciones
+                    null, // Columna L vacía
+                    null, // Columna M vacía
+                    statusText // Ext (Estado)
+                ];
+                sheetData.push(row);
+});
+
+            const ws = XLSX.utils.aoa_to_sheet(sheetData);
+
+            // Definir merges
+            ws['!merges'] = [
+                // Merge para el título de entrega
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 13 } },
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Pedidos");
+            XLSX.writeFile(wb, `Pedidos_Formitas_${formattedDeliveryDate.replace(/\//g, '-')}.xlsx`);
+        }
+
+        setWeeklyDates();
+    </script>
+</body>
+</html>
