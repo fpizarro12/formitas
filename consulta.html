@@ -12,35 +12,22 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
         
-        .btn-primary { /* VERDE */
-            background-color: #16a34a;
-            color: white;
-            font-weight: bold;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            border: 2px solid #14532d;
-            transition: background-color 0.3s;
-        }
+        .btn-primary { background-color: #16a34a; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid #14532d; transition: background-color 0.3s; }
         .btn-primary:hover { background-color: #15803d; }
 
-        .btn-secondary { /* GRIS */
-            background-color: #e5e7eb;
-            color: #1f2937;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            border: 1px solid #6b7280;
-            transition: background-color 0.3s;
-        }
+        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; transition: background-color 0.3s; }
         .btn-secondary:hover { background-color: #d4d6da; }
 
-        /* --- NUEVOS ESTILOS --- */
         .order-card { border-left-width: 5px; }
-        .border-pendiente { border-color: #f59e0b; }
-        .border-realizado { border-color: #16a34a; }
-        .border-cancelado { border-color: #dc2626; }
-        .card-cancelado { opacity: 0.7; }
-        .status-badge { font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.7rem; border-radius: 9999px; }
+        .border-Pendiente { border-color: #f59e0b; }
+        .border-Realizado { border-color: #16a34a; }
+        .border-Cancelado { border-color: #dc2626; }
+        .card-Cancelado { opacity: 0.7; }
+        .status-badge { font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.7rem; border-radius: 9999px; color: white; }
+        .bg-Pendiente { background-color: #f59e0b; }
+        .bg-Realizado { background-color: #16a34a; }
+        .bg-Cancelado { background-color: #dc2626; }
+
         .btn-cancel { background-color: #ef4444; color: white; font-size: 0.8rem; padding: 0.3rem 0.8rem; border-radius: 0.5rem; transition: background-color 0.2s; }
         .btn-cancel:hover { background-color: #dc2626; }
         .modal-btn { padding: 0.5rem 1.5rem; border-radius: 0.5rem; font-weight: 600; }
@@ -82,15 +69,13 @@
         </div>
 
         <main id="pedidos-container" class="bg-white p-6 rounded-xl shadow-lg space-y-4 hidden">
-            <p id="loading-message" class="text-center text-gray-500">Aplicando filtros...</p>
-        </main>
+            </main>
         
         <footer class="text-center mt-8">
             <a href="index.html" class="btn-secondary">Volver al Formulario de Pedido</a>
         </footer>
     </div>
     
-    <!-- Modal de Confirmación -->
     <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white p-8 rounded-lg shadow-2xl max-w-sm w-full text-center">
             <h3 class="text-lg font-bold mb-4">Confirmar Cancelación</h3>
@@ -107,102 +92,83 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- CONFIGURACIÓN Y CONSTANTES ---
         const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
-        const appId = 'pet-tags-split-app';
+        const APP_ID = 'pet-tags-split-app';
         const VET_NAME_KEY = 'veterinaryName';
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
 
-        const vetNameDisplay = document.getElementById('vet-name-display');
-        const pedidosContainer = document.getElementById('pedidos-container');
-        const filterContainer = document.getElementById('filter-container');
-        const filterForm = document.getElementById('filter-form');
-        const modifyFiltersButton = document.getElementById('modify-filters-button');
-        const modal = document.getElementById('confirmation-modal');
-        const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
-        const cancelModalBtn = document.getElementById('cancel-modal-btn');
-        
+        // --- INICIALIZACIÓN DE FIREBASE ---
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (error) {
+            console.error("Fallo la inicializacion de Firebase:", error);
+            document.getElementById('filter-container').innerHTML = '<p class="text-center text-red-600 font-semibold">Error de conexión con la base de datos.</p>';
+        }
+
+        // --- ESTADO DE LA APLICACIÓN ---
         let allFetchedOrders = [];
-        let orderToCancel = { id: null, element: null };
+        let orderToCancelId = null;
 
-        function setDefaultDates() {
-            const endDateInput = document.getElementById('end-date');
-            const startDateInput = document.getElementById('start-date');
+        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
+        const dom = {
+            vetNameDisplay: document.getElementById('vet-name-display'),
+            pedidosContainer: document.getElementById('pedidos-container'),
+            filterContainer: document.getElementById('filter-container'),
+            filterForm: document.getElementById('filter-form'),
+            modifyFiltersButton: document.getElementById('modify-filters-button'),
+            modal: document.getElementById('confirmation-modal'),
+            confirmCancelBtn: document.getElementById('confirm-cancel-btn'),
+            cancelModalBtn: document.getElementById('cancel-modal-btn'),
+            startDate: document.getElementById('start-date'),
+            endDate: document.getElementById('end-date'),
+            startName: document.getElementById('start-name'),
+            endName: document.getElementById('end-name')
+        };
+        
+        // --- FUNCIONES UTILITARIAS ---
+        const setDefaultDates = () => {
             const today = new Date();
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(today.getDate() - 7);
-            endDateInput.value = today.toISOString().split('T')[0];
-            startDateInput.value = sevenDaysAgo.toISOString().split('T')[0];
-        }
+            dom.endDate.value = today.toISOString().split('T')[0];
+            dom.startDate.value = sevenDaysAgo.toISOString().split('T')[0];
+        };
 
-        function displayFilteredOrders() {
-            filterContainer.classList.add('hidden');
-            pedidosContainer.innerHTML = '<p id="loading-message" class="text-center text-gray-500">Aplicando filtros...</p>';
-            pedidosContainer.classList.remove('hidden');
-            modifyFiltersButton.classList.remove('hidden');
-            
-            const startDate = document.getElementById('start-date').value;
-            const endDate = document.getElementById('end-date').value;
-            const startName = document.getElementById('start-name').value.toUpperCase();
-            const endName = document.getElementById('end-name').value.toUpperCase();
-            
-            const filteredOrders = allFetchedOrders.filter(pedido => {
-                let dateMatch = true;
-                let nameMatch = true;
-                if (startDate && pedido.timestamp) {
-                    if (new Date(pedido.timestamp.seconds * 1000) < new Date(startDate)) dateMatch = false;
-                }
-                if (endDate && pedido.timestamp) {
-                    const endOfDay = new Date(endDate);
-                    endOfDay.setUTCHours(23, 59, 59, 999);
-                    if (new Date(pedido.timestamp.seconds * 1000) > endOfDay) dateMatch = false;
-                }
-                const petName = (pedido.petName || '').toUpperCase();
-                if (startName && petName < startName) nameMatch = false;
-                if (endName && petName > endName) nameMatch = false;
-                return dateMatch && nameMatch;
-            });
-            
-            pedidosContainer.innerHTML = '';
-            if (filteredOrders.length === 0) {
-                pedidosContainer.innerHTML = '<p class="text-center text-gray-500">No se encontraron pedidos que coincidan con los filtros.</p>';
-            } else {
-                filteredOrders.forEach(pedido => {
-                    pedidosContainer.appendChild(createOrderCard(pedido));
-                });
-            }
-        }
-
-        function createOrderCard(pedido) {
+        const createOrderCard = (pedido) => {
             const pedidoCard = document.createElement('div');
-            pedidoCard.className = 'p-4 rounded-md shadow-sm order-card bg-gray-50 transition-all';
-            pedidoCard.id = `card-${pedido.id}`;
-
             const status = pedido.status || 'Pendiente';
-            let statusText = status;
-            let statusClass = 'border-pendiente';
-            let isCancelled = false;
             
-            if (status === 'Realizado' || status === 'Completado') {
-                statusText = 'Realizado';
-                statusClass = 'border-realizado';
-            } else if (status === 'Cancelado' || status === 'Entregado') {
-                statusText = 'Cancelado';
-                statusClass = 'border-cancelado';
-                isCancelled = true;
-            }
+            // Simplificamos la lógica de clases
+            const statusClasses = {
+                Pendiente: 'border-Pendiente',
+                Realizado: 'border-Realizado',
+                Completado: 'border-Realizado',
+                Cancelado: 'border-Cancelado',
+                Entregado: 'border-Cancelado'
+            };
+            const statusColors = {
+                Pendiente: 'bg-Pendiente',
+                Realizado: 'bg-Realizado',
+                Completado: 'bg-Realizado',
+                Cancelado: 'bg-Cancelado',
+                Entregado: 'bg-Cancelado'
+            };
             
-            pedidoCard.classList.add(statusClass);
-            if(isCancelled) pedidoCard.classList.add('card-cancelado');
+            const statusClass = statusClasses[status] || 'border-Pendiente';
+            const statusColorClass = statusColors[status] || 'bg-Pendiente';
+            const isCancelled = status === 'Cancelado' || status === 'Entregado';
+
+            pedidoCard.className = `p-4 rounded-md shadow-sm order-card bg-gray-50 transition-all ${statusClass} ${isCancelled ? 'card-Cancelado' : ''}`;
+            pedidoCard.id = `card-${pedido.id}`;
 
             const fecha = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
             
-            let cancelButtonHTML = '';
-            if (status === 'Pendiente') {
-                cancelButtonHTML = `<button data-id="${pedido.id}" class="cancel-btn btn-cancel">Cancela Pedido</button>`;
-            }
+            const cancelButtonHTML = status === 'Pendiente' 
+                ? `<button data-id="${pedido.id}" class="cancel-btn btn-cancel">Cancela Pedido</button>` 
+                : '';
 
-            // AÑADIDO: Mostrar observaciones si existen
             const observationsHTML = pedido.observations 
                 ? `<p class="text-sm text-gray-700 mt-2"><strong>Observaciones:</strong> ${pedido.observations}</p>` 
                 : '';
@@ -218,93 +184,144 @@
                     </div>
                     <div class="text-right flex flex-col items-end space-y-2">
                         <span class="text-sm font-medium text-gray-600">${fecha}</span>
-                        <p class="text-sm font-semibold">Estado: <span class="status-badge ${statusClass}">${statusText}</span></p>
-                        <div id="button-container-${pedido.id}">
-                            ${cancelButtonHTML}
-                        </div>
+                        <p class="text-sm font-semibold">Estado: <span class="status-badge ${statusColorClass}">${status}</span></p>
+                        <div id="button-container-${pedido.id}">${cancelButtonHTML}</div>
                     </div>
-                </div>
-            `;
+                </div>`;
             return pedidoCard;
-        }
+        };
 
-        async function fetchAllOrders() {
-            const vetName = localStorage.getItem(VET_NAME_KEY);
-            if (!vetName) {
-                filterContainer.innerHTML = '<p class="text-center text-red-600 font-semibold">No hay una veterinaria configurada. Por favor, configure una desde el formulario de pedido.</p>';
-                vetNameDisplay.textContent = 'Veterinaria no configurada';
-                return;
+        const renderOrders = (orders) => {
+            dom.pedidosContainer.innerHTML = '';
+            if (orders.length === 0) {
+                dom.pedidosContainer.innerHTML = '<p class="text-center text-gray-500">No se encontraron pedidos con los filtros aplicados.</p>';
+            } else {
+                orders.forEach(pedido => {
+                    dom.pedidosContainer.appendChild(createOrderCard(pedido));
+                });
             }
-            vetNameDisplay.textContent = `Veterinaria: ${vetName}`;
+        };
+
+        // --- LÓGICA DE NEGOCIO ---
+        const fetchAllOrders = async (vetName) => {
             try {
-                const pedidosRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
+                const pedidosRef = collection(db, `/artifacts/${APP_ID}/public/data/pedidos`);
                 const q = query(pedidosRef, where("vetName", "==", vetName), orderBy("timestamp", "desc"));
                 const querySnapshot = await getDocs(q);
                 allFetchedOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
                 console.error("Error buscando los pedidos: ", error);
-                filterContainer.innerHTML = `<p class="text-center text-red-600 font-semibold">Hubo un error al cargar los datos iniciales. Error: ${error.message}</p>`;
+                dom.filterContainer.innerHTML = `<p class="text-center text-red-600 font-semibold">Error al cargar datos. Recargue la página.</p>`;
             }
-        }
+        };
+
+        const displayFilteredOrders = () => {
+            dom.filterContainer.classList.add('hidden');
+            dom.pedidosContainer.innerHTML = '<p class="text-center text-gray-500">Filtrando pedidos...</p>';
+            dom.pedidosContainer.classList.remove('hidden');
+            dom.modifyFiltersButton.classList.remove('hidden');
+            
+            const startDate = dom.startDate.value;
+            const endDate = dom.endDate.value;
+            const startName = dom.startName.value.toUpperCase();
+            const endName = dom.endName.value.toUpperCase();
+
+            const filteredOrders = allFetchedOrders.filter(pedido => {
+                // Filtro por fecha
+                const orderDate = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000) : null;
+                if (!orderDate) return false;
+                
+                const start = startDate ? new Date(startDate) : null;
+                const end = endDate ? new Date(endDate) : null;
+                if(start) start.setUTCHours(0, 0, 0, 0);
+                if(end) end.setUTCHours(23, 59, 59, 999);
+
+                if (start && orderDate < start) return false;
+                if (end && orderDate > end) return false;
+                
+                // Filtro por nombre
+                const petName = (pedido.petName || '').toUpperCase();
+                if (startName && petName < startName) return false;
+                if (endName && petName > endName) return false;
+                
+                return true;
+            });
+            
+            renderOrders(filteredOrders);
+        };
         
-        filterForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            displayFilteredOrders();
-        });
+        const cancelOrder = async () => {
+            if (!orderToCancelId) return;
 
-        modifyFiltersButton.addEventListener('click', () => {
-            pedidosContainer.classList.add('hidden');
-            modifyFiltersButton.classList.add('hidden');
-            filterContainer.classList.remove('hidden');
-        });
-
-        pedidosContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('cancel-btn')) {
-                orderToCancel.id = e.target.dataset.id;
-                orderToCancel.element = document.getElementById(`card-${orderToCancel.id}`);
-                modal.classList.remove('hidden');
-            }
-        });
-
-        cancelModalBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-            orderToCancel = { id: null, element: null };
-        });
-
-        confirmCancelBtn.addEventListener('click', async () => {
-            if (!orderToCancel.id) return;
-
-            confirmCancelBtn.disabled = true;
-            confirmCancelBtn.textContent = "Cancelando...";
+            dom.confirmCancelBtn.disabled = true;
+            dom.confirmCancelBtn.textContent = "Cancelando...";
 
             try {
-                const orderRef = doc(db, `/artifacts/${appId}/public/data/pedidos`, orderToCancel.id);
+                const orderRef = doc(db, `/artifacts/${APP_ID}/public/data/pedidos`, orderToCancelId);
                 await updateDoc(orderRef, { status: "Cancelado" });
 
-                const card = orderToCancel.element;
-                card.classList.remove('border-pendiente');
-                card.classList.add('border-cancelado', 'card-cancelado');
-                card.querySelector('.status-badge').textContent = 'Cancelado';
-                card.querySelector('.status-badge').classList.remove('border-pendiente');
-                card.querySelector('.status-badge').classList.add('border-cancelado');
-                const buttonContainer = document.getElementById(`button-container-${orderToCancel.id}`);
-                if (buttonContainer) buttonContainer.innerHTML = '';
-                
+                // Actualizar la UI sin recargar
+                const orderCard = document.getElementById(`card-${orderToCancelId}`);
+                if (orderCard) {
+                    orderCard.classList.remove('border-Pendiente');
+                    orderCard.classList.add('border-Cancelado', 'card-Cancelado');
+                    const statusBadge = orderCard.querySelector('.status-badge');
+                    statusBadge.textContent = 'Cancelado';
+                    statusBadge.classList.remove('bg-Pendiente');
+                    statusBadge.classList.add('bg-Cancelado');
+                    const buttonContainer = document.getElementById(`button-container-${orderToCancelId}`);
+                    if (buttonContainer) buttonContainer.innerHTML = '';
+                }
             } catch (error) {
                 console.error("Error al cancelar pedido:", error);
                 alert("Hubo un error al intentar cancelar el pedido.");
             } finally {
-                modal.classList.add('hidden');
-                confirmCancelBtn.disabled = false;
-                confirmCancelBtn.textContent = "Sí, cancelar";
-                orderToCancel = { id: null, element: null };
+                dom.modal.classList.add('hidden');
+                dom.confirmCancelBtn.disabled = false;
+                dom.confirmCancelBtn.textContent = "Sí, cancelar";
+                orderToCancelId = null;
+            }
+        };
+
+        // --- MANEJADORES DE EVENTOS ---
+        dom.filterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            displayFilteredOrders();
+        });
+
+        dom.modifyFiltersButton.addEventListener('click', () => {
+            dom.pedidosContainer.classList.add('hidden');
+            dom.modifyFiltersButton.classList.add('hidden');
+            dom.filterContainer.classList.remove('hidden');
+        });
+
+        dom.pedidosContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('cancel-btn')) {
+                orderToCancelId = e.target.dataset.id;
+                dom.modal.classList.remove('hidden');
             }
         });
 
-        async function main() {
+        dom.cancelModalBtn.addEventListener('click', () => {
+            dom.modal.classList.add('hidden');
+            orderToCancelId = null;
+        });
+
+        dom.confirmCancelBtn.addEventListener('click', cancelOrder);
+        
+        // --- INICIALIZACIÓN ---
+        const main = async () => {
+            const vetName = localStorage.getItem(VET_NAME_KEY);
+            if (!vetName || !db) {
+                dom.filterContainer.innerHTML = '<p class="text-center text-red-600 font-semibold">No hay una veterinaria configurada. Por favor, configure una desde el formulario de pedido.</p>';
+                dom.vetNameDisplay.textContent = 'Veterinaria no configurada';
+                return;
+            }
+            dom.vetNameDisplay.textContent = `Veterinaria: ${vetName}`;
+            
             setDefaultDates();
-            await fetchAllOrders();
-        }
+            await fetchAllOrders(vetName);
+        };
 
         main();
     </script>
