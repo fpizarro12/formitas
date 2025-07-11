@@ -254,18 +254,22 @@
 
         modeloDropdown.addEventListener('click', (e) => {
             if (e.target.matches('.filter-dropdown-item')) {
+                // FIX: Detener la propagación para que el clic no llegue al header
+                e.stopPropagation(); 
                 activeModelFilter = e.target.dataset.value;
                 applyAllFiltersAndRender();
-                modeloDropdown.classList.add('hidden'); // Oculta el menú
+                modeloDropdown.classList.add('hidden');
                 modeloHeader.querySelector('.filter-icon').classList.toggle('active', activeModelFilter !== 'todos');
             }
         });
 
         colorDropdown.addEventListener('click', (e) => {
             if (e.target.matches('.filter-dropdown-item')) {
+                // FIX: Detener la propagación para que el clic no llegue al header
+                e.stopPropagation();
                 activeColorFilter = e.target.dataset.value;
                 applyAllFiltersAndRender();
-                colorDropdown.classList.add('hidden'); // Oculta el menú
+                colorDropdown.classList.add('hidden');
                 colorHeader.querySelector('.filter-icon').classList.toggle('active', activeColorFilter !== 'todos');
             }
         });
@@ -299,6 +303,7 @@
     </script>
 </body>
 </html>
+
 
 
 
