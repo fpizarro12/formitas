@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baja de Pedidos a Excel - Formitas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Librería para exportar a Excel -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,77 +33,99 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label>
-                        <input type="date" id="start-date" class="form-input">
+                        <input type="date" id="start-date" class="form-input" disabled>
                     </div>
                     <div>
                         <label for="end-date" class="block text-sm font-medium text-gray-700">Fecha Hasta</label>
-                        <input type="date" id="end-date" class="form-input">
+                        <input type="date" id="end-date" class="form-input" disabled>
                     </div>
                 </div>
                 <div class="flex justify-end items-center space-x-4 pt-4">
                     <button type="button" id="cancel-button" class="btn btn-red">CANCELA</button>
-                    <button type="submit" id="ok-button" class="btn btn-green">OK</button>
+                    <button type="submit" id="ok-button" class="btn btn-green">GENERAR ARCHIVO</button>
                 </div>
+                <div id="loading-message" class="text-center text-gray-600 font-semibold hidden"></div>
             </form>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, getDocs, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- CONFIGURACIÓN Y CONSTANTES ---
         const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
-        const appId = 'pet-tags-split-app';
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        const exportForm = document.getElementById('export-form');
-        const startDateInput = document.getElementById('start-date');
-        const endDateInput = document.getElementById('end-date');
-        const cancelButton = document.getElementById('cancel-button');
-        const okButton = document.getElementById('ok-button');
-
-        function setWeeklyDates() {
-            const today = new Date();
-            const dayOfWeek = today.getDay(); // 0=Domingo, 1=Lunes, ..., 3=Miércoles
-            const diff = (dayOfWeek - 3 + 7) % 7;
-            const startDate = new Date(today);
-            startDate.setDate(today.getDate() - diff);
-            const endDate = new Date(startDate);
-            endDate.setDate(startDate.getDate() + 6); // Martes
-
-            const toISODate = (date) => date.toISOString().split('T')[0];
-            startDateInput.value = toISODate(startDate);
-            endDateInput.value = toISODate(endDate);
-            endDateInput.min = startDateInput.value;
-        }
+        const APP_ID = 'pet-tags-split-app';
         
-        startDateInput.addEventListener('change', () => { 
-            endDateInput.min = startDateInput.value; 
-        });
-        endDateInput.addEventListener('change', () => { 
-            startDateInput.max = endDateInput.value; 
-        });
+        // --- INICIALIZACIÓN DE FIREBASE ---
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (error) {
+            console.error("Fallo la inicializacion de Firebase:", error);
+            alert("Error de conexión. No se puede generar el archivo.");
+        }
 
-        cancelButton.addEventListener('click', () => {
-            const currentUrl = window.location.href;
-            const backUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1) + 'admin01.html';
-            window.location.href = backUrl;
-        });
+        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
+        const dom = {
+            exportForm: document.getElementById('export-form'),
+            startDateInput: document.getElementById('start-date'),
+            endDateInput: document.getElementById('end-date'),
+            cancelButton: document.getElementById('cancel-button'),
+            okButton: document.getElementById('ok-button'),
+            loadingMessage: document.getElementById('loading-message')
+        };
+        
+        // --- LÓGICA DE NEGOCIO ---
+        const generateExcel = (orders, deliveryDate) => {
+            const formattedDeliveryDate = new Date(deliveryDate).toLocaleDateString('es-AR');
+            
+            const header1 = [`Entrega ${formattedDeliveryDate}`];
+            const header2 = ["Ni", "Fecha", "Veterinaria", "Orden", null, "Modelo", "Color", "Nombre", "Telefono", "Atrás", "Observaciones", "Ext"];
+            
+            const sheetData = [header1, header2];
+            
+            orders.forEach((order, index) => {
+                let statusText = '';
+                if (order.status === 'Realizado' || order.status === 'Completado') {
+                    statusText = 'OK';
+                }
+                
+                const row = [
+                    index + 1,
+                    order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : '',
+                    order.vetName || '',
+                    index + 1,
+                    null, // Columna E vacía
+                    order.shape || '',
+                    order.color || '',
+                    order.petName || '',
+                    order.phone || '',
+                    order.extraLine || '',
+                    order.observations || '',
+                    statusText
+                ];
+                sheetData.push(row);
+            });
 
-        exportForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            okButton.disabled = true;
-            okButton.textContent = 'Generando...';
+            const ws = XLSX.utils.aoa_to_sheet(sheetData);
+            ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: header2.length - 1 } }];
+            
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Pedidos");
+            XLSX.writeFile(wb, `Pedidos_Formitas_${formattedDeliveryDate.replace(/\//g, '-')}.xlsx`);
+        };
+        
+        const fetchAndProcessOrders = async (filters) => {
+            dom.okButton.disabled = true;
+            dom.loadingMessage.textContent = 'Generando...';
+            dom.loadingMessage.classList.remove('hidden');
 
             try {
-                const startDate = new Date(startDateInput.value);
-                startDate.setUTCHours(0, 0, 0, 0);
-
-                const endDate = new Date(endDateInput.value);
-                endDate.setUTCHours(23, 59, 59, 999);
-
-                const pedidosRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
+                const pedidosRef = collection(db, `/artifacts/${APP_ID}/public/data/pedidos`);
+                // NOTA: Similar a admin01, se trae todo y se filtra en cliente.
+                // Para una app grande, esto debería optimizarse.
                 const q = query(pedidosRef);
                 const querySnapshot = await getDocs(q);
                 const allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -113,10 +134,10 @@
                 const filteredByDate = allOrders.filter(order => {
                     if (!order.timestamp) return false;
                     const orderDate = new Date(order.timestamp.seconds * 1000);
-                    return orderDate >= startDate && orderDate <= endDate;
+                    return orderDate >= filters.startDate && orderDate <= filters.endDate;
                 });
                 
-                // 2. NUEVO FILTRO: Excluye los pedidos cancelados
+                // 2. Excluye pedidos cancelados
                 const nonCancelledOrders = filteredByDate.filter(order => {
                     const status = order.status || 'Pendiente';
                     return status !== 'Cancelado' && status !== 'Entregado';
@@ -124,72 +145,60 @@
                 
                 // 3. Ordena los pedidos restantes
                 nonCancelledOrders.sort((a, b) => {
-                    if (a.timestamp.seconds !== b.timestamp.seconds) {
-                        return a.timestamp.seconds - b.timestamp.seconds;
-                    }
+                    // Primero por fecha, luego por nombre de veterinaria
+                    const dateA = a.timestamp?.seconds || 0;
+                    const dateB = b.timestamp?.seconds || 0;
+                    if (dateA !== dateB) return dateA - dateB;
                     return (a.vetName || '').localeCompare(b.vetName || '');
                 });
 
-                generateExcel(nonCancelledOrders, endDate);
+                generateExcel(nonCancelledOrders, filters.endDate);
 
             } catch (error) {
                 console.error("Error al generar el archivo Excel:", error);
                 alert("Ocurrió un error al generar el archivo. Revisa la consola.");
             } finally {
-                okButton.disabled = false;
-                okButton.textContent = 'OK';
+                dom.okButton.disabled = false;
+                dom.loadingMessage.textContent = '';
+                dom.loadingMessage.classList.add('hidden');
             }
+        };
+
+        // --- MANEJADORES DE EVENTOS ---
+        dom.cancelButton.addEventListener('click', () => {
+            window.history.back(); // Vuelve a la página anterior (admin01.html)
         });
 
-        function generateExcel(orders, deliveryDate) {
-            const formattedDeliveryDate = new Date(deliveryDate).toLocaleDateString('es-AR');
+        dom.exportForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!db) {
+                alert("Error de conexión, no se puede generar el archivo.");
+                return;
+            }
+
+            const startDate = new Date(dom.startDateInput.value);
+            startDate.setUTCHours(0, 0, 0, 0);
             
-            const header1 = [`Entrega ${formattedDeliveryDate}`];
-            const header2 = ["Ni", "Fecha", "Veterinaria", "Orden", null, "Modelo", "Color", "Nombre", "Telefono", "Atrás", "Observaciones", "Ext", null, null];
-            
-            let sheetData = [header1, header2];
-            
-            orders.forEach((order, index) => {
-                let statusText = '';
-                // Como ya filtramos los cancelados, solo necesitamos verificar si está realizado
-                if (order.status === 'Realizado' || order.status === 'Completado') {
-                    statusText = 'OK';
-                }
-                // Los pendientes quedarán en blanco
+            const endDate = new Date(dom.endDateInput.value);
+            endDate.setUTCHours(23, 59, 59, 999);
 
-                const row = [
-                    index + 1, // Ni (A)
-                    order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : '', // Fecha (B)
-                    order.vetName || '', // Veterinaria (C)
-                    index + 1, // Orden (D)
-                    null, // Columna E vacía
-                    order.shape || '', // Modelo (F)
-                    order.color || '', // Color (G)
-                    order.petName || '', // Nombre (H)
-                    order.phone || '', // Telefono (I)
-                    order.extraLine || '', // Atras (J)
-                    order.observations || '', // Observaciones (K)
-                    statusText, // Ext (Estado) (L)
-                    null, // Columna M vacía
-                    null  // Columna N vacía
-                ];
-                sheetData.push(row);
-            });
+            const filters = { startDate, endDate };
+            fetchAndProcessOrders(filters);
+        });
+        
+        // --- INICIALIZACIÓN ---
+        const main = () => {
+            const params = new URLSearchParams(window.location.search);
+            // Tomamos las fechas de los parámetros de la URL para que el usuario no tenga que reingresarlas
+            const startDateFromParams = params.get('startDate');
+            const endDateFromParams = params.get('endDate');
 
-            const ws = XLSX.utils.aoa_to_sheet(sheetData);
+            if (startDateFromParams) dom.startDateInput.value = startDateFromParams;
+            if (endDateFromParams) dom.endDateInput.value = endDateFromParams;
+        };
 
-            ws['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 13 } },
-            ];
-
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Pedidos");
-            XLSX.writeFile(wb, `Pedidos_Formitas_${formattedDeliveryDate.replace(/\//g, '-')}.xlsx`);
-        }
-
-        setWeeklyDates();
+        main();
     </script>
 </body>
 </html>
-
 
