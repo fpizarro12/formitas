@@ -165,18 +165,24 @@
 
             orders.forEach(order => {
                 const card = document.createElement('div');
-                card.className = 'bg-white p-4 rounded-lg shadow flex items-center justify-between';
+                card.className = 'bg-white p-4 rounded-lg shadow flex items-start justify-between';
                 card.setAttribute('data-record-id', order.id);
 
                 const fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'Sin fecha';
                 
+                // HTML de la tarjeta actualizado con más detalles
                 card.innerHTML = `
-                    <div>
-                        <p class="font-bold text-gray-800">${order.vetName || 'Sin Veterinaria'}</p>
-                        <p class="text-sm text-gray-600">${fecha} - ${order.petName || 'Sin Mascota'}</p>
-                        <p class="text-xs text-gray-400">ID: ${order.id}</p>
+                    <div class="flex-grow">
+                        <p class="font-bold text-gray-800">${order.petName || 'Sin Nombre'}</p>
+                        <p class="text-sm text-gray-600">${order.vetName || 'Sin Veterinaria'} - ${fecha}</p>
+                        <p class="text-sm text-gray-500 mt-1">
+                            <strong>Modelo:</strong> ${order.shape || 'N/A'} | <strong>Color:</strong> ${order.color || 'N/A'}
+                        </p>
+                        <p class="text-xs text-gray-400 mt-2">ID: ${order.id}</p>
                     </div>
-                    <button data-id="${order.id}" class="delete-btn btn btn-red text-sm py-1 px-3">Eliminar</button>
+                    <div class="flex-shrink-0 ml-4">
+                        <button data-id="${order.id}" class="delete-btn btn btn-red text-sm py-1 px-3">Eliminar</button>
+                    </div>
                 `;
                 recordsList.appendChild(card);
             });
@@ -215,7 +221,6 @@
                 const orderRef = doc(db, `/artifacts/${appId}/public/data/pedidos`, recordToDeleteId);
                 await deleteDoc(orderRef);
                 
-                // Eliminar el elemento del DOM
                 if (recordToDeleteElement) {
                     recordToDeleteElement.style.transition = 'opacity 0.5s';
                     recordToDeleteElement.style.opacity = '0';
@@ -241,3 +246,4 @@
     </script>
 </body>
 </html>
+
