@@ -4,102 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta de Pedidos - Formitas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- SDKs de Firebase v8 para máxima compatibilidad -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
-        .font-formitas { font-family: 'Comic Neue', cursive; }
+        /* Estilos Generales y Reset */
+        body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
+        * { box-sizing: border-box; }
+        .container { max-width: 896px; margin: 0 auto; padding: 2rem 1rem; }
+        .text-center { text-align: center; }
+
+        /* Encabezado */
+        .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3rem; font-weight: 700; color: #ef4444; }
+        .header-main-title { font-size: 1.875rem; font-weight: 700; color: #374151; margin-top: 0.5rem; }
+        #vet-name-display { font-size: 1.125rem; color: #6b7280; font-weight: 600; }
         
-        .btn-primary { background-color: #16a34a; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid #14532d; transition: background-color 0.3s; cursor: pointer; }
+        /* Botones */
+        .btn { border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 600; transition: background-color 0.3s ease; cursor: pointer; border-style: solid; }
+        .btn-primary { background-color: #16a34a; color: white; border-width: 2px; border-color: #14532d; }
         .btn-primary:hover { background-color: #15803d; }
-
-        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; transition: background-color 0.3s; cursor: pointer; }
+        .btn-secondary { background-color: #e5e7eb; color: #1f2937; border-width: 1px; border-color: #6b7280; }
         .btn-secondary:hover { background-color: #d4d6da; }
+        .btn-cancel { background-color: #ef4444; color: white; font-size: 0.8rem; padding: 0.3rem 0.8rem; }
+        .btn-cancel:hover { background-color: #dc2626; }
+        .btn-link { text-decoration: none; display: inline-block; }
 
-        .order-card { border-left-width: 5px; }
+        /* Contenedor de Filtros */
+        #filter-container { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .filter-title { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; }
+        .filter-form-grid { /* Usando floats para compatibilidad */ }
+        .filter-group { float: left; width: 20%; padding: 0 0.5rem; }
+        .filter-group-btn { float: left; width: 20%; padding: 0 0.5rem; padding-top: 1.25rem; /* Alineación vertical */ }
+        .filter-form-grid:after { content: ""; display: table; clear: both; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; }
+        .form-input { display: block; width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; }
+        
+        /* Contenedor de Pedidos */
+        #pedidos-container { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .order-card { background-color: #f9fafb; padding: 1rem; border-radius: 0.375rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left-style: solid; border-left-width: 5px; margin-bottom: 1rem; }
         .border-Pendiente { border-color: #f59e0b; }
         .border-Realizado { border-color: #16a34a; }
         .border-Cancelado { border-color: #dc2626; }
         .card-Cancelado { opacity: 0.7; }
-        .status-badge { font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.7rem; border-radius: 9999px; color: white; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-title { font-size: 1.125rem; font-weight: 700; color: #1f2937; margin:0; }
+        .card-details p, .card-details strong { font-size: 0.875rem; color: #374151; margin: 0.25rem 0; }
+        .card-info { text-align: right; }
+        .card-info .date { font-size: 0.875rem; font-weight: 500; color: #4b5563; }
+        .status-badge { font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.7rem; border-radius: 9999px; color: white; display: inline-block; }
         .bg-Pendiente { background-color: #f59e0b; }
         .bg-Realizado { background-color: #16a34a; }
         .bg-Cancelado { background-color: #dc2626; }
+        .card-footer { text-align: right; margin-top: 0.5rem; }
 
-        .btn-cancel { background-color: #ef4444; color: white; font-size: 0.8rem; padding: 0.3rem 0.8rem; border-radius: 0.5rem; transition: background-color 0.2s; cursor: pointer; }
-        .btn-cancel:hover { background-color: #dc2626; }
-        .modal-btn { padding: 0.5rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; }
+        /* Modal */
+        .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 50; }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); width: 90%; max-width: 24rem; text-align: center; }
+        .modal-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
+        .modal-body { color: #4b5563; margin-bottom: 1.5rem; }
+        .modal-footer button { margin: 0 0.5rem; }
 
-        /* Estilos para el layout compatible con navegadores antiguos */
-        .legacy-form-table { width: 100%; border-spacing: 1rem; border-collapse: separate; }
-        .legacy-form-table td { vertical-align: bottom; }
-        .legacy-form-table input { width: 100%; }
-        .full-width-btn { width: 100%; }
+        .hidden { display: none; }
+        footer { text-align: center; margin-top: 2rem; }
     </style>
 </head>
-<body class="flex flex-col items-center min-h-screen py-12">
+<body>
 
-    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
-        <header class="text-center mb-8">
-            <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
-            <h2 class="text-3xl font-bold text-gray-700 mt-2">Consulta de Pedidos</h2>
-            <p id="vet-name-display" class="text-lg text-gray-500 font-semibold"></p>
-            <button id="modify-filters-button" class="btn-secondary mt-4" style="display: none;">Modificar Filtros</button>
+    <div class="container">
+        <header class="text-center" style="margin-bottom: 2rem;">
+            <h1 class="font-formitas">Formitas</h1>
+            <h2 class="header-main-title">Consulta de Pedidos</h2>
+            <p id="vet-name-display"></p>
+            <button id="modify-filters-button" class="btn btn-secondary hidden" style="margin-top: 1rem;">Modificar Filtros</button>
         </header>
 
-        <div id="filter-container" class="bg-white p-6 rounded-xl shadow-lg mb-8">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Filtros</h3>
-            <!-- Layout de formulario con tabla para compatibilidad -->
+        <div id="filter-container">
+            <h3 class="filter-title">Filtros</h3>
             <form id="filter-form">
-                <table class="legacy-form-table">
-                    <tr>
-                        <td><label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label></td>
-                        <td><label for="end-date" class="block text-sm font-medium text-gray-700">Fecha Hasta</label></td>
-                        <td><label for="start-name" class="block text-sm font-medium text-gray-700">Mascota Desde</label></td>
-                        <td><label for="end-name" class="block text-sm font-medium text-gray-700">Mascota Hasta</label></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td><input type="date" id="start-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></td>
-                        <td><input type="date" id="end-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></td>
-                        <td><input type="text" id="start-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></td>
-                        <td><input type="text" id="end-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" value="ZZZZZZ"></td>
-                        <td><button type="submit" class="full-width-btn btn-primary">Aplicar Filtros</button></td>
-                    </tr>
-                </table>
+                <div class="filter-form-grid">
+                    <div class="filter-group">
+                        <label for="start-date" class="form-label">Fecha Desde</label>
+                        <input type="date" id="start-date" class="form-input">
+                    </div>
+                    <div class="filter-group">
+                        <label for="end-date" class="form-label">Fecha Hasta</label>
+                        <input type="date" id="end-date" class="form-input">
+                    </div>
+                    <div class="filter-group">
+                        <label for="start-name" class="form-label">Mascota Desde</label>
+                        <input type="text" id="start-name" class="form-input">
+                    </div>
+                    <div class="filter-group">
+                        <label for="end-name" class="form-label">Mascota Hasta</label>
+                        <input type="text" id="end-name" class="form-input" value="ZZZZZZ">
+                    </div>
+                    <div class="filter-group-btn">
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Aplicar Filtros</button>
+                    </div>
+                </div>
             </form>
         </div>
 
-        <main id="pedidos-container" class="bg-white p-6 rounded-xl shadow-lg space-y-4" style="display: none;">
-        </main>
+        <main id="pedidos-container" class="hidden"></main>
         
-        <footer class="text-center mt-8">
-            <a href="index.html" class="btn-secondary">Volver al Formulario de Pedido</a>
+        <footer>
+            <a href="index.html" class="btn btn-secondary btn-link">Volver al Formulario de Pedido</a>
         </footer>
     </div>
     
-    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style="display: none; z-index: 50;">
-        <div class="bg-white p-8 rounded-lg shadow-2xl max-w-sm w-full text-center">
-            <h3 class="text-lg font-bold mb-4">Confirmar Cancelación</h3>
-            <p class="text-gray-600 mb-6">¿Estás seguro de que deseas cancelar este pedido?</p>
-            <div class="flex justify-center space-x-4">
-                <button id="cancel-modal-btn" class="modal-btn btn-secondary">No, volver</button>
-                <button id="confirm-cancel-btn" class="modal-btn btn-cancel">Sí, cancelar</button>
+    <div id="confirmation-modal" class="modal-backdrop hidden">
+        <div class="modal">
+            <h3 class="modal-title">Confirmar Cancelación</h3>
+            <p class="modal-body">¿Estás seguro de que deseas cancelar este pedido?</p>
+            <div class="modal-footer">
+                <button id="cancel-modal-btn" class="btn btn-secondary">No, volver</button>
+                <button id="confirm-cancel-btn" class="btn btn-cancel" style="border:0;">Sí, cancelar</button>
             </div>
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-    // Se elimina type="module" y se envuelve en un evento window.onload
-    window.onload = function() {
+    document.addEventListener('DOMContentLoaded', function() {
 
         // --- CONFIGURACIÓN Y CONSTANTES ---
         var firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
@@ -109,12 +138,11 @@
         // --- INICIALIZACIÓN DE FIREBASE ---
         var db;
         try {
-            // Se usa la sintaxis de la v8 del SDK
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
         } catch (error) {
             console.error("Fallo la inicializacion de Firebase:", error);
-            document.getElementById('filter-container').innerHTML = '<p class="text-center text-red-600 font-semibold">Error de conexión con la base de datos.</p>';
+            document.getElementById('filter-container').innerHTML = '<p class="text-center" style="color: #dc2626; font-weight: 600;">Error de conexión con la base de datos.</p>';
         }
 
         // --- ESTADO DE LA APLICACIÓN ---
@@ -142,9 +170,17 @@
             var today = new Date();
             var sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(today.getDate() - 7);
-            // toISOString().split('T')[0] es compatible
-            dom.endDate.value = today.toISOString().split('T')[0];
-            dom.startDate.value = sevenDaysAgo.toISOString().split('T')[0];
+            
+            // Formato YYYY-MM-DD
+            var toISODate = function(date) {
+                var y = date.getFullYear();
+                var m = date.getMonth() + 1;
+                var d = date.getDate();
+                return y + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d;
+            };
+
+            dom.endDate.value = toISODate(today);
+            dom.startDate.value = toISODate(sevenDaysAgo);
         };
 
         var createOrderCard = function(pedido) {
@@ -152,49 +188,47 @@
             var status = pedido.status || 'Pendiente';
             
             var statusClasses = {
-                Pendiente: 'border-Pendiente', Realizado: 'border-Realizado',
-                Completado: 'border-Realizado', Cancelado: 'border-Cancelado',
-                Entregado: 'border-Cancelado'
+                Pendiente: 'border-Pendiente', Realizado: 'border-Realizado', Completado: 'border-Realizado',
+                Cancelado: 'border-Cancelado', Entregado: 'border-Cancelado'
             };
             var statusColors = {
-                Pendiente: 'bg-Pendiente', Realizado: 'bg-Realizado',
-                Completado: 'bg-Realizado', Cancelado: 'bg-Cancelado',
-                Entregado: 'bg-Cancelado'
+                Pendiente: 'bg-Pendiente', Realizado: 'bg-Realizado', Completado: 'bg-Realizado',
+                Cancelado: 'bg-Cancelado', Entregado: 'bg-Cancelado'
             };
             
             var statusClass = statusClasses[status] || 'border-Pendiente';
             var statusColorClass = statusColors[status] || 'bg-Pendiente';
             var isCancelled = status === 'Cancelado' || status === 'Entregado';
 
-            pedidoCard.className = 'p-4 rounded-md shadow-sm order-card bg-gray-50 transition-all ' + statusClass + (isCancelled ? ' card-Cancelado' : '');
+            pedidoCard.className = 'order-card ' + statusClass + (isCancelled ? ' card-Cancelado' : '');
             pedidoCard.id = 'card-' + pedido.id;
 
             var fecha = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
             
-            var cancelButtonHTML = status === 'Pendiente' 
-                ? '<button data-id="' + pedido.id + '" class="cancel-btn btn-cancel">Cancela Pedido</button>' 
+            var cancelButtonHTML = (status === 'Pendiente')
+                ? '<button data-id="' + pedido.id + '" class="cancel-btn btn btn-cancel" style="border:0;">Cancela Pedido</button>'
                 : '';
 
             var observationsHTML = pedido.observations 
-                ? '<p class="text-sm text-gray-700 mt-2"><strong>Observaciones:</strong> ' + pedido.observations + '</p>' 
+                ? '<p><strong>Observaciones:</strong> ' + pedido.observations + '</p>'
                 : '';
 
-            var phoneHTML = pedido.phone ? '<p class="text-sm text-gray-700"><strong>Teléfono:</strong> ' + pedido.phone + '</p>' : '';
-            var extraLineHTML = pedido.extraLine ? '<p class="text-sm text-gray-700"><strong>Línea Extra:</strong> ' + pedido.extraLine + '</p>' : '';
+            var phoneHTML = pedido.phone ? '<p><strong>Teléfono:</strong> ' + pedido.phone + '</p>' : '';
+            var extraLineHTML = pedido.extraLine ? '<p><strong>Línea Extra:</strong> ' + pedido.extraLine + '</p>' : '';
 
             pedidoCard.innerHTML = 
-                '<div class="flex justify-between items-start">' +
-                    '<div>' +
-                        '<h3 class="text-lg font-bold text-gray-800">' + (pedido.petName || 'Sin nombre') + '</h3>' +
-                        '<p class="text-sm text-gray-700 mt-1"><strong>Forma:</strong> ' + pedido.shape + ' | <strong>Color:</strong> ' + pedido.color + '</p>' +
+                '<div class="card-header">' +
+                    '<div class="card-details">' +
+                        '<h3 class="card-title">' + (pedido.petName || 'Sin nombre') + '</h3>' +
+                        '<p><strong>Forma:</strong> ' + pedido.shape + ' | <strong>Color:</strong> ' + pedido.color + '</p>' +
                         phoneHTML +
                         extraLineHTML +
                         observationsHTML +
                     '</div>' +
-                    '<div class="text-right flex flex-col items-end space-y-2">' +
-                        '<span class="text-sm font-medium text-gray-600">' + fecha + '</span>' +
-                        '<p class="text-sm font-semibold">Estado: <span class="status-badge ' + statusColorClass + '">' + status + '</span></p>' +
-                        '<div id="button-container-' + pedido.id + '">' + cancelButtonHTML + '</div>' +
+                    '<div class="card-info">' +
+                        '<span class="date">' + fecha + '</span>' +
+                        '<p>Estado: <span class="status-badge ' + statusColorClass + '">' + status + '</span></p>' +
+                        '<div class="card-footer" id="button-container-' + pedido.id + '">' + cancelButtonHTML + '</div>' +
                     '</div>' +
                 '</div>';
             return pedidoCard;
@@ -203,62 +237,70 @@
         var renderOrders = function(orders) {
             dom.pedidosContainer.innerHTML = '';
             if (orders.length === 0) {
-                dom.pedidosContainer.innerHTML = '<p class="text-center text-gray-500">No se encontraron pedidos con los filtros aplicados.</p>';
+                dom.pedidosContainer.innerHTML = '<p class="text-center" style="color:#6b7280;">No se encontraron pedidos con los filtros aplicados.</p>';
             } else {
-                orders.forEach(function(pedido) {
-                    dom.pedidosContainer.appendChild(createOrderCard(pedido));
-                });
+                for(var i = 0; i < orders.length; i++) {
+                    dom.pedidosContainer.appendChild(createOrderCard(orders[i]));
+                }
             }
         };
 
         // --- LÓGICA DE NEGOCIO ---
         var fetchAllOrders = function(vetName) {
-            // Se reescribe con .then() y .catch()
-            return db.collection('/artifacts/' + APP_ID + '/public/data/pedidos')
-                .where("vetName", "==", vetName)
-                .orderBy("timestamp", "desc")
-                .get()
+            var pedidosRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos');
+            
+            // Usamos .get() que devuelve una promesa
+            pedidosRef.where("vetName", "==", vetName).orderBy("timestamp", "desc").get()
                 .then(function(querySnapshot) {
-                    allFetchedOrders = querySnapshot.docs.map(function(doc) {
-                        // Se usa Object.assign para emular el spread operator
-                        return Object.assign({ id: doc.id }, doc.data());
+                    var orders = [];
+                    querySnapshot.forEach(function(doc) {
+                        orders.push({ id: doc.id, data: doc.data() });
                     });
+                    // Mapeo manual para preservar compatibilidad
+                    allFetchedOrders = [];
+                    for(var i = 0; i < orders.length; i++){
+                        var orderData = orders[i].data;
+                        orderData.id = orders[i].id;
+                        allFetchedOrders.push(orderData);
+                    }
                 })
                 .catch(function(error) {
                     console.error("Error buscando los pedidos: ", error);
-                    dom.filterContainer.innerHTML = '<p class="text-center text-red-600 font-semibold">Error al cargar datos. Recargue la página.</p>';
+                    dom.filterContainer.innerHTML = '<p class="text-center" style="color: #dc2626; font-weight: 600;">Error al cargar datos. Recargue la página.</p>';
                 });
         };
 
         var displayFilteredOrders = function() {
-            dom.filterContainer.style.display = 'none';
-            dom.pedidosContainer.innerHTML = '<p class="text-center text-gray-500">Filtrando pedidos...</p>';
-            dom.pedidosContainer.style.display = 'block';
-            dom.modifyFiltersButton.style.display = 'inline-block';
+            dom.filterContainer.classList.add('hidden');
+            dom.pedidosContainer.innerHTML = '<p class="text-center" style="color: #6b7280;">Filtrando pedidos...</p>';
+            dom.pedidosContainer.classList.remove('hidden');
+            dom.modifyFiltersButton.classList.remove('hidden');
             
             var startDate = dom.startDate.value;
             var endDate = dom.endDate.value;
             var startName = dom.startName.value.toUpperCase();
             var endName = dom.endName.value.toUpperCase();
-
-            var filteredOrders = allFetchedOrders.filter(function(pedido) {
+            
+            var filteredOrders = [];
+            for(var i=0; i < allFetchedOrders.length; i++){
+                var pedido = allFetchedOrders[i];
                 var orderDate = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000) : null;
-                if (!orderDate) return false;
+                if (!orderDate) continue;
                 
                 var start = startDate ? new Date(startDate) : null;
                 var end = endDate ? new Date(endDate) : null;
-                if(start) start.setHours(0, 0, 0, 0); // Ajuste para comparar desde el inicio del día
-                if(end) end.setHours(23, 59, 59, 999); // Ajuste para comparar hasta el final del día
+                if(start) start.setHours(0, 0, 0, 0);
+                if(end) end.setHours(23, 59, 59, 999);
 
-                if (start && orderDate < start) return false;
-                if (end && orderDate > end) return false;
+                if (start && orderDate < start) continue;
+                if (end && orderDate > end) continue;
                 
                 var petName = (pedido.petName || '').toUpperCase();
-                if (startName && petName < startName) return false;
-                if (endName && petName > endName) return false;
+                if (startName && petName < startName) continue;
+                if (endName && petName > endName) continue;
                 
-                return true;
-            });
+                filteredOrders.push(pedido);
+            }
             
             renderOrders(filteredOrders);
         };
@@ -269,17 +311,16 @@
             dom.confirmCancelBtn.disabled = true;
             dom.confirmCancelBtn.textContent = "Cancelando...";
 
-            db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(orderToCancelId)
-                .update({ status: "Cancelado" })
+            var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(orderToCancelId);
+            
+            orderRef.update({ status: "Cancelado" })
                 .then(function() {
                     var orderCard = document.getElementById('card-' + orderToCancelId);
                     if (orderCard) {
-                        orderCard.classList.remove('border-Pendiente');
-                        orderCard.classList.add('border-Cancelado', 'card-Cancelado');
+                        orderCard.className = orderCard.className.replace('border-Pendiente', 'border-Cancelado') + ' card-Cancelado';
                         var statusBadge = orderCard.querySelector('.status-badge');
                         statusBadge.textContent = 'Cancelado';
-                        statusBadge.classList.remove('bg-Pendiente');
-                        statusBadge.classList.add('bg-Cancelado');
+                        statusBadge.className = statusBadge.className.replace('bg-Pendiente', 'bg-Cancelado');
                         var buttonContainer = document.getElementById('button-container-' + orderToCancelId);
                         if (buttonContainer) buttonContainer.innerHTML = '';
                     }
@@ -288,8 +329,8 @@
                     console.error("Error al cancelar pedido:", error);
                     alert("Hubo un error al intentar cancelar el pedido.");
                 })
-                .finally(function() { // .finally puede no ser compatible, pero es probable que sí en FF52
-                    dom.modal.style.display = 'none';
+                .finally(function() {
+                    dom.modal.classList.add('hidden');
                     dom.confirmCancelBtn.disabled = false;
                     dom.confirmCancelBtn.textContent = "Sí, cancelar";
                     orderToCancelId = null;
@@ -303,20 +344,20 @@
         });
 
         dom.modifyFiltersButton.addEventListener('click', function() {
-            dom.pedidosContainer.style.display = 'none';
-            dom.modifyFiltersButton.style.display = 'none';
-            dom.filterContainer.style.display = 'block';
+            dom.pedidosContainer.classList.add('hidden');
+            dom.modifyFiltersButton.classList.add('hidden');
+            dom.filterContainer.classList.remove('hidden');
         });
 
         dom.pedidosContainer.addEventListener('click', function(e) {
             if (e.target.classList.contains('cancel-btn')) {
                 orderToCancelId = e.target.getAttribute('data-id');
-                dom.modal.style.display = 'flex';
+                dom.modal.classList.remove('hidden');
             }
         });
 
         dom.cancelModalBtn.addEventListener('click', function() {
-            dom.modal.style.display = 'none';
+            dom.modal.classList.add('hidden');
             orderToCancelId = null;
         });
 
@@ -326,22 +367,22 @@
         var main = function() {
             var vetName = localStorage.getItem(VET_NAME_KEY);
             if (!vetName || !db) {
-                dom.filterContainer.innerHTML = '<p class="text-center text-red-600 font-semibold">No hay una veterinaria configurada. Por favor, configure una desde el formulario de pedido.</p>';
+                dom.filterContainer.innerHTML = '<p class="text-center" style="color: #dc2626; font-weight: 600;">No hay una veterinaria configurada. Por favor, configure una desde el formulario de pedido.</p>';
                 dom.vetNameDisplay.textContent = 'Veterinaria no configurada';
                 return;
             }
             dom.vetNameDisplay.textContent = 'Veterinaria: ' + vetName;
             
             setDefaultDates();
-            // La función fetchAllOrders ahora devuelve una promesa
-            fetchAllOrders(vetName);
+            fetchAllOrders(vetName); // La función ahora es asíncrona por naturaleza con .then()
         };
 
         main();
-    };
+    });
     </script>
 </body>
 </html>
+
 
 
 
