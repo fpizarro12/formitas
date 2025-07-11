@@ -168,7 +168,6 @@
         };
         
         var populateDropdown = function(element, items) {
-            // Crear un array de items únicos
             var uniqueItemsObj = {};
             for(var i=0; i < items.length; i++) {
                 if(items[i]) uniqueItemsObj[items[i]] = true;
@@ -186,7 +185,6 @@
             var ordersToRender = [];
             var colorsForNextDropdown = [];
             
-            // Filtro por modelo
             for(var i=0; i < initialFilteredOrders.length; i++){
                 var order = initialFilteredOrders[i];
                 if (activeFilters.model === 'todos' || order.shape === activeFilters.model) {
@@ -198,7 +196,6 @@
             populateDropdown(dom.colorDropdown, colorsForNextDropdown);
             
             var finalOrders = [];
-             // Filtro por color
             for(var j=0; j < ordersToRender.length; j++){
                 var orderToRender = ordersToRender[j];
                 if (activeFilters.color === 'todos' || orderToRender.color === activeFilters.color) {
@@ -215,7 +212,6 @@
             orderRef.update({ status: newStatus })
                 .then(function() {
                     alert('El estado del pedido ha sido actualizado a "' + newStatus + '".');
-                    // Actualiza el estado en el array local para no recargar de Firebase
                     for(var i = 0; i < initialFilteredOrders.length; i++) {
                         if (initialFilteredOrders[i].id === orderId) {
                             initialFilteredOrders[i].status = newStatus;
@@ -232,7 +228,6 @@
         var loadAndFilterOrders = function() {
             dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #6b7280;">Cargando pedidos...</td></tr>';
             
-            // Leer parámetros de la URL manualmente
             var params = {};
             window.location.search.substring(1).split('&').forEach(function (pair) {
                 var parts = pair.split('=');
@@ -240,8 +235,8 @@
             });
 
             var filters = {
-                startDate: params['startDate'],
-                endDate: params['endDate'],
+                startDateString: params['startDate'],
+                endDateString: params['endDate'],
                 vetFrom: (params['vetFrom'] || '').toUpperCase(),
                 vetTo: (params['vetTo'] || 'ZZZZZZ').toUpperCase(),
                 status: params['status']
@@ -255,6 +250,22 @@
                          orderData.id = doc.id;
                          allOrders.push(orderData);
                     });
+                    
+                    // --- FIX: Parsear fechas de forma robusta para evitar problemas de timezone ---
+                    var start = null;
+                    if (filters.startDateString) {
+                        var startParts = filters.startDateString.split('-');
+                        start = new Date(parseInt(startParts[0], 10), parseInt(startParts[1], 10) - 1, parseInt(startParts[2], 10));
+                        start.setHours(0, 0, 0, 0);
+                    }
+
+                    var end = null;
+                    if (filters.endDateString) {
+                        var endParts = filters.endDateString.split('-');
+                        end = new Date(parseInt(endParts[0], 10), parseInt(endParts[1], 10) - 1, parseInt(endParts[2], 10));
+                        end.setHours(23, 59, 59, 999); // Fin del día (INCLUSIVO)
+                    }
+                    // --- FIN DEL FIX ---
 
                     var filtered = [];
                     var statusMap = {
@@ -275,16 +286,9 @@
                             }
                         }
 
-                        if (filters.startDate && orderDate) {
-                            var start = new Date(filters.startDate);
-                            start.setHours(0, 0, 0, 0);
-                            if(orderDate < start) continue;
-                        }
-                        if (filters.endDate && orderDate) {
-                            var end = new Date(filters.endDate);
-                            end.setHours(23, 59, 59, 999);
-                            if(orderDate > end) continue;
-                        }
+                        if (start && orderDate < start) continue;
+                        if (end && orderDate > end) continue;
+
                         if (filters.vetFrom && vetName < filters.vetFrom) continue;
                         if (filters.vetTo && vetName > filters.vetTo) continue;
                         
@@ -361,6 +365,7 @@
     </script>
 </body>
 </html>
+
 
 
 
