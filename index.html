@@ -20,41 +20,14 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
         
-        .btn-primary { /* VERDE: Confirmar, Aceptar, Enviar */
-            background-color: #16a34a; 
-            color: white;
-            font-weight: bold;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease-in-out;
-            border: 2px solid #14532d;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
+        .btn-primary { background-color: #16a34a; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.3s ease-in-out; border: 2px solid #14532d; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
         .btn-primary:hover { background-color: #15803d; }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-danger { /* ROJO: Cancelar, Borrar */
-            background-color: #ef4444;
-            color: white;
-            font-weight: bold;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease-in-out;
-            border: 2px solid #b91c1c;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
+        .btn-danger { background-color: #ef4444; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.3s ease-in-out; border: 2px solid #b91c1c; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
         .btn-danger:hover { background-color: #dc2626; }
 
-        .btn-secondary { /* GRIS: Acciones neutrales */
-            background-color: #e5e7eb;
-            color: #1f2937;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease-in-out;
-            border: 1px solid #6b7280;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
+        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.3s ease-in-out; border: 1px solid #6b7280; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .btn-secondary:hover { background-color: #d4d6da; }
 
         .toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: 30px; opacity: 0; transition: all 0.5s ease-in-out; }
@@ -82,11 +55,9 @@
             <h2 class="text-2xl md:text-3xl font-bold text-gray-700 mt-6">Nuevo Pedido de Medalla</h2>
         </header>
 
-        <!-- === INICIO DEL CAMBIO === -->
         <div class="text-center mb-6">
             <a href="consulta.html" class="btn-secondary inline-block">Consulta Pedidos</a>
         </div>
-        <!-- === FIN DEL CAMBIO === -->
 
         <div id="mainContent" class="form-container p-8 rounded-xl shadow-lg">
             <div class="relative z-10">
@@ -173,193 +144,231 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- CONFIGURACIÓN Y CONSTANTES ---
         const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
-        const appId = 'pet-tags-split-app';
+        const APP_ID = 'pet-tags-split-app';
         const VET_NAME_KEY = 'veterinaryName';
         const SETUP_PASSWORD = 'formitaspets2025';
+
+        // --- INICIALIZACIÓN DE FIREBASE ---
         let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            const auth = getAuth(app);
+            onAuthStateChanged(auth, (user) => {
+                if (!user) {
+                    signInAnonymously(auth).catch(console.error);
+                }
+            });
+        } catch (error) {
+            console.error("Fallo la inicializacion de Firebase:", error);
+            showToast('Error de conexion. No se pueden enviar pedidos.', true);
+        }
+
+        // --- ESTADO DE LA APLICACIÓN ---
         let pendingOrderData = null;
-        const orderForm = document.getElementById('orderForm');
-        const submitButton = document.getElementById('submitButton');
-        const setupButton = document.getElementById('setupButton');
-        const vetNameInput = document.getElementById('vetName');
-        const vetNameStatus = document.getElementById('vetNameStatus'); 
-        const toast = document.getElementById('toast');
-        const modalBackdrop = document.getElementById('modalBackdrop');
-        const setupModal = document.getElementById('setupModal');
-        const modalCancel = document.getElementById('modalCancel');
-        const modalConfirm = document.getElementById('modalConfirm');
-        const passwordInput = document.getElementById('passwordInput');
-        const newVetNameInput = document.getElementById('newVetNameInput');
-        const passwordError = document.getElementById('passwordError');
-        const confirmationModal = document.getElementById('confirmationModal');
-        const confirmationSummary = document.getElementById('confirmationSummary');
-        const confirmSendButton = document.getElementById('confirmSendButton');
-        const cancelSendButton = document.getElementById('cancelSendButton');
-        const cancelOrderButton = document.getElementById('cancelOrderButton');
-        const shapeSelect = document.getElementById('shape');
-        const colorSelect = document.getElementById('color');
         let currentModalStep = 'password';
-        function toggleFormElements(disabled) {
-            const formElements = orderForm.querySelectorAll('input, select, textarea, button');
+
+        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
+        const dom = {
+            orderForm: document.getElementById('orderForm'),
+            submitButton: document.getElementById('submitButton'),
+            setupButton: document.getElementById('setupButton'),
+            vetNameInput: document.getElementById('vetName'),
+            vetNameStatus: document.getElementById('vetNameStatus'),
+            toast: document.getElementById('toast'),
+            modalBackdrop: document.getElementById('modalBackdrop'),
+            setupModal: {
+                element: document.getElementById('setupModal'),
+                cancelButton: document.getElementById('modalCancel'),
+                confirmButton: document.getElementById('modalConfirm'),
+                passwordInput: document.getElementById('passwordInput'),
+                newVetNameInput: document.getElementById('newVetNameInput'),
+                passwordError: document.getElementById('passwordError'),
+                passwordStep: document.querySelector('[data-step="password"]'),
+                vetNameStep: document.querySelector('[data-step="vetName"]')
+            },
+            confirmationModal: {
+                element: document.getElementById('confirmationModal'),
+                summary: document.getElementById('confirmationSummary'),
+                confirmButton: document.getElementById('confirmSendButton'),
+                cancelButton: document.getElementById('cancelSendButton')
+            },
+            cancelOrderButton: document.getElementById('cancelOrderButton')
+        };
+        
+        // --- FUNCIONES UTILITARIAS ---
+        const showToast = (message, isError = false) => {
+            dom.toast.textContent = message;
+            dom.toast.style.backgroundColor = isError ? '#ef4444' : '#333';
+            dom.toast.classList.add('show');
+            setTimeout(() => dom.toast.classList.remove('show'), 3000);
+        };
+
+        const toggleModal = (modalElement, show) => {
+            modalElement.classList.toggle('hidden', !show);
+            dom.modalBackdrop.classList.toggle('hidden', !show);
+        };
+
+        const toggleFormElements = (disabled) => {
+            const formElements = dom.orderForm.querySelectorAll('input, select, textarea, button');
             formElements.forEach(element => {
                 if (element.id !== 'vetName') {
                     element.disabled = disabled;
                 }
             });
-        }
-        function showToast(message, isError = false) {
-            toast.textContent = message;
-            toast.style.backgroundColor = isError ? '#ef4444' : '#333';
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
-        }
-        function checkAndSetupVeterinaryName() {
+        };
+
+        // --- LÓGICA DE NEGOCIO ---
+        const checkAndSetupVeterinaryName = () => {
             const savedVetName = localStorage.getItem(VET_NAME_KEY);
             if (savedVetName) {
-                vetNameInput.value = savedVetName;
-                vetNameStatus.textContent = '';
-                setupButton.classList.add('hidden');
+                dom.vetNameInput.value = savedVetName;
+                dom.vetNameStatus.textContent = '';
+                dom.setupButton.classList.add('hidden');
                 toggleFormElements(false);
             } else {
-                vetNameStatus.textContent = 'Debe configurar el nombre de la veterinaria.';
-                setupButton.classList.remove('hidden');
+                dom.vetNameStatus.textContent = 'Debe configurar el nombre de la veterinaria.';
+                dom.setupButton.classList.remove('hidden');
                 toggleFormElements(true);
             }
-        }
-        function openModal(modal) {
-            modal.classList.remove('hidden');
-            modalBackdrop.classList.remove('hidden');
-        }
-        function closeModal(modal) {
-            modal.classList.add('hidden');
-            modalBackdrop.classList.add('hidden');
-        }
-        function handleSetup() {
-            currentModalStep = 'password';
-            setupModal.querySelector('[data-step="password"]').classList.remove('hidden');
-            setupModal.querySelector('[data-step="vetName"]').classList.add('hidden');
-            passwordInput.value = '';
-            newVetNameInput.value = '';
-            passwordError.classList.add('hidden');
-            modalConfirm.textContent = 'Siguiente';
-            openModal(setupModal);
-            passwordInput.focus();
-        }
-        function handleModalConfirmClick() {
-            if (currentModalStep === 'password') {
-                if (passwordInput.value === SETUP_PASSWORD) {
-                    currentModalStep = 'vetName';
-                    setupModal.querySelector('[data-step="password"]').classList.add('hidden');
-                    setupModal.querySelector('[data-step="vetName"]').classList.remove('hidden');
-                    passwordError.classList.add('hidden');
-                    modalConfirm.textContent = 'Guardar';
-                    newVetNameInput.focus();
-                } else {
-                    passwordError.classList.add('hidden');
-                }
-            } else if (currentModalStep === 'vetName') {
-                const newVetName = newVetNameInput.value.trim();
-                if (newVetName) {
-                    localStorage.setItem(VET_NAME_KEY, newVetName);
-                    showToast('Configuracion guardada!');
-                    checkAndSetupVeterinaryName();
-                    closeModal(setupModal);
-                } else {
-                    showToast('El nombre no puede estar vacio.', true);
-                }
-            }
-        }
-        function clearForm() {
-            document.getElementById('petName').value = '';
-            document.getElementById('phone').value = '';
-            document.getElementById('extraLine').value = '';
-            shapeSelect.selectedIndex = 0;
-            colorSelect.selectedIndex = 0;
-            document.getElementById('observations').value = '';
-        }
-        function showConfirmation(orderData) {
+        };
+
+        const clearForm = () => {
+            dom.orderForm.reset();
+        };
+
+        const showConfirmation = (orderData) => {
             pendingOrderData = orderData;
-            confirmationSummary.innerHTML = `
-                <ul>
-                    ${orderData.petName ? `<li><strong>Mascota:</strong> ${orderData.petName}</li>` : ''}
-                    ${orderData.phone ? `<li><strong>Telefono:</strong> ${orderData.phone}</li>` : ''}
-                    ${orderData.extraLine ? `<li><strong>Linea Extra:</strong> ${orderData.extraLine}</li>` : ''}
-                    <li><strong>Forma:</strong> ${orderData.shape}</li>
-                    <li><strong>Color:</strong> ${orderData.color}</li>
-                    ${orderData.observations ? `<li><strong>Obs:</strong> ${orderData.observations}</li>` : ''}
-                </ul>
-            `;
-            openModal(confirmationModal);
-        }
-        async function sendOrderToFirebase() {
+            // Usamos un objeto para mapear claves a etiquetas más legibles
+            const labels = {
+                petName: 'Mascota',
+                phone: 'Telefono',
+                extraLine: 'Linea Extra',
+                shape: 'Forma',
+                color: 'Color',
+                observations: 'Obs'
+            };
+
+            const summaryHTML = Object.entries(orderData)
+                .filter(([key, value]) => labels[key] && value) // Filtra campos relevantes y no vacíos
+                .map(([key, value]) => `<li><strong>${labels[key]}:</strong> ${value}</li>`)
+                .join('');
+            
+            dom.confirmationModal.summary.innerHTML = `<ul>${summaryHTML}</ul>`;
+            toggleModal(dom.confirmationModal.element, true);
+        };
+
+        const sendOrderToFirebase = async () => {
             if (!pendingOrderData) return;
-            submitButton.disabled = true;
-            submitButton.textContent = 'Enviando...';
-            confirmSendButton.disabled = true;
+
+            dom.submitButton.disabled = true;
+            dom.submitButton.textContent = 'Enviando...';
+            dom.confirmationModal.confirmButton.disabled = true;
+
             try {
-                if (!db) throw new Error("DB not initialized");
-                const collectionRef = collection(db, `/artifacts/${appId}/public/data/pedidos`);
-                await addDoc(collectionRef, pendingOrderData);
+                if (!db) throw new Error("La base de datos no está inicializada.");
+                
+                const orderWithTimestamp = {
+                    ...pendingOrderData,
+                    timestamp: serverTimestamp()
+                };
+
+                const collectionRef = collection(db, `/artifacts/${APP_ID}/public/data/pedidos`);
+                await addDoc(collectionRef, orderWithTimestamp);
+                
                 showToast('Pedido enviado con exito!');
                 clearForm();
-                closeModal(confirmationModal);
+                toggleModal(dom.confirmationModal.element, false);
             } catch (error) {
                 console.error("Error al agregar el pedido: ", error);
                 showToast('Error al enviar el pedido. Revisa la consola.', true);
             } finally {
-                if(localStorage.getItem(VET_NAME_KEY)){
-                   submitButton.disabled = false;
-                   submitButton.textContent = 'Enviar Pedido';
-                   confirmSendButton.disabled = false;
-                   pendingOrderData = null;
+                // Solo reactiva los botones si la veterinaria está configurada
+                if (localStorage.getItem(VET_NAME_KEY)) {
+                   dom.submitButton.disabled = false;
+                   dom.submitButton.textContent = 'Enviar Pedido';
+                }
+                dom.confirmationModal.confirmButton.disabled = false;
+                pendingOrderData = null;
+            }
+        };
+        
+        // --- MANEJADORES DE EVENTOS ---
+        const handleSetupClick = () => {
+            currentModalStep = 'password';
+            dom.setupModal.passwordStep.classList.remove('hidden');
+            dom.setupModal.vetNameStep.classList.add('hidden');
+            dom.setupModal.passwordInput.value = '';
+            dom.setupModal.newVetNameInput.value = '';
+            dom.setupModal.passwordError.classList.add('hidden');
+            dom.setupModal.confirmButton.textContent = 'Siguiente';
+            toggleModal(dom.setupModal.element, true);
+            dom.setupModal.passwordInput.focus();
+        };
+
+        const handleModalConfirmClick = () => {
+            if (currentModalStep === 'password') {
+                if (dom.setupModal.passwordInput.value === SETUP_PASSWORD) {
+                    currentModalStep = 'vetName';
+                    dom.setupModal.passwordStep.classList.add('hidden');
+                    dom.setupModal.vetNameStep.classList.remove('hidden');
+                    dom.setupModal.passwordError.classList.add('hidden');
+                    dom.setupModal.confirmButton.textContent = 'Guardar';
+                    dom.setupModal.newVetNameInput.focus();
+                } else {
+                    dom.setupModal.passwordError.classList.remove('hidden');
+                }
+            } else if (currentModalStep === 'vetName') {
+                const newVetName = dom.setupModal.newVetNameInput.value.trim();
+                if (newVetName) {
+                    localStorage.setItem(VET_NAME_KEY, newVetName);
+                    showToast('Configuracion guardada!');
+                    checkAndSetupVeterinaryName();
+                    toggleModal(dom.setupModal.element, false);
+                } else {
+                    showToast('El nombre no puede estar vacio.', true);
                 }
             }
-        }
-        function handleOrderFormSubmit(e) {
+        };
+
+        const handleOrderFormSubmit = (e) => {
             e.preventDefault();
-            if (!shapeSelect.value || !colorSelect.value) {
+            
+            const formData = new FormData(dom.orderForm);
+            const orderData = Object.fromEntries(formData.entries());
+
+            if (!orderData.shape || !orderData.color) {
                 showToast('Debe seleccionar una Forma y un Color.', true);
                 return;
             }
-            const orderData = {
-                vetName: vetNameInput.value,
-                petName: document.getElementById('petName').value,
-                phone: document.getElementById('phone').value,
-                extraLine: document.getElementById('extraLine').value,
-                shape: shapeSelect.value,
-                color: colorSelect.value,
-                observations: document.getElementById('observations').value,
-                status: 'Pendiente',
-                timestamp: serverTimestamp()
-            };
+            
             showConfirmation(orderData);
-        }
-        function main() {
-            checkAndSetupVeterinaryName();
-            setupButton.addEventListener('click', handleSetup);
-            modalCancel.addEventListener('click', () => closeModal(setupModal));
-            modalConfirm.addEventListener('click', handleModalConfirmClick);
-            confirmSendButton.addEventListener('click', sendOrderToFirebase);
-            cancelSendButton.addEventListener('click', () => closeModal(confirmationModal));
-            cancelOrderButton.addEventListener('click', clearForm);
-            orderForm.addEventListener('submit', handleOrderFormSubmit);
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                const auth = getAuth(app);
-                onAuthStateChanged(auth, (user) => {
-                    if (!user) {
-                       signInAnonymously(auth).catch((error) => console.error(error));
-                    }
-                });
-            } catch (error) {
-                console.error("Fallo la inicializacion de Firebase:", error);
-                submitButton.textContent = 'Error de Conexion';
-                submitButton.disabled = true;
-                showToast('Error de conexion. No se pueden enviar pedidos.', true);
+        };
+
+        // --- INICIALIZACIÓN ---
+        const main = () => {
+            // Verifica la conexión a Firebase antes de añadir listeners
+            if (!db) {
+                toggleFormElements(true);
+                dom.submitButton.textContent = 'Error de Conexion';
+                return;
             }
-        }
+
+            checkAndSetupVeterinaryName();
+
+            // Asignación de event listeners
+            dom.setupButton.addEventListener('click', handleSetupClick);
+            dom.setupModal.cancelButton.addEventListener('click', () => toggleModal(dom.setupModal.element, false));
+            dom.setupModal.confirmButton.addEventListener('click', handleModalConfirmClick);
+            dom.confirmationModal.confirmButton.addEventListener('click', sendOrderToFirebase);
+            dom.confirmationModal.cancelButton.addEventListener('click', () => toggleModal(dom.confirmationModal.element, false));
+            dom.cancelOrderButton.addEventListener('click', clearForm);
+            dom.orderForm.addEventListener('submit', handleOrderFormSubmit);
+        };
+        
         main();
     </script>
 </body>
