@@ -32,11 +32,9 @@
             <h2 id="main-title" class="text-3xl font-bold text-gray-700 mt-2">Consulta de Pedidos - V1.01.02</h2>
         </header>
 
-        <!-- Formulario de Filtros -->
         <div id="filter-container" class="bg-white p-8 rounded-xl shadow-lg mb-8">
             <h3 class="text-xl font-bold text-gray-800 mb-6">Filtros de Búsqueda</h3>
             <form id="filter-form" class="space-y-6">
-                <!-- Rango de Fechas -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label>
@@ -47,7 +45,6 @@
                         <input type="date" id="end-date" class="form-input">
                     </div>
                 </div>
-                <!-- Rango de Veterinarias -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="vet-from" class="block text-sm font-medium text-gray-700">Veterinaria Desde</label>
@@ -58,10 +55,8 @@
                         <input type="text" id="vet-to" class="form-input" value="ZZZZZZ">
                     </div>
                 </div>
-                <!-- Filtro de Estado -->
                 <div>
                     <label for="status-filter" class="block text-sm font-medium text-gray-700">Estado</label>
-                    <!-- ESTADOS ACTUALIZADOS -->
                     <select id="status-filter" class="form-input">
                         <option value="todos">Todos</option>
                         <option value="Pendiente">Pendientes</option>
@@ -69,7 +64,6 @@
                         <option value="Cancelado">Cancelados</option>
                     </select>
                 </div>
-                <!-- Botón de Aplicar -->
                 <div class="pt-4">
                     <button type="submit" class="w-full btn-primary">Aplicar Filtros</button>
                 </div>
@@ -78,69 +72,55 @@
     </div>
 
     <script>
-        // Script para manejar la redirección con parámetros
-        const filterForm = document.getElementById('filter-form');
-        const startDateInput = document.getElementById('start-date');
-        const endDateInput = document.getElementById('end-date');
-        const vetFromInput = document.getElementById('vet-from');
-        const vetToInput = document.getElementById('vet-to');
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterForm = document.getElementById('filter-form');
+            const startDateInput = document.getElementById('start-date');
+            const endDateInput = document.getElementById('end-date');
+            const vetFromInput = document.getElementById('vet-from');
+            const vetToInput = document.getElementById('vet-to');
 
-        // Función para establecer las fechas de la semana actual por defecto
-        function setWeeklyDates() {
-            const today = new Date();
-            const dayOfWeek = today.getDay();
-            // Ajusta para que la semana comience en Miércoles (3)
-            const diff = (dayOfWeek - 3 + 7) % 7;
-            const startDate = new Date(today);
-            startDate.setDate(today.getDate() - diff);
-            const endDate = new Date(startDate);
-            endDate.setDate(startDate.getDate() + 6);
+            // Establece las fechas de la semana actual por defecto
+            const setWeeklyDates = () => {
+                const today = new Date();
+                const dayOfWeek = today.getDay(); // 0=Domingo, 3=Miércoles
+                const diff = (dayOfWeek - 3 + 7) % 7; // Ajuste para que la semana comience el miércoles
+                const startDate = new Date(today);
+                startDate.setDate(today.getDate() - diff);
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 6);
 
-            const toISODate = (date) => date.toISOString().split('T')[0];
+                const toISODate = (date) => date.toISOString().split('T')[0];
 
-            startDateInput.value = toISODate(startDate);
-            endDateInput.value = toISODate(endDate);
+                startDateInput.value = toISODate(startDate);
+                endDateInput.value = toISODate(endDate);
+                endDateInput.min = startDateInput.value;
+            };
 
-            // Asegura que la fecha "hasta" no sea anterior a la fecha "desde"
-            endDateInput.min = startDateInput.value;
-            startDateInput.max = endDateInput.value;
-        }
+            // Lógica de redirección del formulario
+            filterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const params = new URLSearchParams();
+                if (startDateInput.value) params.append('startDate', startDateInput.value);
+                if (endDateInput.value) params.append('endDate', endDateInput.value);
+                if (vetFromInput.value) params.append('vetFrom', vetFromInput.value);
+                if (vetToInput.value && vetToInput.value.toUpperCase() !== 'ZZZZZZ') params.append('vetTo', vetToInput.value);
+                
+                const selectedStatus = document.getElementById('status-filter').value;
+                if (selectedStatus) params.append('status', selectedStatus);
 
-        // Evento de envío del formulario
-        filterForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const startDate = startDateInput.value;
-            const endDate = endDateInput.value;
-            const vetFrom = vetFromInput.value;
-            const vetTo = vetToInput.value;
-            const selectedStatus = document.getElementById('status-filter').value;
+                const nextUrl = new URL('admin01.html', window.location.href);
+                nextUrl.search = params.toString();
+                window.location.href = nextUrl.href;
+            });
 
-            // Construye los parámetros para la URL
-            const params = new URLSearchParams();
-            if (startDate) params.append('startDate', startDate);
-            if (endDate) params.append('endDate', endDate);
-            if (vetFrom) params.append('vetFrom', vetFrom);
-            // Solo añade vetTo si es diferente del valor por defecto
-            if (vetTo && vetTo.toUpperCase() !== 'ZZZZZZ') params.append('vetTo', vetTo);
-            if (selectedStatus) params.append('status', selectedStatus);
+            // Validaciones en tiempo real para los campos
+            startDateInput.addEventListener('change', () => { endDateInput.min = startDateInput.value; });
+            endDateInput.addEventListener('change', () => { startDateInput.max = endDateInput.value; });
 
-            // Crea una URL absoluta para evitar errores en entornos restringidos
-            const nextUrl = new URL('admin01.html', window.location.href);
-            nextUrl.search = params.toString();
-
-            // Redirige a la página de resultados con los filtros
-            window.location.href = nextUrl.href;
+            // Inicialización al cargar la página
+            setWeeklyDates();
         });
-
-        // Validaciones en tiempo real para los campos
-        startDateInput.addEventListener('change', () => { endDateInput.min = startDateInput.value; });
-        endDateInput.addEventListener('change', () => { startDateInput.max = endDateInput.value; });
-        vetFromInput.addEventListener('change', () => { if (vetToInput.value && vetFromInput.value.toUpperCase() > vetToInput.value.toUpperCase()) { vetToInput.value = vetFromInput.value; } });
-        vetToInput.addEventListener('change', () => { if (vetFromInput.value && vetToInput.value.toUpperCase() < vetFromInput.value.toUpperCase()) { vetFromInput.value = vetToInput.value; } });
-
-        // Inicializa las fechas al cargar la página
-        setWeeklyDates();
     </script>
 </body>
 </html>
