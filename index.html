@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuevo Pedido de Medalla</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,95 +17,128 @@
     <link rel="apple-touch-icon" href="https://i.imgur.com/EyqPrSq.png">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
-        .font-formitas { font-family: 'Comic Neue', cursive; }
-        
-        .btn-primary { background-color: #16a34a; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.3s ease-in-out; border: 2px solid #14532d; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
-        .btn-primary:hover { background-color: #15803d; }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* Estilos Generales y Reset */
+        body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
+        * { box-sizing: border-box; }
+        .container { max-width: 512px; margin: 0 auto; padding: 2rem 1rem; }
+        .text-center { text-align: center; }
 
-        .btn-danger { background-color: #ef4444; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.3s ease-in-out; border: 2px solid #b91c1c; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
-        .btn-danger:hover { background-color: #dc2626; }
-
-        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.3s ease-in-out; border: 1px solid #6b7280; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
-        .btn-secondary:hover { background-color: #d4d6da; }
-
-        .toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: 30px; opacity: 0; transition: all 0.5s ease-in-out; }
-        .toast.show { visibility: visible; opacity: 1; }
-        .modal-backdrop { @apply fixed inset-0 bg-gray-900 bg-opacity-60 z-40; }
-        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; border-radius: 0.5rem; padding: 1.5rem; width: 100%; max-width: 24rem; z-index: 50; box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); }
-        .form-container { border: 4px solid #06b6d4; position: relative; background-color: white; }
-        .form-container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐾</text></svg>'); background-repeat: repeat; background-size: 120px; opacity: 0.05; z-index: 0; }
-        .header-container { position: relative; }
+        /* Encabezado */
+        .header-container { position: relative; margin-bottom: 1.5rem; }
+        .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3.75rem; font-weight: 700; color: #ef4444; }
+        .header-subtitle { color: #4b5563; margin-top: -0.5rem; font-size: 1.125rem; }
+        .header-main-title { font-size: 1.875rem; font-weight: 700; color: #374151; margin-top: 1.5rem; }
         .dog-icon, .cat-icon { position: absolute; bottom: 45px; width: 70px; height: 70px; pointer-events: none; }
         .dog-icon { left: -20px; }
         .cat-icon { right: -20px; }
-        #confirmationModal { border: 4px solid #06b6d4; }
-        #confirmationSummary li { @apply border-b border-gray-200 py-2; }
-        #confirmationSummary li strong { @apply font-semibold text-gray-700; }
+
+        /* Botones */
+        .btn { font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.3s ease; border-style: solid; border-width: 2px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); cursor: pointer; width: 100%; font-size: 1rem; }
+        .btn-primary { background-color: #16a34a; color: white; border-color: #14532d; }
+        .btn-primary:hover { background-color: #15803d; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-danger { background-color: #ef4444; color: white; border-color: #b91c1c; }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-secondary { background-color: #e5e7eb; color: #1f2937; border: 1px solid #6b7280; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); font-weight: 600; padding: 0.5rem 1rem; }
+        .btn-secondary:hover { background-color: #d4d6da; }
+        .btn-link { display: inline-block; text-decoration: none; }
+
+        /* Formulario */
+        .form-container { border: 4px solid #06b6d4; position: relative; background-color: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+        .form-container-watermark { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐾</text></svg>'); background-repeat: repeat; background-size: 120px; opacity: 0.05; z-index: 0; }
+        .form-content { position: relative; z-index: 10; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; }
+        .form-input, .form-select, .form-textarea { display: block; width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #16a34a; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.3); }
+        .form-input-readonly { background-color: #f3f4f6; }
+        #vetNameStatus { font-size: 0.75rem; color: #dc2626; margin-top: 0.25rem; }
+        .form-buttons { margin-top: 2rem; display: flex; }
+        .form-buttons button { margin: 0 0.5rem; }
+        .form-buttons button:first-child { margin-left: 0; }
+        .form-buttons button:last-child { margin-right: 0; }
+        
+        /* Modal */
+        .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(17, 24, 39, 0.6); z-index: 40; }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; border-radius: 0.5rem; padding: 1.5rem; width: 90%; max-width: 24rem; z-index: 50; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 4px solid #06b6d4; }
+        .modal-header { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem; }
+        .modal-body { color: #4b5563; margin-bottom: 1rem; }
+        .modal-footer { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
+        .modal-footer button { margin-left: 1rem; }
+        #passwordError { font-size: 0.75rem; color: #dc2626; margin-top: 0.25rem; }
+        .hidden { display: none; }
+        
+        /* Confirmation Summary */
+        #confirmationSummary ul { list-style: none; padding: 0; margin: 0; }
+        #confirmationSummary li { border-bottom: 1px solid #e5e7eb; padding: 0.5rem 0; }
+        #confirmationSummary li strong { font-weight: 600; color: #374151; }
+
+        /* Toast */
+        .toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: 30px; opacity: 0; transition: all 0.5s ease-in-out; }
+        .toast.show { visibility: visible; opacity: 1; }
+
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen py-12">
-    <div class="container mx-auto p-4 md:p-8 max-w-lg">
-        <header id="mainHeader" class="text-center mb-6 header-container">
+    <div class="container">
+        <header id="mainHeader" class="header-container text-center">
             <div class="dog-icon"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M5,80 C5,70 25,70 25,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M95,80 C95,70 75,70 75,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M10,70 Q50,10 90,70" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M10,50 C-10,50 0,20 20,30" fill="#A67B5B"/><path d="M90,50 C110,50 100,20 80,30" fill="#A67B5B"/><circle cx="35" cy="55" r="5" fill="#2c2c2c"/><circle cx="65" cy="55" r="5" fill="#2c2c2c"/><ellipse cx="50" cy="65" rx="8" ry="5" fill="#2c2c2c"/></svg></div>
             <div class="cat-icon"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M5,80 C5,70 25,70 25,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M95,80 C95,70 75,70 75,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M10,70 Q50,20 90,70" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M10,40 L30,15 L40,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M90,40 L70,15 L60,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><circle cx="38" cy="55" r="4" fill="#2c2c2c"/><circle cx="62" cy="55" r="4" fill="#2c2c2c"/><path d="M45,65 Q50,70 55,65" stroke="#2c2c2c" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M20,60 L35,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M22,65 L35,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M80,60 L65,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M78,65 L65,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-            <h1 class="font-formitas text-6xl md:text-7xl font-bold text-red-500">Formitas</h1>
-            <p class="text-gray-600 -mt-2 text-lg">bijou para mascotas</p>
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-700 mt-6">Nuevo Pedido de Medalla</h2>
+            <h1 class="font-formitas">Formitas</h1>
+            <p class="header-subtitle">bijou para mascotas</p>
+            <h2 class="header-main-title">Nuevo Pedido de Medalla</h2>
         </header>
 
-        <div class="text-center mb-6">
-            <a href="consulta.html" class="btn-secondary inline-block">Consulta Pedidos</a>
+        <div class="text-center" style="margin-bottom: 1.5rem;">
+            <a href="consulta.html" class="btn-secondary btn-link">Consulta Pedidos</a>
         </div>
 
-        <div id="mainContent" class="form-container p-8 rounded-xl shadow-lg">
-            <div class="relative z-10">
+        <div id="mainContent" class="form-container">
+            <div class="form-container-watermark"></div>
+            <div class="form-content">
                 <form id="orderForm">
-                    <div class="space-y-4">
-                        <div>
-                            <label for="vetName" class="block text-sm font-medium text-gray-700">Veterinaria</label>
-                            <input type="text" id="vetName" name="vetName" required readonly class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            <p id="vetNameStatus" class="text-xs text-red-600 mt-1"></p>
-                        </div>
-                        <div>
-                            <label for="petName" class="block text-sm font-medium text-gray-700">Nombre de la Mascota</label>
-                            <input type="text" id="petName" name="petName" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700">Telefono / Texto</label>
-                            <input type="text" id="phone" name="phone" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="extraLine" class="block text-sm font-medium text-gray-700">Linea Extra</label>
-                            <input type="text" id="extraLine" name="extraLine" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm" placeholder="(Opcional)">
-                        </div>
-                        <div>
-                            <label for="shape" class="block text-sm font-medium text-gray-700">Forma de la Medalla <span class="text-red-500">*</span></label>
-                            <select id="shape" name="shape" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm">
-                                <option value="">Seleccione una forma</option>
-                                <option>Bulldog</option><option>Cat</option><option>Collar</option><option>Corazon</option><option>Estrella</option><option>Hueso Chico</option><option>Hueso Grande</option><option>Huella</option><option>Mini</option><option>Pez</option><option>Recta</option><option>Redonda</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="color" class="block text-sm font-medium text-gray-700">Color de la Medalla <span class="text-red-500">*</span></label>
-                            <select id="color" name="color" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm">
-                                <option value="">Seleccione un color</option>
-                                <option>Azul</option><option>Negro</option><option>Oro</option><option>Plata</option><option>Rojo</option><option>Violeta</option>
-                            </select>
-                        </div>
-                         <div>
-                            <label for="observations" class="block text-sm font-medium text-gray-700">Observaciones</label>
-                            <textarea id="observations" name="observations" rows="2" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm" placeholder="(Opcional)"></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label for="vetName" class="form-label">Veterinaria</label>
+                        <input type="text" id="vetName" name="vetName" required readonly class="form-input form-input-readonly">
+                        <p id="vetNameStatus"></p>
                     </div>
-                    <div class="mt-8 flex gap-4">
-                        <button type="button" id="cancelOrderButton" class="w-full btn-danger">Cancelar Pedido</button>
-                        <button type="submit" id="submitButton" class="w-full btn-primary">Enviar Pedido</button>
+                    <div class="form-group">
+                        <label for="petName" class="form-label">Nombre de la Mascota</label>
+                        <input type="text" id="petName" name="petName" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Telefono / Texto</label>
+                        <input type="text" id="phone" name="phone" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="extraLine" class="form-label">Linea Extra</label>
+                        <input type="text" id="extraLine" name="extraLine" class="form-input" placeholder="(Opcional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="shape" class="form-label">Forma de la Medalla <span style="color: #ef4444;">*</span></label>
+                        <select id="shape" name="shape" required class="form-select">
+                            <option value="">Seleccione una forma</option>
+                            <option>Bulldog</option><option>Cat</option><option>Collar</option><option>Corazon</option><option>Estrella</option><option>Hueso Chico</option><option>Hueso Grande</option><option>Huella</option><option>Mini</option><option>Pez</option><option>Recta</option><option>Redonda</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="color" class="form-label">Color de la Medalla <span style="color: #ef4444;">*</span></label>
+                        <select id="color" name="color" required class="form-select">
+                            <option value="">Seleccione un color</option>
+                            <option>Azul</option><option>Negro</option><option>Oro</option><option>Plata</option><option>Rojo</option><option>Violeta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="observations" class="form-label">Observaciones</label>
+                        <textarea id="observations" name="observations" rows="2" class="form-textarea" placeholder="(Opcional)"></textarea>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" id="cancelOrderButton" class="btn btn-danger">Cancelar Pedido</button>
+                        <button type="submit" id="submitButton" class="btn btn-primary">Enviar Pedido</button>
                     </div>
                 </form>
-                 <div class="mt-4 text-center">
-                    <button id="setupButton" class="btn-secondary text-xs">FORMITAS</button>
+                <div class="text-center" style="margin-top: 1rem;">
+                    <button id="setupButton" class="btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">FORMITAS</button>
                 </div>
             </div>
         </div>
@@ -114,52 +147,58 @@
     <div id="toast" class="toast"></div>
 
     <div id="modalBackdrop" class="modal-backdrop hidden"></div>
+    
     <div id="setupModal" class="modal hidden">
         <div data-step="password">
-            <h3 class="text-xl font-bold text-gray-800 mb-2">Configuracion</h3>
-            <p class="text-gray-600 mb-4">Por favor, ingrese la clave de configuracion.</p>
-            <input type="password" id="passwordInput" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm">
-            <p id="passwordError" class="text-xs text-red-600 mt-1 hidden">Clave incorrecta.</p>
+            <h3 class="modal-header">Configuracion</h3>
+            <p class="modal-body">Por favor, ingrese la clave de configuracion.</p>
+            <input type="password" id="passwordInput" class="form-input">
+            <p id="passwordError" class="hidden">Clave incorrecta.</p>
         </div>
         <div class="hidden" data-step="vetName">
-            <h3 class="text-xl font-bold text-gray-800 mb-2">Nombre de la Veterinaria</h3>
-            <p class="text-gray-600 mb-4">Clave correcta. Ahora ingrese el nombre.</p>
-            <input type="text" id="newVetNameInput" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-600 focus:border-green-600 sm:text-sm" required>
+            <h3 class="modal-header">Nombre de la Veterinaria</h3>
+            <p class="modal-body">Clave correcta. Ahora ingrese el nombre.</p>
+            <input type="text" id="newVetNameInput" class="form-input" required>
         </div>
-        <div class="mt-6 flex justify-end gap-4">
+        <div class="modal-footer">
             <button type="button" id="modalCancel" class="btn-secondary">Cancelar</button>
             <button type="button" id="modalConfirm" class="btn-primary">Siguiente</button>
         </div>
     </div>
+    
     <div id="confirmationModal" class="modal hidden">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">Confirmar Pedido</h3>
-        <div id="confirmationSummary" class="text-left text-sm space-y-2"></div>
-        <div class="mt-6 flex justify-end gap-4">
-            <button type="button" id="cancelSendButton" class="btn-danger">CANCELA</button>
-            <button type="button" id="confirmSendButton" class="btn-primary">OK</button>
+        <h3 class="modal-header">Confirmar Pedido</h3>
+        <div id="confirmationSummary" class="modal-body" style="text-align: left;"></div>
+        <div class="modal-footer">
+            <button type="button" id="cancelSendButton" class="btn btn-danger">CANCELA</button>
+            <button type="button" id="confirmSendButton" class="btn btn-primary">OK</button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
         // --- CONFIGURACIÓN Y CONSTANTES ---
-        const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
-        const APP_ID = 'pet-tags-split-app';
-        const VET_NAME_KEY = 'veterinaryName';
-        const SETUP_PASSWORD = 'formitaspets2025';
+        var firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
+        var APP_ID = 'pet-tags-split-app';
+        var VET_NAME_KEY = 'veterinaryName';
+        var SETUP_PASSWORD = 'formitaspets2025';
 
         // --- INICIALIZACIÓN DE FIREBASE ---
-        let db;
+        var db;
         try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            const auth = getAuth(app);
-            onAuthStateChanged(auth, (user) => {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            var auth = firebase.auth();
+            auth.onAuthStateChanged(function(user) {
                 if (!user) {
-                    signInAnonymously(auth).catch(console.error);
+                    auth.signInAnonymously().catch(function(error){
+                         console.error(error);
+                    });
                 }
             });
         } catch (error) {
@@ -168,11 +207,11 @@
         }
 
         // --- ESTADO DE LA APLICACIÓN ---
-        let pendingOrderData = null;
-        let currentModalStep = 'password';
+        var pendingOrderData = null;
+        var currentModalStep = 'password';
 
         // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
-        const dom = {
+        var dom = {
             orderForm: document.getElementById('orderForm'),
             submitButton: document.getElementById('submitButton'),
             setupButton: document.getElementById('setupButton'),
@@ -200,30 +239,30 @@
         };
         
         // --- FUNCIONES UTILITARIAS ---
-        const showToast = (message, isError = false) => {
+        var showToast = function(message, isError) {
             dom.toast.textContent = message;
             dom.toast.style.backgroundColor = isError ? '#ef4444' : '#333';
             dom.toast.classList.add('show');
-            setTimeout(() => dom.toast.classList.remove('show'), 3000);
+            setTimeout(function() { dom.toast.classList.remove('show'); }, 3000);
         };
 
-        const toggleModal = (modalElement, show) => {
+        var toggleModal = function(modalElement, show) {
             modalElement.classList.toggle('hidden', !show);
             dom.modalBackdrop.classList.toggle('hidden', !show);
         };
 
-        const toggleFormElements = (disabled) => {
-            const formElements = dom.orderForm.querySelectorAll('input, select, textarea, button');
-            formElements.forEach(element => {
-                if (element.id !== 'vetName') {
-                    element.disabled = disabled;
+        var toggleFormElements = function(disabled) {
+            var formElements = dom.orderForm.querySelectorAll('input, select, textarea, button');
+            for (var i = 0; i < formElements.length; i++) {
+                if (formElements[i].id !== 'vetName') {
+                    formElements[i].disabled = disabled;
                 }
-            });
+            }
         };
 
         // --- LÓGICA DE NEGOCIO ---
-        const checkAndSetupVeterinaryName = () => {
-            const savedVetName = localStorage.getItem(VET_NAME_KEY);
+        var checkAndSetupVeterinaryName = function() {
+            var savedVetName = localStorage.getItem(VET_NAME_KEY);
             if (savedVetName) {
                 dom.vetNameInput.value = savedVetName;
                 dom.vetNameStatus.textContent = '';
@@ -236,68 +275,68 @@
             }
         };
 
-        const clearForm = () => {
+        var clearForm = function() {
             dom.orderForm.reset();
+            checkAndSetupVeterinaryName();
         };
 
-        const showConfirmation = (orderData) => {
+        var showConfirmation = function(orderData) {
             pendingOrderData = orderData;
-            // Usamos un objeto para mapear claves a etiquetas más legibles
-            const labels = {
-                petName: 'Mascota',
-                phone: 'Telefono',
-                extraLine: 'Linea Extra',
-                shape: 'Forma',
-                color: 'Color',
-                observations: 'Obs'
+            var labels = {
+                petName: 'Mascota', phone: 'Telefono', extraLine: 'Linea Extra',
+                shape: 'Forma', color: 'Color', observations: 'Obs'
             };
 
-            const summaryHTML = Object.entries(orderData)
-                .filter(([key, value]) => labels[key] && value) // Filtra campos relevantes y no vacíos
-                .map(([key, value]) => `<li><strong>${labels[key]}:</strong> ${value}</li>`)
-                .join('');
+            var summaryHTML = '<ul>';
+            for (var key in orderData) {
+                if (labels[key] && orderData[key]) {
+                    summaryHTML += '<li><strong>' + labels[key] + ':</strong> ' + orderData[key] + '</li>';
+                }
+            }
+            summaryHTML += '</ul>';
             
-            dom.confirmationModal.summary.innerHTML = `<ul>${summaryHTML}</ul>`;
+            dom.confirmationModal.summary.innerHTML = summaryHTML;
             toggleModal(dom.confirmationModal.element, true);
         };
 
-        const sendOrderToFirebase = async () => {
+        var sendOrderToFirebase = function() {
             if (!pendingOrderData) return;
 
             dom.submitButton.disabled = true;
             dom.submitButton.textContent = 'Enviando...';
             dom.confirmationModal.confirmButton.disabled = true;
 
-            try {
-                if (!db) throw new Error("La base de datos no está inicializada.");
-                
-                const orderWithTimestamp = {
-                    ...pendingOrderData,
-                    timestamp: serverTimestamp()
-                };
-
-                const collectionRef = collection(db, `/artifacts/${APP_ID}/public/data/pedidos`);
-                await addDoc(collectionRef, orderWithTimestamp);
-                
-                showToast('Pedido enviado con exito!');
-                clearForm();
-                toggleModal(dom.confirmationModal.element, false);
-            } catch (error) {
-                console.error("Error al agregar el pedido: ", error);
-                showToast('Error al enviar el pedido. Revisa la consola.', true);
-            } finally {
-                // Solo reactiva los botones si la veterinaria está configurada
-                if (localStorage.getItem(VET_NAME_KEY)) {
-                   dom.submitButton.disabled = false;
-                   dom.submitButton.textContent = 'Enviar Pedido';
-                }
-                dom.confirmationModal.confirmButton.disabled = false;
-                pendingOrderData = null;
+            if (!db) {
+                showToast("La base de datos no está inicializada.", true);
+                return;
             }
+
+            var orderWithTimestamp = pendingOrderData;
+            orderWithTimestamp.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+            db.collection('/artifacts/' + APP_ID + '/public/data/pedidos')
+                .add(orderWithTimestamp)
+                .then(function() {
+                    showToast('Pedido enviado con exito!');
+                    clearForm();
+                    toggleModal(dom.confirmationModal.element, false);
+                })
+                .catch(function(error) {
+                    console.error("Error al agregar el pedido: ", error);
+                    showToast('Error al enviar el pedido. Revisa la consola.', true);
+                })
+                .finally(function() {
+                    if (localStorage.getItem(VET_NAME_KEY)) {
+                        dom.submitButton.disabled = false;
+                        dom.submitButton.textContent = 'Enviar Pedido';
+                    }
+                    dom.confirmationModal.confirmButton.disabled = false;
+                    pendingOrderData = null;
+                });
         };
         
         // --- MANEJADORES DE EVENTOS ---
-        const handleSetupClick = () => {
+        var handleSetupClick = function() {
             currentModalStep = 'password';
             dom.setupModal.passwordStep.classList.remove('hidden');
             dom.setupModal.vetNameStep.classList.add('hidden');
@@ -309,7 +348,7 @@
             dom.setupModal.passwordInput.focus();
         };
 
-        const handleModalConfirmClick = () => {
+        var handleModalConfirmClick = function() {
             if (currentModalStep === 'password') {
                 if (dom.setupModal.passwordInput.value === SETUP_PASSWORD) {
                     currentModalStep = 'vetName';
@@ -322,7 +361,7 @@
                     dom.setupModal.passwordError.classList.remove('hidden');
                 }
             } else if (currentModalStep === 'vetName') {
-                const newVetName = dom.setupModal.newVetNameInput.value.trim();
+                var newVetName = dom.setupModal.newVetNameInput.value.trim();
                 if (newVetName) {
                     localStorage.setItem(VET_NAME_KEY, newVetName);
                     showToast('Configuracion guardada!');
@@ -334,11 +373,18 @@
             }
         };
 
-        const handleOrderFormSubmit = (e) => {
+        var handleOrderFormSubmit = function(e) {
             e.preventDefault();
             
-            const formData = new FormData(dom.orderForm);
-            const orderData = Object.fromEntries(formData.entries());
+            var orderData = {
+                vetName: dom.vetNameInput.value,
+                petName: document.getElementById('petName').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                extraLine: document.getElementById('extraLine').value.trim(),
+                shape: document.getElementById('shape').value,
+                color: document.getElementById('color').value,
+                observations: document.getElementById('observations').value.trim()
+            };
 
             if (!orderData.shape || !orderData.color) {
                 showToast('Debe seleccionar una Forma y un Color.', true);
@@ -349,8 +395,7 @@
         };
 
         // --- INICIALIZACIÓN ---
-        const main = () => {
-            // Verifica la conexión a Firebase antes de añadir listeners
+        var main = function() {
             if (!db) {
                 toggleFormElements(true);
                 dom.submitButton.textContent = 'Error de Conexion';
@@ -361,15 +406,16 @@
 
             // Asignación de event listeners
             dom.setupButton.addEventListener('click', handleSetupClick);
-            dom.setupModal.cancelButton.addEventListener('click', () => toggleModal(dom.setupModal.element, false));
+            dom.setupModal.cancelButton.addEventListener('click', function() { toggleModal(dom.setupModal.element, false); });
             dom.setupModal.confirmButton.addEventListener('click', handleModalConfirmClick);
             dom.confirmationModal.confirmButton.addEventListener('click', sendOrderToFirebase);
-            dom.confirmationModal.cancelButton.addEventListener('click', () => toggleModal(dom.confirmationModal.element, false));
+            dom.confirmationModal.cancelButton.addEventListener('click', function() { toggleModal(dom.confirmationModal.element, false); });
             dom.cancelOrderButton.addEventListener('click', clearForm);
             dom.orderForm.addEventListener('submit', handleOrderFormSubmit);
         };
         
         main();
+    });
     </script>
 </body>
 </html>
