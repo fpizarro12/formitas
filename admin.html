@@ -11,7 +11,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
-        .btn-primary { background-color: #16a34a; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid #14532d; transition: background-color 0.2s; }
+        .btn-primary { background-color: #16a34a; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 2px solid #14532d; transition: background-color 0.2s; cursor: pointer; }
         .btn-primary:hover { background-color: #15803d; }
         .form-input {
             margin-top: 0.25rem;
@@ -22,6 +22,11 @@
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             padding: 0.5rem 0.75rem;
         }
+        /* Estilos para el layout compatible */
+        .legacy-form-table { width: 100%; border-spacing: 1rem; border-collapse: separate; }
+        .legacy-form-table td { vertical-align: bottom; }
+        .legacy-form-table input, .legacy-form-table select { width: 100%; }
+        .full-width-btn { width: 100%; }
     </style>
 </head>
 <body class="py-12">
@@ -34,62 +39,63 @@
 
         <div id="filter-container" class="bg-white p-8 rounded-xl shadow-lg mb-8">
             <h3 class="text-xl font-bold text-gray-800 mb-6">Filtros de Búsqueda</h3>
-            <form id="filter-form" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label>
-                        <input type="date" id="start-date" class="form-input">
-                    </div>
-                    <div>
-                        <label for="end-date" class="block text-sm font-medium text-gray-700">Fecha Hasta</label>
-                        <input type="date" id="end-date" class="form-input">
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="vet-from" class="block text-sm font-medium text-gray-700">Veterinaria Desde</label>
-                        <input type="text" id="vet-from" class="form-input" placeholder="Ej: Veterinaria A">
-                    </div>
-                    <div>
-                        <label for="vet-to" class="block text-sm font-medium text-gray-700">Veterinaria Hasta</label>
-                        <input type="text" id="vet-to" class="form-input" value="ZZZZZZ">
-                    </div>
-                </div>
-                <div>
-                    <label for="status-filter" class="block text-sm font-medium text-gray-700">Estado</label>
-                    <select id="status-filter" class="form-input">
-                        <option value="todos">Todos</option>
-                        <option value="Pendiente">Pendientes</option>
-                        <option value="Realizado">Realizados</option>
-                        <option value="Cancelado">Cancelados</option>
-                    </select>
-                </div>
-                <div class="pt-4">
-                    <button type="submit" class="w-full btn-primary">Aplicar Filtros</button>
-                </div>
+            <!-- Formulario con tabla para compatibilidad -->
+            <form id="filter-form">
+                 <table class="legacy-form-table">
+                    <tr>
+                        <td><label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label></td>
+                        <td><label for="end-date" class="block text-sm font-medium text-gray-700">Fecha Hasta</label></td>
+                        <td><label for="vet-from" class="block text-sm font-medium text-gray-700">Veterinaria Desde</label></td>
+                        <td><label for="vet-to" class="block text-sm font-medium text-gray-700">Veterinaria Hasta</label></td>
+                    </tr>
+                    <tr>
+                        <td><input type="date" id="start-date" class="form-input"></td>
+                        <td><input type="date" id="end-date" class="form-input"></td>
+                        <td><input type="text" id="vet-from" class="form-input" placeholder="Ej: Veterinaria A"></td>
+                        <td><input type="text" id="vet-to" class="form-input" value="ZZZZZZ"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><label for="status-filter" class="block text-sm font-medium text-gray-700">Estado</label></td>
+                        <td colspan="2"></td>
+                    </tr>
+                     <tr>
+                        <td colspan="2">
+                            <select id="status-filter" class="form-input">
+                                <option value="todos">Todos</option>
+                                <option value="Pendiente">Pendientes</option>
+                                <option value="Realizado">Realizados</option>
+                                <option value="Cancelado">Cancelados</option>
+                            </select>
+                        </td>
+                        <td colspan="2">
+                            <button type="submit" class="full-width-btn btn-primary">Aplicar Filtros</button>
+                        </td>
+                    </tr>
+                </table>
             </form>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const filterForm = document.getElementById('filter-form');
-            const startDateInput = document.getElementById('start-date');
-            const endDateInput = document.getElementById('end-date');
-            const vetFromInput = document.getElementById('vet-from');
-            const vetToInput = document.getElementById('vet-to');
+        // Envolvemos todo en window.onload para asegurar que el DOM esté listo
+        window.onload = function() {
+            var filterForm = document.getElementById('filter-form');
+            var startDateInput = document.getElementById('start-date');
+            var endDateInput = document.getElementById('end-date');
+            var vetFromInput = document.getElementById('vet-from');
+            var vetToInput = document.getElementById('vet-to');
 
             // Establece las fechas de la semana actual por defecto
-            const setWeeklyDates = () => {
-                const today = new Date();
-                const dayOfWeek = today.getDay(); // 0=Domingo, 3=Miércoles
-                const diff = (dayOfWeek - 3 + 7) % 7; // Ajuste para que la semana comience el miércoles
-                const startDate = new Date(today);
+            var setWeeklyDates = function() {
+                var today = new Date();
+                var dayOfWeek = today.getDay(); // 0=Domingo, 3=Miércoles
+                var diff = (dayOfWeek - 3 + 7) % 7; // Ajuste para que la semana comience el miércoles
+                var startDate = new Date(today);
                 startDate.setDate(today.getDate() - diff);
-                const endDate = new Date(startDate);
+                var endDate = new Date(startDate);
                 endDate.setDate(startDate.getDate() + 6);
 
-                const toISODate = (date) => date.toISOString().split('T')[0];
+                var toISODate = function(date) { return date.toISOString().split('T')[0]; };
 
                 startDateInput.value = toISODate(startDate);
                 endDateInput.value = toISODate(endDate);
@@ -97,33 +103,40 @@
             };
 
             // Lógica de redirección del formulario
-            filterForm.addEventListener('submit', (e) => {
+            filterForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                const params = new URLSearchParams();
-                if (startDateInput.value) params.append('startDate', startDateInput.value);
-                if (endDateInput.value) params.append('endDate', endDateInput.value);
-                if (vetFromInput.value) params.append('vetFrom', vetFromInput.value);
-                if (vetToInput.value && vetToInput.value.toUpperCase() !== 'ZZZZZZ') params.append('vetTo', vetToInput.value);
+                // URLSearchParams no es seguro en todos los navegadores de XP, construimos la URL manualmente.
+                var params = [];
+                if (startDateInput.value) params.push('startDate=' + encodeURIComponent(startDateInput.value));
+                if (endDateInput.value) params.push('endDate=' + encodeURIComponent(endDateInput.value));
+                if (vetFromInput.value) params.push('vetFrom=' + encodeURIComponent(vetFromInput.value));
+                if (vetToInput.value && vetToInput.value.toUpperCase() !== 'ZZZZZZ') params.push('vetTo=' + encodeURIComponent(vetToInput.value));
                 
-                const selectedStatus = document.getElementById('status-filter').value;
-                if (selectedStatus) params.append('status', selectedStatus);
+                var selectedStatus = document.getElementById('status-filter').value;
+                if (selectedStatus) params.push('status=' + encodeURIComponent(selectedStatus));
 
-                const nextUrl = new URL('admin01.html', window.location.href);
-                nextUrl.search = params.toString();
-                window.location.href = nextUrl.href;
+                var queryString = params.join('&');
+                
+                // Construcción de URL robusta
+                var currentPath = window.location.pathname;
+                var newPath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1) + 'admin01.html';
+                var nextUrl = window.location.origin + newPath + '?' + queryString;
+                
+                window.location.href = nextUrl;
             });
 
             // Validaciones en tiempo real para los campos
-            startDateInput.addEventListener('change', () => { endDateInput.min = startDateInput.value; });
-            endDateInput.addEventListener('change', () => { startDateInput.max = endDateInput.value; });
+            startDateInput.addEventListener('change', function() { endDateInput.min = startDateInput.value; });
+            endDateInput.addEventListener('change', function() { startDateInput.max = endDateInput.value; });
 
             // Inicialización al cargar la página
             setWeeklyDates();
-        });
+        };
     </script>
 </body>
 </html>
+
 
 
 
