@@ -158,17 +158,17 @@
             });
         }
 
-        function populateFilterDropdowns(orders) {
+        function populateModelDropdown(orders) {
             const sortedModels = [...new Set(orders.map(o => o.shape).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-            const sortedColors = [...new Set(orders.map(o => o.color).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-
             const uniqueModels = ['todos', ...sortedModels];
-            const uniqueColors = ['todos', ...sortedColors];
-
             modeloDropdown.innerHTML = uniqueModels.map(model => 
                 `<div class="filter-dropdown-item" data-value="${model}">${model === 'todos' ? 'Ver Todos' : model}</div>`
             ).join('');
+        }
 
+        function populateColorDropdown(orders) {
+            const sortedColors = [...new Set(orders.map(o => o.color).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+            const uniqueColors = ['todos', ...sortedColors];
             colorDropdown.innerHTML = uniqueColors.map(color => 
                 `<div class="filter-dropdown-item" data-value="${color}">${color === 'todos' ? 'Ver Todos' : color}</div>`
             ).join('');
@@ -177,9 +177,15 @@
         function applyAllFiltersAndRender() {
             let ordersToRender = [...initialFilteredOrders];
 
+            // Aplica filtro de modelo
             if (activeModelFilter !== 'todos') {
                 ordersToRender = ordersToRender.filter(o => o.shape === activeModelFilter);
             }
+            
+            // Re-popula el dropdown de color con las opciones disponibles después de filtrar por modelo
+            populateColorDropdown(ordersToRender);
+
+            // Aplica filtro de color
             if (activeColorFilter !== 'todos') {
                 ordersToRender = ordersToRender.filter(o => o.color === activeColorFilter);
             }
@@ -231,7 +237,7 @@
                 }
                 
                 initialFilteredOrders = filtered;
-                populateFilterDropdowns(initialFilteredOrders);
+                populateModelDropdown(initialFilteredOrders);
                 applyAllFiltersAndRender();
 
             } catch (error) {
@@ -254,9 +260,16 @@
 
         modeloDropdown.addEventListener('click', (e) => {
             if (e.target.matches('.filter-dropdown-item')) {
-                // FIX: Detener la propagación para que el clic no llegue al header
                 e.stopPropagation(); 
                 activeModelFilter = e.target.dataset.value;
+                
+                // Resetea el filtro de color si la selección actual ya no es válida
+                const currentlyVisibleColors = [...new Set(initialFilteredOrders.filter(o => activeModelFilter === 'todos' || o.shape === activeModelFilter).map(o => o.color))];
+                if (!currentlyVisibleColors.includes(activeColorFilter)) {
+                    activeColorFilter = 'todos';
+                    colorHeader.querySelector('.filter-icon').classList.remove('active');
+                }
+
                 applyAllFiltersAndRender();
                 modeloDropdown.classList.add('hidden');
                 modeloHeader.querySelector('.filter-icon').classList.toggle('active', activeModelFilter !== 'todos');
@@ -265,7 +278,6 @@
 
         colorDropdown.addEventListener('click', (e) => {
             if (e.target.matches('.filter-dropdown-item')) {
-                // FIX: Detener la propagación para que el clic no llegue al header
                 e.stopPropagation();
                 activeColorFilter = e.target.dataset.value;
                 applyAllFiltersAndRender();
@@ -303,6 +315,7 @@
     </script>
 </body>
 </html>
+
 
 
 
