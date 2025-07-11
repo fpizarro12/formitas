@@ -94,8 +94,9 @@
         };
         
         // --- LÓGICA DE NEGOCIO ---
-        var generateExcel = function(orders, deliveryDate) {
-            var formattedDeliveryDate = new Date(deliveryDate).toLocaleDateString('es-AR');
+        var generateExcel = function(orders, deliveryDateString) {
+            var deliveryDate = new Date(deliveryDateString.replace(/-/g, '/'));
+            var formattedDeliveryDate = deliveryDate.toLocaleDateString('es-AR');
             
             var header1 = ['Entrega ' + formattedDeliveryDate];
             var header2 = ["Ni", "Fecha", "Veterinaria", "Orden", null, "Modelo", "Color", "Nombre", "Telefono", "Atrás", "Observaciones", "Ext"];
@@ -177,7 +178,8 @@
                         return (a.vetName || '').localeCompare(b.vetName || '');
                     });
 
-                    generateExcel(nonCancelledOrders, filters.endDate);
+                    generateExcel(nonCancelledOrders, dom.endDateInput.value);
+
                 })
                 .catch(function(error) {
                     console.error("Error al generar el archivo Excel:", error);
@@ -192,7 +194,7 @@
 
         // --- MANEJADORES DE EVENTOS ---
         dom.cancelButton.addEventListener('click', function() {
-            window.history.back(); // Vuelve a la página anterior (admin01.html)
+            window.history.back();
         });
 
         dom.exportForm.addEventListener('submit', function(e) {
@@ -201,11 +203,11 @@
                 alert("Error de conexión, no se puede generar el archivo.");
                 return;
             }
-
-            var startDate = new Date(dom.startDateInput.value);
-            startDate.setHours(0, 0, 0, 0); // Ajuste a UTC es problemático en navegadores viejos, usamos local.
             
-            var endDate = new Date(dom.endDateInput.value);
+            var startDate = new Date(dom.startDateInput.value.replace(/-/g, '/'));
+            startDate.setHours(0, 0, 0, 0);
+            
+            var endDate = new Date(dom.endDateInput.value.replace(/-/g, '/'));
             endDate.setHours(23, 59, 59, 999);
 
             var filters = { startDate: startDate, endDate: endDate };
