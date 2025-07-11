@@ -4,50 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultados de Pedidos - Formitas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- SDKs de Firebase v8 para máxima compatibilidad -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
-        .font-formitas { font-family: 'Comic Neue', cursive; }
+        body, html { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+        * { box-sizing: border-box; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 3rem 1rem; }
+        .text-center { text-align: center; }
+
+        .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3rem; font-weight: 700; color: #ef4444; }
+        #main-title { font-size: 1.875rem; font-weight: 700; color: #374151; margin-top: 0.5rem; }
+
+        .header-buttons { margin-top: 1rem; }
+        .btn { font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s; cursor: pointer; border-style: solid; margin: 0 0.5rem; }
+        .btn-secondary { background-color: #e5e7eb; color: #1f2937; border-width: 1px; border-color: #6b7280; }
+        .btn-secondary:hover { background-color: #d1d5db; }
+        .btn-success { background-color: #16a34a; color: white; border-width: 1px; border-color: #14532d; }
+        .btn-success:hover { background-color: #15803d; }
+
+        .results-wrapper { background-color: white; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow-x: auto; }
         .excel-table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
         .excel-table th, .excel-table td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; vertical-align: middle; }
         .excel-table th { background-color: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #374151; }
-        .excel-table tr:nth-child(even) td { background-color: #f9fafb; }
-        .status-select { display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.25rem 0.5rem; background-color: white; cursor: pointer; }
-        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; transition: background-color 0.2s; cursor: pointer; }
-        .btn-secondary:hover { background-color: #d1d5db; }
-        .btn-success { background-color: #16a34a; color: white; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #14532d; transition: background-color 0.2s; cursor: pointer; }
-        .btn-success:hover { background-color: #15803d; }
+        .excel-table tr:nth-child(even) { background-color: #f9fafb; }
+        
+        .status-select { display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; padding: 0.25rem 0.5rem; background-color: white; cursor: pointer; }
+        
         .filter-header { position: relative; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
         .filter-icon { width: 1rem; height: 1rem; margin-left: 0.5rem; color: #9ca3af; transition: color 0.2s; }
         .filter-header:hover .filter-icon { color: #374151; }
         .filter-icon.active { color: #2563eb; }
-        .filter-dropdown { position: absolute; top: 100%; left: 0; background-color: white; border: 1px solid #d1d5db; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto; min-width: 150px; display: none; }
+        
+        .filter-dropdown { position: absolute; top: 100%; left: 0; background-color: white; border: 1px solid #d1d5db; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto; min-width: 150px; }
         .filter-dropdown-item { padding: 0.5rem 1rem; cursor: pointer; }
         .filter-dropdown-item:hover { background-color: #f3f4f6; }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="py-12">
+<body>
 
-    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
-        <header class="text-center mb-8">
-            <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
-            <h2 id="main-title" class="text-3xl font-bold text-gray-700 mt-2">Pedidos - V1.01.02</h2>
-            <div class="flex justify-center items-center space-x-4 mt-4">
-                <button id="new-search-button" class="btn-secondary">Nueva Búsqueda</button>
-                <button id="export-excel-button" class="btn-success">Baja a Excel</button>
+    <div class="container">
+        <header class="text-center" style="margin-bottom: 2rem;">
+            <h1 class="font-formitas">Formitas</h1>
+            <h2 id="main-title">Pedidos - V1.01.02</h2>
+            <div class="header-buttons">
+                <button id="new-search-button" class="btn btn-secondary">Nueva Búsqueda</button>
+                <button id="export-excel-button" class="btn btn-success">Baja a Excel</button>
             </div>
         </header>
 
         <main id="results-container">
-            <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+            <div class="results-wrapper">
                 <table class="excel-table">
                     <thead>
                         <tr>
@@ -57,92 +66,94 @@
                                 <div class="filter-header">
                                     <span>Modelo (Forma)</span>
                                     <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    <div id="modelo-filter-dropdown" class="filter-dropdown"></div>
+                                    <div id="modelo-filter-dropdown" class="filter-dropdown hidden"></div>
                                 </div>
                             </th>
                             <th id="color-header">
                                 <div class="filter-header">
                                     <span>Color</span>
                                     <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    <div id="color-filter-dropdown" class="filter-dropdown"></div>
+                                    <div id="color-filter-dropdown" class="filter-dropdown hidden"></div>
                                 </div>
                             </th>
                             <th>Mascota</th>
                             <th>Telefono</th>
-                            <th>Atras (Linea Extra)</th>
+                            <th>Atrás (Linea Extra)</th>
                             <th>Observaciones</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
-                    <tbody id="orders-table-body"></tbody>
+                    <tbody id="orders-table-body">
+                        </tbody>
                 </table>
             </div>
         </main>
     </div>
-
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
     <script>
-    window.onload = function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- CONFIGURACIÓN Y CONSTANTES ---
         var firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
         var APP_ID = 'pet-tags-split-app';
-
+        
+        // --- INICIALIZACIÓN DE FIREBASE ---
         var db;
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
         } catch (error) {
             console.error("Fallo la inicializacion de Firebase:", error);
-            document.getElementById('results-container').innerHTML = '<p class="text-center text-red-600 font-semibold">Error de conexión con la base de datos.</p>';
+            renderError("Error de conexión con la base de datos.");
         }
 
-        var tableBody = document.getElementById('orders-table-body');
-        var newSearchButton = document.getElementById('new-search-button');
-        var exportExcelButton = document.getElementById('export-excel-button');
-        var modeloHeader = document.getElementById('modelo-header');
-        var colorHeader = document.getElementById('color-header');
-        var modeloDropdown = document.getElementById('modelo-filter-dropdown');
-        var colorDropdown = document.getElementById('color-filter-dropdown');
-
+        // --- ESTADO DE LA APLICACIÓN ---
         var initialFilteredOrders = [];
-        var activeModelFilter = 'todos';
-        var activeColorFilter = 'todos';
+        var activeFilters = {
+            model: 'todos',
+            color: 'todos'
+        };
 
-        function getUniqueValues(arr, prop) {
-            var seen = {};
-            var out = [];
-            for (var i = 0; i < arr.length; i++) {
-                var item = arr[i][prop];
-                if (item && seen[item] !== 1) {
-                    seen[item] = 1;
-                    out.push(item);
-                }
-            }
-            return out;
-        }
+        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
+        var dom = {
+            tableBody: document.getElementById('orders-table-body'),
+            newSearchButton: document.getElementById('new-search-button'),
+            exportExcelButton: document.getElementById('export-excel-button'),
+            modeloHeader: document.getElementById('modelo-header'),
+            colorHeader: document.getElementById('color-header'),
+            modeloDropdown: document.getElementById('modelo-filter-dropdown'),
+            colorDropdown: document.getElementById('color-filter-dropdown')
+        };
+        
+        // --- FUNCIONES DE RENDERIZADO Y UI ---
+        var renderError = function(message) {
+            dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #dc2626; font-weight: 600;">' + message + '</td></tr>';
+        };
 
-        function updateOrderStatus(orderId, newStatus) {
-            db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(orderId)
-                .update({ status: newStatus })
-                .then(function() {
-                    alert('El estado del pedido ha sido actualizado a "' + newStatus + '".');
-                })
-                .catch(function(error) {
-                    console.error("Error al actualizar el estado: ", error);
-                    alert("Error al actualizar. Revisa la consola.");
-                });
-        }
-
-        function renderTable(orders) {
-            tableBody.innerHTML = '';
+        var renderTable = function(orders) {
+            dom.tableBody.innerHTML = '';
             if (orders.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No se encontraron pedidos que coincidan con los filtros.</td></tr>';
+                dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #6b7280;">No se encontraron pedidos que coincidan con los filtros.</td></tr>';
                 return;
             }
-            orders.sort(function(a, b) { return (b.timestamp.seconds || 0) - (a.timestamp.seconds || 0); });
+            // Ordenamos por fecha descendente
+            orders.sort(function(a, b) { return b.timestamp.seconds - a.timestamp.seconds; });
             
-            orders.forEach(function(order) {
+            var rowsHTML = '';
+            for (var i = 0; i < orders.length; i++) {
+                var order = orders[i];
                 var fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
-                var row = document.createElement('tr');
-                row.innerHTML = '<td>' + fecha + '</td>' +
+                var status = order.status || 'Pendiente';
+
+                var statusOptions = 
+                    '<option value="Pendiente"' + (status === 'Pendiente' ? 'selected' : '') + '>Pendiente</option>' +
+                    '<option value="Realizado"' + (status === 'Realizado' || status === 'Completado' ? 'selected' : '') + '>Realizado</option>' +
+                    '<option value="Cancelado"' + (status === 'Cancelado' || status === 'Entregado' ? 'selected' : '') + '>Cancelado</option>';
+
+                rowsHTML += '<tr>' +
+                    '<td>' + fecha + '</td>' +
                     '<td>' + (order.vetName || '') + '</td>' +
                     '<td>' + (order.shape || '') + '</td>' +
                     '<td>' + (order.color || '') + '</td>' +
@@ -150,187 +161,207 @@
                     '<td>' + (order.phone || '') + '</td>' +
                     '<td>' + (order.extraLine || '') + '</td>' +
                     '<td>' + (order.observations || '') + '</td>' +
-                    '<td>' +
-                        '<select class="status-select" data-id="' + order.id + '">' +
-                            '<option value="Pendiente" ' + ((order.status === 'Pendiente' || !order.status) ? 'selected' : '') + '>Pendiente</option>' +
-                            '<option value="Realizado" ' + (order.status === 'Realizado' || order.status === 'Completado' ? 'selected' : '') + '>Realizado</option>' +
-                            '<option value="Cancelado" ' + (order.status === 'Cancelado' || order.status === 'Entregado' ? 'selected' : '') + '>Cancelado</option>' +
-                        '</select>' +
-                    '</td>';
-                tableBody.appendChild(row);
-            });
-        }
-
-        function populateModelDropdown(orders) {
-            var sortedModels = getUniqueValues(orders, 'shape').sort(function(a, b) { return a.localeCompare(b); });
-            var uniqueModels = ['todos'].concat(sortedModels);
-            var html = '';
-            for(var i = 0; i < uniqueModels.length; i++) {
-                var model = uniqueModels[i];
-                html += '<div class="filter-dropdown-item" data-value="' + model + '">' + (model === 'todos' ? 'Ver Todos' : model) + '</div>';
+                    '<td><select class="status-select" data-id="' + order.id + '">' + statusOptions + '</select></td>' +
+                '</tr>';
             }
-            modeloDropdown.innerHTML = html;
-        }
-
-        function populateColorDropdown(orders) {
-            var sortedColors = getUniqueValues(orders, 'color').sort(function(a, b) { return a.localeCompare(b); });
-            var uniqueColors = ['todos'].concat(sortedColors);
-            var html = '';
-            for(var i = 0; i < uniqueColors.length; i++) {
-                var color = uniqueColors[i];
-                html += '<div class="filter-dropdown-item" data-value="' + color + '">' + (color === 'todos' ? 'Ver Todos' : color) + '</div>';
+            dom.tableBody.innerHTML = rowsHTML;
+        };
+        
+        var populateDropdown = function(element, items) {
+            // Crear un array de items únicos
+            var uniqueItemsObj = {};
+            for(var i=0; i < items.length; i++) {
+                if(items[i]) uniqueItemsObj[items[i]] = true;
             }
-            colorDropdown.innerHTML = html;
-        }
-
-        function applyAllFiltersAndRender() {
-            var ordersToRender = initialFilteredOrders.slice();
-
-            if (activeModelFilter !== 'todos') {
-                ordersToRender = ordersToRender.filter(function(o) { return o.shape === activeModelFilter; });
-            }
-
-            populateColorDropdown(ordersToRender);
-
-            if (activeColorFilter !== 'todos') {
-                ordersToRender = ordersToRender.filter(function(o) { return o.color === activeColorFilter; });
-            }
-
-            renderTable(ordersToRender);
-        }
-
-        function loadAndFilterOrders() {
-            tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">Cargando pedidos...</td></tr>';
+            var sortedItems = Object.keys(uniqueItemsObj).sort(function(a, b) { return a.localeCompare(b); });
             
-            var paramsStr = window.location.search.substring(1);
-            var params = {};
-            if (paramsStr) {
-                var pairs = paramsStr.split('&');
-                for (var i = 0; i < pairs.length; i++) {
-                    var pair = pairs[i].split('=');
-                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+            var dropdownHTML = '<div class="filter-dropdown-item" data-value="todos">Ver Todos</div>';
+            for (var j=0; j < sortedItems.length; j++){
+                dropdownHTML += '<div class="filter-dropdown-item" data-value="' + sortedItems[j] + '">' + sortedItems[j] + '</div>';
+            }
+            element.innerHTML = dropdownHTML;
+        };
+
+        var applyAllFiltersAndRender = function() {
+            var ordersToRender = [];
+            var colorsForNextDropdown = [];
+            
+            // Filtro por modelo
+            for(var i=0; i < initialFilteredOrders.length; i++){
+                var order = initialFilteredOrders[i];
+                if (activeFilters.model === 'todos' || order.shape === activeFilters.model) {
+                    ordersToRender.push(order);
+                    colorsForNextDropdown.push(order.color);
                 }
             }
+            
+            populateDropdown(dom.colorDropdown, colorsForNextDropdown);
+            
+            var finalOrders = [];
+             // Filtro por color
+            for(var j=0; j < ordersToRender.length; j++){
+                var orderToRender = ordersToRender[j];
+                if (activeFilters.color === 'todos' || orderToRender.color === activeFilters.color) {
+                    finalOrders.push(orderToRender);
+                }
+            }
+            
+            renderTable(finalOrders);
+        };
 
-            var startDate = params['startDate'];
-            var endDate = params['endDate'];
-            var vetFrom = (params['vetFrom'] || '').toUpperCase();
-            var vetTo = (params['vetTo'] || 'ZZZZZZ').toUpperCase();
-            var selectedStatus = params['status'];
+        // --- LÓGICA DE NEGOCIO ---
+        var updateOrderStatus = function(orderId, newStatus) {
+            var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(orderId);
+            orderRef.update({ status: newStatus })
+                .then(function() {
+                    alert('El estado del pedido ha sido actualizado a "' + newStatus + '".');
+                    // Actualiza el estado en el array local para no recargar de Firebase
+                    for(var i = 0; i < initialFilteredOrders.length; i++) {
+                        if (initialFilteredOrders[i].id === orderId) {
+                            initialFilteredOrders[i].status = newStatus;
+                            break;
+                        }
+                    }
+                })
+                .catch(function(error) {
+                    console.error("Error al actualizar el estado: ", error);
+                    alert("Error al actualizar. Revisa la consola.");
+                });
+        };
+
+        var loadAndFilterOrders = function() {
+            dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #6b7280;">Cargando pedidos...</td></tr>';
+            
+            // Leer parámetros de la URL manualmente
+            var params = {};
+            window.location.search.substring(1).split('&').forEach(function (pair) {
+                var parts = pair.split('=');
+                if(parts.length === 2) params[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+            });
+
+            var filters = {
+                startDate: params['startDate'],
+                endDate: params['endDate'],
+                vetFrom: (params['vetFrom'] || '').toUpperCase(),
+                vetTo: (params['vetTo'] || 'ZZZZZZ').toUpperCase(),
+                status: params['status']
+            };
 
             db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').get()
                 .then(function(querySnapshot) {
-                    var allOrders = querySnapshot.docs.map(function(doc) {
-                        return Object.assign({ id: doc.id }, doc.data());
+                    var allOrders = [];
+                    querySnapshot.forEach(function(doc){
+                         var orderData = doc.data();
+                         orderData.id = doc.id;
+                         allOrders.push(orderData);
                     });
 
-                    var filtered = allOrders.filter(function(order) {
-                        if (selectedStatus && selectedStatus !== 'todos') {
-                            var status = order.status || 'Pendiente';
-                            if (selectedStatus === 'Realizado' && !(status === 'Realizado' || status === 'Completado')) return false;
-                            if (selectedStatus === 'Cancelado' && !(status === 'Cancelado' || status === 'Entregado')) return false;
-                            if (selectedStatus === 'Pendiente' && status !== 'Pendiente') return false;
-                        }
+                    var filtered = [];
+                    var statusMap = {
+                        Realizado: ['Realizado', 'Completado'],
+                        Cancelado: ['Cancelado', 'Entregado'],
+                        Pendiente: ['Pendiente']
+                    };
 
+                    for(var i=0; i < allOrders.length; i++) {
+                        var order = allOrders[i];
                         var orderDate = order.timestamp ? new Date(order.timestamp.seconds * 1000) : null;
-                        if (startDate && orderDate) {
-                            var start = new Date(startDate);
-                            start.setHours(0, 0, 0, 0);
-                            if (orderDate < start) return false;
-                        }
-                        if (endDate && orderDate) {
-                            var end = new Date(endDate);
-                            end.setHours(23, 59, 59, 999);
-                            if (orderDate > end) return false;
-                        }
-                        
                         var vetName = (order.vetName || '').toUpperCase();
-                        if (vetFrom && vetName < vetFrom) return false;
-                        if (vetTo && vetName > vetTo) return false;
+                        var status = order.status || 'Pendiente';
                         
-                        return true;
-                    });
+                        if (filters.status && filters.status !== 'todos') {
+                            if (!statusMap[filters.status] || statusMap[filters.status].indexOf(status) === -1) {
+                                continue;
+                            }
+                        }
+
+                        if (filters.startDate && orderDate) {
+                            var start = new Date(filters.startDate);
+                            start.setHours(0, 0, 0, 0);
+                            if(orderDate < start) continue;
+                        }
+                        if (filters.endDate && orderDate) {
+                            var end = new Date(filters.endDate);
+                            end.setHours(23, 59, 59, 999);
+                            if(orderDate > end) continue;
+                        }
+                        if (filters.vetFrom && vetName < filters.vetFrom) continue;
+                        if (filters.vetTo && vetName > filters.vetTo) continue;
+                        
+                        filtered.push(order);
+                    }
                     
                     initialFilteredOrders = filtered;
-                    populateModelDropdown(initialFilteredOrders);
+                    populateDropdown(dom.modeloDropdown, initialFilteredOrders.map(function(o){ return o.shape; }));
                     applyAllFiltersAndRender();
                 })
                 .catch(function(error) {
                     console.error("Error al cargar y filtrar los pedidos: ", error);
-                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-red-500 font-semibold">Error al cargar datos.</td></tr>';
+                    renderError("Error al cargar datos: " + error.message);
                 });
-        }
+        };
 
-        function toggleDropdown(dropdown) {
-            if (dropdown.style.display === 'block') {
-                dropdown.style.display = 'none';
-            } else {
-                modeloDropdown.style.display = 'none';
-                colorDropdown.style.display = 'none';
-                dropdown.style.display = 'block';
-            }
-        }
-
-        modeloHeader.addEventListener('click', function(e) { e.stopPropagation(); toggleDropdown(modeloDropdown); });
-        colorHeader.addEventListener('click', function(e) { e.stopPropagation(); toggleDropdown(colorDropdown); });
-
-        modeloDropdown.addEventListener('click', function(e) {
-            if (e.target.className.indexOf('filter-dropdown-item') > -1) {
+        // --- MANEJADORES DE EVENTOS ---
+        var setupDropdownListener = function(header, dropdown, filterType) {
+            header.addEventListener('click', function(e) {
                 e.stopPropagation();
-                activeModelFilter = e.target.getAttribute('data-value');
-                
-                var currentlyVisibleColors = getUniqueValues(initialFilteredOrders.filter(function(o) { return activeModelFilter === 'todos' || o.shape === activeModelFilter; }), 'color');
-                if (currentlyVisibleColors.indexOf(activeColorFilter) === -1) {
-                    activeColorFilter = 'todos';
-                    colorHeader.querySelector('.filter-icon').classList.remove('active');
+                var otherDropdown = filterType === 'model' ? dom.colorDropdown : dom.modeloDropdown;
+                otherDropdown.classList.add('hidden');
+                dropdown.classList.toggle('hidden');
+            });
+
+            dropdown.addEventListener('click', function(e) {
+                if (e.target.classList.contains('filter-dropdown-item')) {
+                    e.stopPropagation();
+                    activeFilters[filterType] = e.target.getAttribute('data-value');
+
+                    if(filterType === 'model') {
+                        activeFilters.color = 'todos';
+                        dom.colorHeader.querySelector('.filter-icon').classList.remove('active');
+                    }
+                    
+                    applyAllFiltersAndRender();
+                    dropdown.classList.add('hidden');
+                    var icon = header.querySelector('.filter-icon');
+                    var isActive = activeFilters[filterType] !== 'todos';
+                    if (isActive) icon.classList.add('active');
+                    else icon.classList.remove('active');
                 }
+            });
+        };
 
-                applyAllFiltersAndRender();
-                modeloDropdown.style.display = 'none';
-                modeloHeader.querySelector('.filter-icon').classList.toggle('active', activeModelFilter !== 'todos');
-            }
-        });
-
-        colorDropdown.addEventListener('click', function(e) {
-            if (e.target.className.indexOf('filter-dropdown-item') > -1) {
-                e.stopPropagation();
-                activeColorFilter = e.target.getAttribute('data-value');
-                applyAllFiltersAndRender();
-                colorDropdown.style.display = 'none';
-                colorHeader.querySelector('.filter-icon').classList.toggle('active', activeColorFilter !== 'todos');
-            }
-        });
+        setupDropdownListener(dom.modeloHeader, dom.modeloDropdown, 'model');
+        setupDropdownListener(dom.colorHeader, dom.colorDropdown, 'color');
 
         window.addEventListener('click', function() {
-            modeloDropdown.style.display = 'none';
-            colorDropdown.style.display = 'none';
+            dom.modeloDropdown.classList.add('hidden');
+            dom.colorDropdown.classList.add('hidden');
         });
 
-        newSearchButton.addEventListener('click', function() {
-            var currentPath = window.location.pathname;
-            var newPath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1) + 'admin.html';
-            window.location.href = window.location.origin + newPath;
+        dom.newSearchButton.addEventListener('click', function() {
+            window.location.href = 'admin.html';
         });
 
-        exportExcelButton.addEventListener('click', function() {
-            var currentPath = window.location.pathname;
-            var newPath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1) + 'admin02.html';
-            window.location.href = window.location.origin + newPath;
+        dom.exportExcelButton.addEventListener('click', function() {
+            var exportUrl = 'admin02.html' + window.location.search;
+            window.location.href = exportUrl;
         });
 
-        tableBody.addEventListener('change', function(event) {
-            if (event.target.classList.contains('status-select')) {
-                var orderId = event.target.getAttribute('data-id');
-                var newStatus = event.target.value;
+        dom.tableBody.addEventListener('change', function(e) {
+            if (e.target.classList.contains('status-select')) {
+                var orderId = e.target.getAttribute('data-id');
+                var newStatus = e.target.value;
                 updateOrderStatus(orderId, newStatus);
             }
         });
 
-        loadAndFilterOrders();
-    };
+        // --- INICIALIZACIÓN ---
+        if(db) loadAndFilterOrders();
+    });
     </script>
 </body>
 </html>
+
 
 
 
