@@ -1,14 +1,3 @@
-¡Excelente observación! Tienes toda la razón. Se trata de un error muy común y sutil en cómo JavaScript maneja las fechas, especialmente con las zonas horarias.
-
-El problema es exactamente el que describes: la fecha "hasta" estaba siendo excluida porque al interpretarla, el sistema la tomaba como el inicio de ese día (00:00:00) y, por lo tanto, cualquier pedido hecho durante ese día quedaba fuera del rango.
-
-He corregido la lógica para asegurar que el día completo de la "fecha hasta" sea incluido en la búsqueda. La solución es ajustar la hora de esa fecha hasta el último milisegundo del día (23:59:59.999), garantizando que todos los pedidos de esa jornada sean considerados.
-
-A continuación, te entrego el código completo y corregido para el archivo consulta.html. Simplemente reemplaza el contenido del archivo anterior con este.
-
-consulta.html (Corregido)
-HTML
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
