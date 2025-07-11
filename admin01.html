@@ -106,13 +106,12 @@
         const newSearchButton = document.getElementById('new-search-button');
         const exportExcelButton = document.getElementById('export-excel-button');
         
-        // Elementos para los nuevos filtros
         const modeloHeader = document.getElementById('modelo-header');
         const colorHeader = document.getElementById('color-header');
         const modeloDropdown = document.getElementById('modelo-filter-dropdown');
         const colorDropdown = document.getElementById('color-filter-dropdown');
 
-        let initialFilteredOrders = []; // Pedidos después del filtro inicial (URL)
+        let initialFilteredOrders = [];
         let activeModelFilter = 'todos';
         let activeColorFilter = 'todos';
 
@@ -160,8 +159,11 @@
         }
 
         function populateFilterDropdowns(orders) {
-            const uniqueModels = ['todos', ...new Set(orders.map(o => o.shape).filter(Boolean))];
-            const uniqueColors = ['todos', ...new Set(orders.map(o => o.color).filter(Boolean))];
+            const sortedModels = [...new Set(orders.map(o => o.shape).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+            const sortedColors = [...new Set(orders.map(o => o.color).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+            const uniqueModels = ['todos', ...sortedModels];
+            const uniqueColors = ['todos', ...sortedColors];
 
             modeloDropdown.innerHTML = uniqueModels.map(model => 
                 `<div class="filter-dropdown-item" data-value="${model}">${model === 'todos' ? 'Ver Todos' : model}</div>`
@@ -238,7 +240,6 @@
             }
         }
 
-        // --- Event Listeners para los nuevos filtros ---
         modeloHeader.addEventListener('click', (e) => {
             e.stopPropagation();
             colorDropdown.classList.add('hidden');
@@ -255,7 +256,7 @@
             if (e.target.matches('.filter-dropdown-item')) {
                 activeModelFilter = e.target.dataset.value;
                 applyAllFiltersAndRender();
-                modeloDropdown.classList.add('hidden');
+                modeloDropdown.classList.add('hidden'); // Oculta el menú
                 modeloHeader.querySelector('.filter-icon').classList.toggle('active', activeModelFilter !== 'todos');
             }
         });
@@ -264,18 +265,16 @@
             if (e.target.matches('.filter-dropdown-item')) {
                 activeColorFilter = e.target.dataset.value;
                 applyAllFiltersAndRender();
-                colorDropdown.classList.add('hidden');
+                colorDropdown.classList.add('hidden'); // Oculta el menú
                 colorHeader.querySelector('.filter-icon').classList.toggle('active', activeColorFilter !== 'todos');
             }
         });
 
-        // Cierra los dropdowns si se hace clic fuera
         window.addEventListener('click', () => {
             modeloDropdown.classList.add('hidden');
             colorDropdown.classList.add('hidden');
         });
 
-        // --- Event Listeners existentes ---
         newSearchButton.addEventListener('click', () => {
             const currentUrl = window.location.href;
             const backUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1) + 'admin.html';
@@ -300,6 +299,7 @@
     </script>
 </body>
 </html>
+
 
 
 
