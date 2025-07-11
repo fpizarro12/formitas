@@ -251,21 +251,21 @@
                          allOrders.push(orderData);
                     });
                     
-                    // --- FIX: Parsear fechas de forma robusta para evitar problemas de timezone ---
+                    // --- FIX V2: Reemplazar guiones con barras para asegurar la interpretación como fecha local ---
                     var start = null;
                     if (filters.startDateString) {
-                        var startParts = filters.startDateString.split('-');
-                        start = new Date(parseInt(startParts[0], 10), parseInt(startParts[1], 10) - 1, parseInt(startParts[2], 10));
+                        var startDateLocalString = filters.startDateString.replace(/-/g, '/');
+                        start = new Date(startDateLocalString);
                         start.setHours(0, 0, 0, 0);
                     }
 
                     var end = null;
                     if (filters.endDateString) {
-                        var endParts = filters.endDateString.split('-');
-                        end = new Date(parseInt(endParts[0], 10), parseInt(endParts[1], 10) - 1, parseInt(endParts[2], 10));
+                        var endDateLocalString = filters.endDateString.replace(/-/g, '/');
+                        end = new Date(endDateLocalString);
                         end.setHours(23, 59, 59, 999); // Fin del día (INCLUSIVO)
                     }
-                    // --- FIN DEL FIX ---
+                    // --- FIN DEL FIX V2 ---
 
                     var filtered = [];
                     var statusMap = {
