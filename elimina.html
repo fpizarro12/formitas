@@ -169,10 +169,10 @@
         // --- LÓGICA DE NEGOCIO ---
         var loadRecords = function() {
             dom.recordsList.innerHTML = '<p class="text-center" style="color: #6b7280;">Cargando registros...</p>';
-            
-            var startDate = new Date(dom.startDateInput.value);
+
+            var startDate = new Date(dom.startDateInput.value.replace(/-/g, '/'));
             startDate.setHours(0, 0, 0, 0);
-            var endDate = new Date(dom.endDateInput.value);
+            var endDate = new Date(dom.endDateInput.value.replace(/-/g, '/'));
             endDate.setHours(23, 59, 59, 999);
 
             db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').get()
@@ -215,7 +215,6 @@
             orderRef.delete()
                 .then(function() {
                     if (recordToDelete.element) {
-                        // Animación simple de desvanecimiento
                         recordToDelete.element.style.transition = 'opacity 0.5s';
                         recordToDelete.element.style.opacity = '0';
                         setTimeout(function() {
@@ -245,7 +244,7 @@
             
             dom.filterContainer.classList.add('hidden');
             dom.resultsContainer.classList.remove('hidden');
-            loadRecords(); // Esta función ahora maneja el estado del botón
+            loadRecords();
         });
 
         dom.newSearchButton.addEventListener('click', function() {
