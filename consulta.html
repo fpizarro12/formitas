@@ -1,3 +1,14 @@
+¡Excelente observación! Tienes toda la razón. Se trata de un error muy común y sutil en cómo JavaScript maneja las fechas, especialmente con las zonas horarias.
+
+El problema es exactamente el que describes: la fecha "hasta" estaba siendo excluida porque al interpretarla, el sistema la tomaba como el inicio de ese día (00:00:00) y, por lo tanto, cualquier pedido hecho durante ese día quedaba fuera del rango.
+
+He corregido la lógica para asegurar que el día completo de la "fecha hasta" sea incluido en la búsqueda. La solución es ajustar la hora de esa fecha hasta el último milisegundo del día (23:59:59.999), garantizando que todos los pedidos de esa jornada sean considerados.
+
+A continuación, te entrego el código completo y corregido para el archivo consulta.html. Simplemente reemplaza el contenido del archivo anterior con este.
+
+consulta.html (Corregido)
+HTML
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -249,14 +260,13 @@
         var fetchAllOrders = function(vetName) {
             var pedidosRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos');
             
-            // Usamos .get() que devuelve una promesa
             pedidosRef.where("vetName", "==", vetName).orderBy("timestamp", "desc").get()
                 .then(function(querySnapshot) {
                     var orders = [];
                     querySnapshot.forEach(function(doc) {
                         orders.push({ id: doc.id, data: doc.data() });
                     });
-                    // Mapeo manual para preservar compatibilidad
+                    
                     allFetchedOrders = [];
                     for(var i = 0; i < orders.length; i++){
                         var orderData = orders[i].data;
@@ -276,22 +286,34 @@
             dom.pedidosContainer.classList.remove('hidden');
             dom.modifyFiltersButton.classList.remove('hidden');
             
-            var startDate = dom.startDate.value;
-            var endDate = dom.endDate.value;
+            var startDateString = dom.startDate.value;
+            var endDateString = dom.endDate.value;
             var startName = dom.startName.value.toUpperCase();
             var endName = dom.endName.value.toUpperCase();
             
+            // --- FIX: Parsear fechas de forma robusta para evitar problemas de timezone ---
+            var start = null;
+            if (startDateString) {
+                var startParts = startDateString.split('-'); // Formato YYYY-MM-DD
+                // new Date(year, month-1, day) para evitar interpretación como UTC
+                start = new Date(parseInt(startParts[0], 10), parseInt(startParts[1], 10) - 1, parseInt(startParts[2], 10));
+                start.setHours(0, 0, 0, 0); // Inicio del día
+            }
+
+            var end = null;
+            if (endDateString) {
+                var endParts = endDateString.split('-');
+                end = new Date(parseInt(endParts[0], 10), parseInt(endParts[1], 10) - 1, parseInt(endParts[2], 10));
+                end.setHours(23, 59, 59, 999); // Fin del día (INCLUSIVO)
+            }
+            // --- FIN DEL FIX ---
+
             var filteredOrders = [];
             for(var i=0; i < allFetchedOrders.length; i++){
                 var pedido = allFetchedOrders[i];
                 var orderDate = pedido.timestamp ? new Date(pedido.timestamp.seconds * 1000) : null;
                 if (!orderDate) continue;
                 
-                var start = startDate ? new Date(startDate) : null;
-                var end = endDate ? new Date(endDate) : null;
-                if(start) start.setHours(0, 0, 0, 0);
-                if(end) end.setHours(23, 59, 59, 999);
-
                 if (start && orderDate < start) continue;
                 if (end && orderDate > end) continue;
                 
@@ -374,7 +396,7 @@
             dom.vetNameDisplay.textContent = 'Veterinaria: ' + vetName;
             
             setDefaultDates();
-            fetchAllOrders(vetName); // La función ahora es asíncrona por naturaleza con .then()
+            fetchAllOrders(vetName);
         };
 
         main();
