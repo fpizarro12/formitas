@@ -109,20 +109,28 @@
                 const querySnapshot = await getDocs(q);
                 const allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                const filtered = allOrders.filter(order => {
+                // 1. Filtra por fecha
+                const filteredByDate = allOrders.filter(order => {
                     if (!order.timestamp) return false;
                     const orderDate = new Date(order.timestamp.seconds * 1000);
                     return orderDate >= startDate && orderDate <= endDate;
                 });
                 
-                filtered.sort((a, b) => {
+                // 2. NUEVO FILTRO: Excluye los pedidos cancelados
+                const nonCancelledOrders = filteredByDate.filter(order => {
+                    const status = order.status || 'Pendiente';
+                    return status !== 'Cancelado' && status !== 'Entregado';
+                });
+                
+                // 3. Ordena los pedidos restantes
+                nonCancelledOrders.sort((a, b) => {
                     if (a.timestamp.seconds !== b.timestamp.seconds) {
                         return a.timestamp.seconds - b.timestamp.seconds;
                     }
                     return (a.vetName || '').localeCompare(b.vetName || '');
                 });
 
-                generateExcel(filtered, endDate);
+                generateExcel(nonCancelledOrders, endDate);
 
             } catch (error) {
                 console.error("Error al generar el archivo Excel:", error);
@@ -136,7 +144,6 @@
         function generateExcel(orders, deliveryDate) {
             const formattedDeliveryDate = new Date(deliveryDate).toLocaleDateString('es-AR');
             
-            // CAMBIO: Se mueve "Ext" a la columna L
             const header1 = [`Entrega ${formattedDeliveryDate}`];
             const header2 = ["Ni", "Fecha", "Veterinaria", "Orden", null, "Modelo", "Color", "Nombre", "Telefono", "Atrás", "Observaciones", "Ext", null, null];
             
@@ -144,13 +151,12 @@
             
             orders.forEach((order, index) => {
                 let statusText = '';
+                // Como ya filtramos los cancelados, solo necesitamos verificar si está realizado
                 if (order.status === 'Realizado' || order.status === 'Completado') {
                     statusText = 'OK';
-                } else if (order.status === 'Cancelado' || order.status === 'Entregado') {
-                    statusText = 'NO';
                 }
+                // Los pendientes quedarán en blanco
 
-                // CAMBIO: Se mueve statusText a la posición de la columna L
                 const row = [
                     index + 1, // Ni (A)
                     order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : '', // Fecha (B)
@@ -185,4 +191,5 @@
     </script>
 </body>
 </html>
+
 
