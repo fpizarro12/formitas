@@ -209,22 +209,17 @@
 
             var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(recordToDelete.id);
             
-            // --- FIX FINAL DEFINITIVO ---
+            // --- FIX FINAL DEFINITIVO: Recarga completa de la página ---
             orderRef.delete()
                 .then(function() {
-                    // Éxito: Cerrar modal, restaurar botón y recargar la lista para verificar.
-                    toggleModal(false);
-                    dom.confirmDeleteBtn.disabled = false;
-                    dom.confirmDeleteBtn.textContent = "SÍ, ELIMINAR";
-                    loadRecords(); 
+                    alert("Registro eliminado. La página se recargará para confirmar.");
+                    // Forzar recarga completa para verificar el borrado
+                    window.location.reload(); 
                 })
                 .catch(function(error) {
-                    // Error: Mostrar alerta, cerrar modal y restaurar botón.
                     console.error("Error al eliminar el documento:", error);
-                    alert("Error al eliminar el registro.");
-                    toggleModal(false);
-                    dom.confirmDeleteBtn.disabled = false;
-                    dom.confirmDeleteBtn.textContent = "SÍ, ELIMINAR";
+                    alert("Error al eliminar el registro. La página se recargará.");
+                    window.location.reload();
                 });
         };
 
@@ -283,6 +278,7 @@
     </script>
 </body>
 </html>
+
 
 
 
