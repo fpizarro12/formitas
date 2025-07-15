@@ -198,7 +198,7 @@
                 .catch(function(error){
                      console.error("Error al cargar registros:", error);
                      dom.recordsList.innerHTML = '<p class="text-center" style="color: #dc2626;">Error al cargar los registros.</p>';
-                })
+                });
         };
         
         var deleteRecord = function() {
@@ -207,34 +207,29 @@
             dom.confirmDeleteBtn.disabled = true;
             dom.confirmDeleteBtn.textContent = "Eliminando...";
 
-            // --- FIX: Se elimina .finally() y se crea una función para manejar el final ---
-            var onComplete = function() {
-                toggleModal(false);
-                dom.confirmDeleteBtn.disabled = false;
-                dom.confirmDeleteBtn.textContent = "SÍ, ELIMINAR";
-            };
-
             var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(recordToDelete.id);
+            
+            // --- FIX FINAL: Lógica de "verificar después de escribir" ---
             orderRef.delete()
                 .then(function() {
-                    // Éxito en la eliminación
-                    if (recordToDelete.element) {
-                        recordToDelete.element.style.transition = 'opacity 0.5s';
-                        recordToDelete.element.style.opacity = '0';
-                        setTimeout(function() {
-                            recordToDelete.element.remove();
-                            if (dom.recordsList.children.length === 0) {
-                                dom.recordsList.innerHTML = '<p class="text-center" style="color: #6b7280;">No quedan más registros.</p>';
-                            }
-                        }, 500);
-                    }
-                    onComplete(); // Llama a la función de finalización
+                    // Si la promesa se resuelve (incluso si falló la sincronización),
+                    // cerramos el modal y recargamos la lista desde el servidor.
+                    toggleModal(false);
+                    loadRecords(); // Esta es la verificación.
                 })
                 .catch(function(error) {
-                    // Error en la eliminación
+                    // Si hay un error real de red o permisos, lo mostramos.
                     console.error("Error al eliminar el documento:", error);
                     alert("Error al eliminar el registro.");
-                    onComplete(); // Llama a la función de finalización también en caso de error
+                    // Y también cerramos el modal y restauramos el botón.
+                    toggleModal(false);
+                })
+                .finally(function() {
+                    // Esta función se agrega por si el navegador soporta .finally,
+                    // y para restaurar el botón en todos los casos.
+                    // En navegadores que no lo soportan, no se ejecutará, pero el código en then/catch ya hizo el trabajo.
+                    dom.confirmDeleteBtn.disabled = false;
+                    dom.confirmDeleteBtn.textContent = "SÍ, ELIMINAR";
                 });
         };
 
@@ -248,8 +243,12 @@
             dom.resultsContainer.classList.remove('hidden');
             loadRecords();
 
-            dom.okButton.disabled = false;
-            dom.okButton.textContent = 'Buscar Registros';
+            // Restaurar el botón después de la búsqueda inicial.
+            // Usamos un pequeño delay para asegurar que la carga comience.
+            setTimeout(function() {
+                dom.okButton.disabled = false;
+                dom.okButton.textContent = 'Buscar Registros';
+            }, 500);
         });
 
         dom.newSearchButton.addEventListener('click', function() {
@@ -291,5 +290,6 @@
     </script>
 </body>
 </html>
+
 
 
