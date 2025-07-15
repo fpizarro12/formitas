@@ -211,13 +211,10 @@
             var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(orderId);
             orderRef.update({ status: newStatus })
                 .then(function() {
-                    alert('El estado del pedido ha sido actualizado a "' + newStatus + '".');
-                    for(var i = 0; i < initialFilteredOrders.length; i++) {
-                        if (initialFilteredOrders[i].id === orderId) {
-                            initialFilteredOrders[i].status = newStatus;
-                            break;
-                        }
-                    }
+                    // --- FIX: Recargar desde el servidor para verificar que el cambio se guardó ---
+                    // Ya no se actualiza el array local, se recargan los datos.
+                    // alert('El estado del pedido ha sido actualizado a "' + newStatus + '".');
+                    loadAndFilterOrders();
                 })
                 .catch(function(error) {
                     console.error("Error al actualizar el estado: ", error);
@@ -350,7 +347,6 @@
         });
 
         dom.tableBody.addEventListener('change', function(e) {
-            // --- FIX: Se cambia la detección de la clase por un método más compatible ---
             if ((' ' + e.target.className + ' ').indexOf(' status-select ') > -1) {
                 var orderId = e.target.getAttribute('data-id');
                 var newStatus = e.target.value;
@@ -364,6 +360,7 @@
     </script>
 </body>
 </html>
+
 
 
 
