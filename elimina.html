@@ -209,25 +209,20 @@
 
             var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(recordToDelete.id);
             
-            // --- FIX FINAL: Lógica de "verificar después de escribir" ---
+            // --- FIX FINAL DEFINITIVO ---
             orderRef.delete()
                 .then(function() {
-                    // Si la promesa se resuelve (incluso si falló la sincronización),
-                    // cerramos el modal y recargamos la lista desde el servidor.
+                    // Éxito: Cerrar modal, restaurar botón y recargar la lista para verificar.
                     toggleModal(false);
-                    loadRecords(); // Esta es la verificación.
+                    dom.confirmDeleteBtn.disabled = false;
+                    dom.confirmDeleteBtn.textContent = "SÍ, ELIMINAR";
+                    loadRecords(); 
                 })
                 .catch(function(error) {
-                    // Si hay un error real de red o permisos, lo mostramos.
+                    // Error: Mostrar alerta, cerrar modal y restaurar botón.
                     console.error("Error al eliminar el documento:", error);
                     alert("Error al eliminar el registro.");
-                    // Y también cerramos el modal y restauramos el botón.
                     toggleModal(false);
-                })
-                .finally(function() {
-                    // Esta función se agrega por si el navegador soporta .finally,
-                    // y para restaurar el botón en todos los casos.
-                    // En navegadores que no lo soportan, no se ejecutará, pero el código en then/catch ya hizo el trabajo.
                     dom.confirmDeleteBtn.disabled = false;
                     dom.confirmDeleteBtn.textContent = "SÍ, ELIMINAR";
                 });
@@ -242,9 +237,7 @@
             dom.filterContainer.classList.add('hidden');
             dom.resultsContainer.classList.remove('hidden');
             loadRecords();
-
-            // Restaurar el botón después de la búsqueda inicial.
-            // Usamos un pequeño delay para asegurar que la carga comience.
+            
             setTimeout(function() {
                 dom.okButton.disabled = false;
                 dom.okButton.textContent = 'Buscar Registros';
@@ -290,6 +283,7 @@
     </script>
 </body>
 </html>
+
 
 
 
