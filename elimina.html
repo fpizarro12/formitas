@@ -199,10 +199,6 @@
                      console.error("Error al cargar registros:", error);
                      dom.recordsList.innerHTML = '<p class="text-center" style="color: #dc2626;">Error al cargar los registros.</p>';
                 })
-                .finally(function(){
-                    dom.okButton.disabled = false;
-                    dom.okButton.textContent = 'Buscar Registros';
-                });
         };
         
         var deleteRecord = function() {
@@ -211,9 +207,17 @@
             dom.confirmDeleteBtn.disabled = true;
             dom.confirmDeleteBtn.textContent = "Eliminando...";
 
+            // --- FIX: Se elimina .finally() y se crea una función para manejar el final ---
+            var onComplete = function() {
+                toggleModal(false);
+                dom.confirmDeleteBtn.disabled = false;
+                dom.confirmDeleteBtn.textContent = "SÍ, ELIMINAR";
+            };
+
             var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(recordToDelete.id);
             orderRef.delete()
                 .then(function() {
+                    // Éxito en la eliminación
                     if (recordToDelete.element) {
                         recordToDelete.element.style.transition = 'opacity 0.5s';
                         recordToDelete.element.style.opacity = '0';
@@ -224,15 +228,13 @@
                             }
                         }, 500);
                     }
+                    onComplete(); // Llama a la función de finalización
                 })
                 .catch(function(error) {
+                    // Error en la eliminación
                     console.error("Error al eliminar el documento:", error);
                     alert("Error al eliminar el registro.");
-                })
-                .finally(function() {
-                    toggleModal(false);
-                    dom.confirmDeleteBtn.disabled = false;
-                    dom.confirmDeleteBtn.textContent = "SÍ, ELIMINAR";
+                    onComplete(); // Llama a la función de finalización también en caso de error
                 });
         };
 
@@ -245,6 +247,9 @@
             dom.filterContainer.classList.add('hidden');
             dom.resultsContainer.classList.remove('hidden');
             loadRecords();
+
+            dom.okButton.disabled = false;
+            dom.okButton.textContent = 'Buscar Registros';
         });
 
         dom.newSearchButton.addEventListener('click', function() {
@@ -254,7 +259,7 @@
         });
 
         dom.recordsList.addEventListener('click', function(e) {
-            if (e.target.classList.contains('delete-btn')) {
+            if ((' ' + e.target.className + ' ').indexOf(' delete-btn ') > -1) {
                 var recordId = e.target.getAttribute('data-id');
                 var recordElement = e.target;
                 while(recordElement && !recordElement.getAttribute('data-record-id')){
