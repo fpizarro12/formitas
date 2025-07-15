@@ -251,7 +251,6 @@
                          allOrders.push(orderData);
                     });
                     
-                    // --- FIX V2: Reemplazar guiones con barras para asegurar la interpretación como fecha local ---
                     var start = null;
                     if (filters.startDateString) {
                         var startDateLocalString = filters.startDateString.replace(/-/g, '/');
@@ -263,10 +262,9 @@
                     if (filters.endDateString) {
                         var endDateLocalString = filters.endDateString.replace(/-/g, '/');
                         end = new Date(endDateLocalString);
-                        end.setHours(23, 59, 59, 999); // Fin del día (INCLUSIVO)
+                        end.setHours(23, 59, 59, 999);
                     }
-                    // --- FIN DEL FIX V2 ---
-
+                    
                     var filtered = [];
                     var statusMap = {
                         Realizado: ['Realizado', 'Completado'],
@@ -315,7 +313,7 @@
             });
 
             dropdown.addEventListener('click', function(e) {
-                if (e.target.classList.contains('filter-dropdown-item')) {
+                if ((' ' + e.target.className + ' ').indexOf(' filter-dropdown-item ') > -1) {
                     e.stopPropagation();
                     activeFilters[filterType] = e.target.getAttribute('data-value');
 
@@ -352,7 +350,8 @@
         });
 
         dom.tableBody.addEventListener('change', function(e) {
-            if (e.target.classList.contains('status-select')) {
+            // --- FIX: Se cambia la detección de la clase por un método más compatible ---
+            if ((' ' + e.target.className + ' ').indexOf(' status-select ') > -1) {
                 var orderId = e.target.getAttribute('data-id');
                 var newStatus = e.target.value;
                 updateOrderStatus(orderId, newStatus);
