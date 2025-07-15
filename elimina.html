@@ -16,6 +16,7 @@
 
         .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3rem; font-weight: 700; color: #dc2626; }
         #main-title { font-size: 1.875rem; font-weight: 700; color: #991b1b; margin-top: 0.5rem; }
+        .version-subtitle { font-size: 1rem; color: #4b5563; font-weight: 600; margin-top: 0.25rem; }
 
         .btn { font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: all 0.2s; cursor: pointer; border-style: solid; }
         .btn-green { background-color: #16a34a; color: white; border-width: 1px; border-color: #14532d; }
@@ -49,6 +50,7 @@
         <header class="text-center">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">⚠️ Eliminar Registros ⚠️</h2>
+            <p class="version-subtitle">V.1.01.01</p>
         </header>
 
         <div id="filter-container">
@@ -209,11 +211,9 @@
 
             var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(recordToDelete.id);
             
-            // --- FIX FINAL DEFINITIVO: Recarga completa de la página ---
             orderRef.delete()
                 .then(function() {
                     alert("Registro eliminado. La página se recargará para confirmar.");
-                    // Forzar recarga completa para verificar el borrado
                     window.location.reload(); 
                 })
                 .catch(function(error) {
