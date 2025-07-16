@@ -16,6 +16,7 @@
 
         .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3rem; font-weight: 700; color: #ef4444; }
         #main-title { font-size: 1.875rem; font-weight: 700; color: #374151; margin-top: 0.5rem; }
+        .version-subtitle { font-size: 1rem; color: #4b5563; font-weight: 600; margin-top: 0.25rem; }
 
         .header-buttons { margin-top: 1rem; }
         .btn { font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s; cursor: pointer; border-style: solid; margin: 0 0.5rem; }
@@ -50,14 +51,15 @@
     <div class="container">
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
-            <h2 id="main-title">Pedidos - V1.01.03</h2>
-            <div class="header-buttons">
-                <button id="new-search-button" class="btn btn-secondary">Nueva Búsqueda</button>
-                <button id="export-excel-button" class="btn btn-success">Baja a Excel</button>
-            </div>
+            <h2 id="main-title">Pedidos</h2>
+            <p class="version-subtitle">V.1.01.04</p>
         </header>
 
         <main id="results-container">
+            <div class="header-buttons" style="margin-bottom: 1.5rem;">
+                <button id="new-search-button" class="btn btn-secondary">Nueva Búsqueda</button>
+                <button id="export-excel-button" class="btn btn-success">Baja a Excel</button>
+            </div>
             <div class="results-wrapper">
                 <table class="excel-table">
                     <thead>
@@ -209,9 +211,6 @@
 
         // --- LÓGICA DE NEGOCIO ---
         var updateOrderStatus = function(orderId, newStatus) {
-            // --- FIX FINAL: Recarga completa de la página ---
-            
-            // 1. Deshabilitar todos los controles para evitar más cambios
             var selects = document.getElementsByTagName('select');
             for (var i = 0; i < selects.length; i++) {
                 selects[i].disabled = true;
@@ -222,9 +221,7 @@
             
             orderRef.update({ status: newStatus })
                 .then(function() {
-                    // 2. Avisar al usuario que la página se recargará para verificar
                     alert("Cambio enviado. La página se recargará para confirmar el estado guardado en el servidor.");
-                    // 3. Forzar una recarga completa de la página. Es la única forma 100% segura.
                     window.location.reload();
                 })
                 .catch(function(error) {
@@ -372,6 +369,7 @@
     </script>
 </body>
 </html>
+
 
 
 
