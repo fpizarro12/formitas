@@ -16,7 +16,7 @@
         <header class="text-center">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">⚠️ Eliminar Registros ⚠️</h2>
-            <p class="version-subtitle">V.1.01.04</p>
+            <p class="version-subtitle">V.1.01.05</p>
         </header>
         <div id="filter-container">
             <form id="filter-form">
@@ -36,97 +36,35 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // ... (el resto del script hasta la función deleteRecord)
-        var firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
-        var APP_ID = 'pet-tags-split-app';
-        var db;
-        try { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); } catch (error) { console.error(error); alert("Error de conexión."); }
-        var recordToDelete = { id: null, element: null };
-        var dom = { filterContainer: document.getElementById('filter-container'), resultsContainer: document.getElementById('results-container'), filterForm: document.getElementById('filter-form'), startDateInput: document.getElementById('start-date'), endDateInput: document.getElementById('end-date'), recordsList: document.getElementById('records-list'), newSearchButton: document.getElementById('new-search-button'), modal: document.getElementById('confirmation-modal'), confirmDeleteBtn: document.getElementById('confirm-delete'), cancelDeleteBtn: document.getElementById('cancel-delete'), okButton: document.getElementById('ok-button') };
-        
-        var renderRecords = function(orders) {
-            dom.recordsList.innerHTML = '';
-            if (orders.length === 0) { dom.recordsList.innerHTML = '<p class="text-center" style="color: #6b7280;">No se encontraron registros.</p>'; return; }
-            orders.sort(function(a,b) { return b.timestamp.seconds - a.timestamp.seconds; });
-            for (var i = 0; i < orders.length; i++) {
-                var order = orders[i]; var card = document.createElement('div'); card.className = 'record-card'; card.setAttribute('data-record-id', order.id);
-                var fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'Sin fecha';
-                card.innerHTML = '<div class="record-info"><p style="font-weight: 700; color: #1f2937;">' + (order.petName || 'Sin Nombre') + '</p><p style="font-size: 0.875rem; color: #4b5563;">' + (order.vetName || 'Sin Veterinaria') + ' - ' + fecha + '</p><p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;"><strong>Modelo:</strong> ' + (order.shape || 'N/A') + ' | <strong>Color:</strong> ' + (order.color || 'N/A') + '</p><p style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem;">ID: ' + order.id + '</p></div><div><button data-id="' + order.id + '" class="delete-btn btn btn-red" style="font-size: 0.875rem; padding: 0.25rem 0.75rem;">Eliminar</button></div>';
-                dom.recordsList.appendChild(card);
-            }
-        };
-        var toggleModal = function(show) { dom.modal.classList.toggle('hidden', !show); if (!show) { recordToDelete = { id: null, element: null }; } };
-
-        var loadRecords = function() {
-            dom.recordsList.innerHTML = '<p class="text-center" style="color: #6b7280;">Cargando registros...</p>';
-            var startDate = new Date(dom.startDateInput.value.replace(/-/g, '/')); startDate.setHours(0, 0, 0, 0);
-            var endDate = new Date(dom.endDateInput.value.replace(/-/g, '/')); endDate.setHours(23, 59, 59, 999);
-            db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').get()
-                .then(function(querySnapshot){
-                    var allOrders = [];
-                    querySnapshot.forEach(function(doc){ var orderData = doc.data(); orderData.id = doc.id; allOrders.push(orderData); });
-                    var filtered = [];
-                     for(var i=0; i<allOrders.length; i++){
-                        var order = allOrders[i];
-                        if (!order.timestamp) continue;
-                        var orderDate = new Date(order.timestamp.seconds * 1000);
-                        if(orderDate >= startDate && orderDate <= endDate){ filtered.push(order); }
-                    }
-                    renderRecords(filtered);
-                }).catch(function(error){ console.error(error); dom.recordsList.innerHTML = '<p class="text-center" style="color: #dc2626;">Error al cargar.</p>'; });
-        };
+        var recordToDelete = { id: null };
+        var dom = { /* ... tus elementos del dom ... */ okButton: document.getElementById('ok-button'), confirmDeleteBtn: document.getElementById('confirm-delete'), newSearchButton: document.getElementById('new-search-button'), recordsList: document.getElementById('records-list'), filterContainer: document.getElementById('filter-container'), resultsContainer: document.getElementById('results-container') };
+        // El resto del script de carga y renderizado no cambia
         
         var deleteRecord = function() {
             if (!recordToDelete.id) return;
+
             dom.confirmDeleteBtn.disabled = true;
-            dom.confirmDeleteBtn.textContent = "Eliminando...";
-            dom.cancelDeleteBtn.disabled = true;
+            dom.confirmDeleteBtn.textContent = "Procesando...";
 
-            var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(recordToDelete.id);
-            
-            // Disparamos la orden y no esperamos respuesta
-            orderRef.delete();
+            // Guardamos la URL actual para poder volver
+            var returnUrl = window.location.href;
 
-            // Alertamos al usuario y forzamos recarga
-            alert("Se envió la orden de borrado. Presiona Aceptar para recargar la página y verificar el resultado.");
-            window.location.reload(true); // El 'true' fuerza la recarga desde el servidor
+            var cacheBuster = new Date().getTime();
+            var deleteUrl = 'accion.html' +
+                '?action=delete' +
+                '&id=' + recordToDelete.id +
+                '&returnUrl=' + encodeURIComponent(returnUrl) +
+                '&cb=' + cacheBuster;
+
+            // Redirigimos a la página de acción
+            window.location.href = deleteUrl;
         };
         
-        // --- MANEJADORES DE EVENTOS ---
-        dom.filterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            dom.okButton.disabled = true; dom.okButton.textContent = 'Buscando...';
-            dom.filterContainer.classList.add('hidden');
-            dom.resultsContainer.classList.remove('hidden');
-            loadRecords();
-            setTimeout(function() { dom.okButton.disabled = false; dom.okButton.textContent = 'Buscar Registros'; }, 500);
-        });
-        dom.newSearchButton.addEventListener('click', function() { dom.resultsContainer.classList.add('hidden'); dom.filterContainer.classList.remove('hidden'); dom.recordsList.innerHTML = ''; });
-        dom.recordsList.addEventListener('click', function(e) {
-            if ((' ' + e.target.className + ' ').indexOf(' delete-btn ') > -1) {
-                var recordId = e.target.getAttribute('data-id');
-                var recordElement = e.target;
-                while(recordElement && !recordElement.getAttribute('data-record-id')){ recordElement = recordElement.parentElement; }
-                recordToDelete = { id: recordId, element: recordElement };
-                toggleModal(true);
-            }
-        });
-        dom.cancelDeleteBtn.addEventListener('click', function(){ toggleModal(false); });
+        // El resto de los manejadores de eventos no cambian
         dom.confirmDeleteBtn.addEventListener('click', deleteRecord);
-
-        // --- INICIALIZACIÓN ---
-        var main = function() {
-            if(!db) return;
-            var today = new Date(); var y = today.getFullYear(); var m = today.getMonth() + 1; var d = today.getDate();
-            var todayStr = y + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d;
-            dom.startDateInput.value = todayStr; dom.endDateInput.value = todayStr;
-        };
-        main();
+        // ...
     });
     </script>
 </body>
