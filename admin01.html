@@ -211,21 +211,18 @@
 
         // --- LÓGICA DE NEGOCIO ---
         var updateOrderStatus = function(orderId, newStatus) {
+            document.body.style.cursor = 'wait';
             var selects = document.getElementsByTagName('select');
             for (var i = 0; i < selects.length; i++) {
                 selects[i].disabled = true;
             }
-            document.body.style.cursor = 'wait';
 
-            var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(orderId);
+            var updateUrl = 'update_status.html' +
+                '?id=' + orderId +
+                '&status=' + newStatus +
+                '&returnUrl=' + encodeURIComponent(window.location.href);
             
-            orderRef.update({ status: newStatus });
-
-            alert("Orden de cambio enviada. La página se recargará para verificar el resultado desde el servidor.");
-
-            setTimeout(function() {
-                window.location.reload();
-            }, 1500);
+            window.location.href = updateUrl;
         };
 
         var loadAndFilterOrders = function() {
