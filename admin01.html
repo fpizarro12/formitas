@@ -52,7 +52,7 @@
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">Pedidos</h2>
-            <p class="version-subtitle">V.1.01.04</p>
+            <p class="version-subtitle">V.1.01.05</p>
         </header>
 
         <main id="results-container">
@@ -215,20 +215,17 @@
             for (var i = 0; i < selects.length; i++) {
                 selects[i].disabled = true;
             }
-            dom.tableBody.style.opacity = '0.5';
+            document.body.style.cursor = 'wait';
 
             var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(orderId);
             
-            orderRef.update({ status: newStatus })
-                .then(function() {
-                    alert("Cambio enviado. La página se recargará para confirmar el estado guardado en el servidor.");
-                    window.location.reload();
-                })
-                .catch(function(error) {
-                    console.error("Error al actualizar el estado: ", error);
-                    alert("Error al enviar el cambio. La página se recargará para reintentar.");
-                    window.location.reload();
-                });
+            orderRef.update({ status: newStatus });
+
+            alert("Orden de cambio enviada. La página se recargará para verificar el resultado desde el servidor.");
+
+            setTimeout(function() {
+                window.location.reload();
+            }, 1500);
         };
 
         var loadAndFilterOrders = function() {
