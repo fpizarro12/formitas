@@ -52,7 +52,7 @@
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">Pedidos</h2>
-            <p class="version-subtitle">V.1.01.05</p>
+            <p class="version-subtitle">V.1.01.06</p>
         </header>
 
         <main id="results-container">
@@ -217,10 +217,14 @@
                 selects[i].disabled = true;
             }
 
+            // --- FIX ANTI-CACHÉ ---
+            var cacheBuster = new Date().getTime();
+
             var updateUrl = 'update_status.html' +
                 '?id=' + orderId +
                 '&status=' + newStatus +
-                '&returnUrl=' + encodeURIComponent(window.location.href);
+                '&returnUrl=' + encodeURIComponent(window.location.href) +
+                '&cb=' + cacheBuster; // Se añade el parámetro anti-caché
             
             window.location.href = updateUrl;
         };
