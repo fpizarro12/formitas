@@ -4,57 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultados de Pedidos - Formitas</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body, html { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
-        * { box-sizing: border-box; }
-        .container { max-width: 1280px; margin: 0 auto; padding: 3rem 1rem; }
-        .text-center { text-align: center; }
-
-        .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3rem; font-weight: 700; color: #ef4444; }
-        #main-title { font-size: 1.875rem; font-weight: 700; color: #374151; margin-top: 0.5rem; }
-        .version-subtitle { font-size: 1rem; color: #4b5563; font-weight: 600; margin-top: 0.25rem; }
-
-        .header-buttons { margin-top: 1rem; }
-        .btn { font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s; cursor: pointer; border-style: solid; margin: 0 0.5rem; }
-        .btn-secondary { background-color: #e5e7eb; color: #1f2937; border-width: 1px; border-color: #6b7280; }
-        .btn-secondary:hover { background-color: #d1d5db; }
-        .btn-success { background-color: #16a34a; color: white; border-width: 1px; border-color: #14532d; }
-        .btn-success:hover { background-color: #15803d; }
-
-        .results-wrapper { background-color: white; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow-x: auto; }
-        .excel-table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
-        .excel-table th, .excel-table td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; vertical-align: middle; }
-        .excel-table th { background-color: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #374151; }
-        .excel-table tr:nth-child(even) { background-color: #f9fafb; }
-        
-        .status-column { min-width: 130px; }
-        .status-select { display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; padding: 0.25rem 0.5rem; background-color: white; cursor: pointer; }
-        .status-select:disabled { background-color: #f3f4f6; opacity: 0.7; }
-        
-        .filter-header { position: relative; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-        .filter-icon { width: 1rem; height: 1rem; margin-left: 0.5rem; color: #9ca3af; transition: color 0.2s; }
-        .filter-header:hover .filter-icon { color: #374151; }
-        .filter-icon.active { color: #2563eb; }
-        
-        .filter-dropdown { position: absolute; top: 100%; left: 0; background-color: white; border: 1px solid #d1d5db; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto; min-width: 150px; }
-        .filter-dropdown-item { padding: 0.5rem 1rem; cursor: pointer; }
-        .filter-dropdown-item:hover { background-color: #f3f4f6; }
-        .hidden { display: none; }
+        body, html { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; } * { box-sizing: border-box; } .container { max-width: 1280px; margin: 0 auto; padding: 3rem 1rem; } .text-center { text-align: center; } .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3rem; font-weight: 700; color: #ef4444; } #main-title { font-size: 1.875rem; font-weight: 700; color: #374151; margin-top: 0.5rem; } .version-subtitle { font-size: 1rem; color: #4b5563; font-weight: 600; margin-top: 0.25rem; } .header-buttons { margin-top: 1rem; } .btn { font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s; cursor: pointer; border-style: solid; margin: 0 0.5rem; } .btn-secondary { background-color: #e5e7eb; color: #1f2937; border-width: 1px; border-color: #6b7280; } .btn-secondary:hover { background-color: #d1d5db; } .btn-success { background-color: #16a34a; color: white; border-width: 1px; border-color: #14532d; } .btn-success:hover { background-color: #15803d; } .results-wrapper { background-color: white; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow-x: auto; } .excel-table { border-collapse: collapse; width: 100%; font-size: 0.875rem; } .excel-table th, .excel-table td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; vertical-align: middle; } .excel-table th { background-color: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #374151; } .excel-table tr:nth-child(even) { background-color: #f9fafb; } .status-column { min-width: 130px; } .status-select { display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; padding: 0.25rem 0.5rem; background-color: white; cursor: pointer; } .status-select:disabled { background-color: #f3f4f6; opacity: 0.7; } .filter-header { position: relative; cursor: pointer; display: flex; align-items: center; justify-content: space-between; } .filter-icon { width: 1rem; height: 1rem; margin-left: 0.5rem; color: #9ca3af; transition: color 0.2s; } .filter-header:hover .filter-icon { color: #374151; } .filter-icon.active { color: #2563eb; } .filter-dropdown { position: absolute; top: 100%; left: 0; background-color: white; border: 1px solid #d1d5db; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto; min-width: 150px; } .filter-dropdown-item { padding: 0.5rem 1rem; cursor: pointer; } .filter-dropdown-item:hover { background-color: #f3f4f6; } .hidden { display: none; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">Pedidos</h2>
-            <p class="version-subtitle">V.1.01.06</p>
+            <p class="version-subtitle">V.1.01.07</p>
         </header>
-
         <main id="results-container">
             <div class="header-buttons" style="margin-bottom: 1.5rem;">
                 <button id="new-search-button" class="btn btn-secondary">Nueva Búsqueda</button>
@@ -64,31 +27,11 @@
                 <table class="excel-table">
                     <thead>
                         <tr>
-                            <th>Fecha</th>
-                            <th>Veterinaria</th>
-                            <th id="modelo-header">
-                                <div class="filter-header">
-                                    <span>Modelo (Forma)</span>
-                                    <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    <div id="modelo-filter-dropdown" class="filter-dropdown hidden"></div>
-                                </div>
-                            </th>
-                            <th id="color-header">
-                                <div class="filter-header">
-                                    <span>Color</span>
-                                    <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    <div id="color-filter-dropdown" class="filter-dropdown hidden"></div>
-                                </div>
-                            </th>
-                            <th>Mascota</th>
-                            <th>Telefono</th>
-                            <th>Atrás (Linea Extra)</th>
-                            <th>Observaciones</th>
-                            <th class="status-column">Estado</th>
+                            <th>Fecha</th> <th>Veterinaria</th> <th id="modelo-header"> <div class="filter-header"> <span>Modelo (Forma)</span> <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg> <div id="modelo-filter-dropdown" class="filter-dropdown hidden"></div> </div> </th> <th id="color-header"> <div class="filter-header"> <span>Color</span> <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg> <div id="color-filter-dropdown" class="filter-dropdown hidden"></div> </div> </th> <th>Mascota</th> <th>Telefono</th> <th>Atrás (Linea Extra)</th> <th>Observaciones</th> <th class="status-column">Estado</th>
                         </tr>
                     </thead>
                     <tbody id="orders-table-body">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </main>
@@ -99,95 +42,45 @@
     
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- CONFIGURACIÓN Y CONSTANTES ---
+        // ... (el resto del script hasta la función de updateOrderStatus)
         var firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
         var APP_ID = 'pet-tags-split-app';
-        
-        // --- INICIALIZACIÓN DE FIREBASE ---
         var db;
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
-        } catch (error) {
-            console.error("Fallo la inicializacion de Firebase:", error);
-            renderError("Error de conexión con la base de datos.");
-        }
+        } catch (error) { console.error(error); renderError("Error de conexión."); }
 
-        // --- ESTADO DE LA APLICACIÓN ---
         var initialFilteredOrders = [];
-        var activeFilters = {
-            model: 'todos',
-            color: 'todos'
-        };
-
-        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
-        var dom = {
-            tableBody: document.getElementById('orders-table-body'),
-            newSearchButton: document.getElementById('new-search-button'),
-            exportExcelButton: document.getElementById('export-excel-button'),
-            modeloHeader: document.getElementById('modelo-header'),
-            colorHeader: document.getElementById('color-header'),
-            modeloDropdown: document.getElementById('modelo-filter-dropdown'),
-            colorDropdown: document.getElementById('color-filter-dropdown')
-        };
+        var activeFilters = { model: 'todos', color: 'todos' };
+        var dom = { tableBody: document.getElementById('orders-table-body'), newSearchButton: document.getElementById('new-search-button'), exportExcelButton: document.getElementById('export-excel-button'), modeloHeader: document.getElementById('modelo-header'), colorHeader: document.getElementById('color-header'), modeloDropdown: document.getElementById('modelo-filter-dropdown'), colorDropdown: document.getElementById('color-filter-dropdown') };
         
-        // --- FUNCIONES DE RENDERIZADO Y UI ---
-        var renderError = function(message) {
-            dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #dc2626; font-weight: 600;">' + message + '</td></tr>';
-        };
-
+        var renderError = function(m){ dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #dc2626; font-weight: 600;">' + m + '</td></tr>'; };
         var renderTable = function(orders) {
             dom.tableBody.innerHTML = '';
-            if (orders.length === 0) {
-                dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #6b7280;">No se encontraron pedidos que coincidan con los filtros.</td></tr>';
-                return;
-            }
+            if (orders.length === 0) { dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #6b7280;">No se encontraron pedidos.</td></tr>'; return; }
             orders.sort(function(a, b) { return b.timestamp.seconds - a.timestamp.seconds; });
-            
             var rowsHTML = '';
             for (var i = 0; i < orders.length; i++) {
                 var order = orders[i];
                 var fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
                 var status = order.status || 'Pendiente';
-
-                var statusOptions = 
-                    '<option value="Pendiente"' + (status === 'Pendiente' ? 'selected' : '') + '>Pendiente</option>' +
-                    '<option value="Realizado"' + (status === 'Realizado' || status === 'Completado' ? 'selected' : '') + '>Realizado</option>' +
-                    '<option value="Cancelado"' + (status === 'Cancelado' || status === 'Entregado' ? 'selected' : '') + '>Cancelado</option>';
-
-                rowsHTML += '<tr>' +
-                    '<td>' + fecha + '</td>' +
-                    '<td>' + (order.vetName || '') + '</td>' +
-                    '<td>' + (order.shape || '') + '</td>' +
-                    '<td>' + (order.color || '') + '</td>' +
-                    '<td>' + (order.petName || '') + '</td>' +
-                    '<td>' + (order.phone || '') + '</td>' +
-                    '<td>' + (order.extraLine || '') + '</td>' +
-                    '<td>' + (order.observations || '') + '</td>' +
-                    '<td class="status-column"><select class="status-select" data-id="' + order.id + '">' + statusOptions + '</select></td>' +
-                '</tr>';
+                var statusOptions = '<option value="Pendiente"' + (status === 'Pendiente' ? 'selected' : '') + '>Pendiente</option><option value="Realizado"' + (status === 'Realizado' || status === 'Completado' ? 'selected' : '') + '>Realizado</option><option value="Cancelado"' + (status === 'Cancelado' || status === 'Entregado' ? 'selected' : '') + '>Cancelado</option>';
+                rowsHTML += '<tr><td>' + fecha + '</td><td>' + (order.vetName || '') + '</td><td>' + (order.shape || '') + '</td><td>' + (order.color || '') + '</td><td>' + (order.petName || '') + '</td><td>' + (order.phone || '') + '</td><td>' + (order.extraLine || '') + '</td><td>' + (order.observations || '') + '</td><td class="status-column"><select class="status-select" data-id="' + order.id + '">' + statusOptions + '</select></td></tr>';
             }
             dom.tableBody.innerHTML = rowsHTML;
         };
-        
         var populateDropdown = function(element, items) {
             var uniqueItemsObj = {};
-            for(var i=0; i < items.length; i++) {
-                if(items[i]) uniqueItemsObj[items[i]] = true;
-            }
+            for(var i=0; i < items.length; i++) { if(items[i]) uniqueItemsObj[items[i]] = true; }
             var sortedItems = Object.keys(uniqueItemsObj).sort(function(a, b) { return a.localeCompare(b); });
-            
             var dropdownHTML = '<div class="filter-dropdown-item" data-value="todos">Ver Todos</div>';
-            for (var j=0; j < sortedItems.length; j++){
-                dropdownHTML += '<div class="filter-dropdown-item" data-value="' + sortedItems[j] + '">' + sortedItems[j] + '</div>';
-            }
+            for (var j=0; j < sortedItems.length; j++){ dropdownHTML += '<div class="filter-dropdown-item" data-value="' + sortedItems[j] + '">' + sortedItems[j] + '</div>'; }
             element.innerHTML = dropdownHTML;
         };
-
         var applyAllFiltersAndRender = function() {
             var ordersToRender = [];
             var colorsForNextDropdown = [];
-            
             for(var i=0; i < initialFilteredOrders.length; i++){
                 var order = initialFilteredOrders[i];
                 if (activeFilters.model === 'todos' || order.shape === activeFilters.model) {
@@ -195,9 +88,7 @@
                     colorsForNextDropdown.push(order.color);
                 }
             }
-            
             populateDropdown(dom.colorDropdown, colorsForNextDropdown);
-            
             var finalOrders = [];
             for(var j=0; j < ordersToRender.length; j++){
                 var orderToRender = ordersToRender[j];
@@ -205,7 +96,6 @@
                     finalOrders.push(orderToRender);
                 }
             }
-            
             renderTable(finalOrders);
         };
 
@@ -217,96 +107,51 @@
                 selects[i].disabled = true;
             }
 
-            // --- FIX ANTI-CACHÉ ---
-            var cacheBuster = new Date().getTime();
-
-            var updateUrl = 'update_status.html' +
-                '?id=' + orderId +
-                '&status=' + newStatus +
-                '&returnUrl=' + encodeURIComponent(window.location.href) +
-                '&cb=' + cacheBuster; // Se añade el parámetro anti-caché
+            var orderRef = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').doc(orderId);
             
-            window.location.href = updateUrl;
+            // Disparamos la orden y no esperamos respuesta
+            orderRef.update({ status: newStatus });
+
+            // Alertamos al usuario y forzamos recarga
+            alert("Se envió la orden de cambio. Presiona Aceptar para recargar la página y verificar el resultado.");
+            window.location.reload(true); // El 'true' fuerza la recarga desde el servidor
         };
 
         var loadAndFilterOrders = function() {
+            // ... (código de loadAndFilterOrders sin cambios)
             dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #6b7280;">Cargando pedidos...</td></tr>';
-            
             var params = {};
-            window.location.search.substring(1).split('&').forEach(function (pair) {
-                var parts = pair.split('=');
-                if(parts.length === 2) params[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
-            });
-
-            var filters = {
-                startDateString: params['startDate'],
-                endDateString: params['endDate'],
-                vetFrom: (params['vetFrom'] || '').toUpperCase(),
-                vetTo: (params['vetTo'] || 'ZZZZZZ').toUpperCase(),
-                status: params['status']
-            };
-
+            window.location.search.substring(1).split('&').forEach(function (pair) { var parts = pair.split('='); if(parts.length === 2) params[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]); });
+            var filters = { startDateString: params['startDate'], endDateString: params['endDate'], vetFrom: (params['vetFrom'] || '').toUpperCase(), vetTo: (params['vetTo'] || 'ZZZZZZ').toUpperCase(), status: params['status'] };
             db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').get()
                 .then(function(querySnapshot) {
                     var allOrders = [];
-                    querySnapshot.forEach(function(doc){
-                         var orderData = doc.data();
-                         orderData.id = doc.id;
-                         allOrders.push(orderData);
-                    });
-                    
+                    querySnapshot.forEach(function(doc){ var orderData = doc.data(); orderData.id = doc.id; allOrders.push(orderData); });
                     var start = null;
-                    if (filters.startDateString) {
-                        var startDateLocalString = filters.startDateString.replace(/-/g, '/');
-                        start = new Date(startDateLocalString);
-                        start.setHours(0, 0, 0, 0);
-                    }
-
+                    if (filters.startDateString) { var startDateLocalString = filters.startDateString.replace(/-/g, '/'); start = new Date(startDateLocalString); start.setHours(0, 0, 0, 0); }
                     var end = null;
-                    if (filters.endDateString) {
-                        var endDateLocalString = filters.endDateString.replace(/-/g, '/');
-                        end = new Date(endDateLocalString);
-                        end.setHours(23, 59, 59, 999);
-                    }
-                    
+                    if (filters.endDateString) { var endDateLocalString = filters.endDateString.replace(/-/g, '/'); end = new Date(endDateLocalString); end.setHours(23, 59, 59, 999); }
                     var filtered = [];
-                    var statusMap = {
-                        Realizado: ['Realizado', 'Completado'],
-                        Cancelado: ['Cancelado', 'Entregado'],
-                        Pendiente: ['Pendiente']
-                    };
-
+                    var statusMap = { Realizado: ['Realizado', 'Completado'], Cancelado: ['Cancelado', 'Entregado'], Pendiente: ['Pendiente'] };
                     for(var i=0; i < allOrders.length; i++) {
                         var order = allOrders[i];
                         var orderDate = order.timestamp ? new Date(order.timestamp.seconds * 1000) : null;
                         var vetName = (order.vetName || '').toUpperCase();
                         var status = order.status || 'Pendiente';
-                        
-                        if (filters.status && filters.status !== 'todos') {
-                            if (!statusMap[filters.status] || statusMap[filters.status].indexOf(status) === -1) {
-                                continue;
-                            }
-                        }
-
+                        if (filters.status && filters.status !== 'todos') { if (!statusMap[filters.status] || statusMap[filters.status].indexOf(status) === -1) { continue; } }
                         if (start && orderDate < start) continue;
                         if (end && orderDate > end) continue;
-
                         if (filters.vetFrom && vetName < filters.vetFrom) continue;
                         if (filters.vetTo && vetName > filters.vetTo) continue;
-                        
                         filtered.push(order);
                     }
-                    
                     initialFilteredOrders = filtered;
                     populateDropdown(dom.modeloDropdown, initialFilteredOrders.map(function(o){ return o.shape; }));
                     applyAllFiltersAndRender();
                 })
-                .catch(function(error) {
-                    console.error("Error al cargar y filtrar los pedidos: ", error);
-                    renderError("Error al cargar datos: " + error.message);
-                });
+                .catch(function(error) { console.error(error); renderError("Error al cargar datos."); });
         };
-
+        
         // --- MANEJADORES DE EVENTOS ---
         var setupDropdownListener = function(header, dropdown, filterType) {
             header.addEventListener('click', function(e) {
@@ -315,51 +160,25 @@
                 otherDropdown.classList.add('hidden');
                 dropdown.classList.toggle('hidden');
             });
-
             dropdown.addEventListener('click', function(e) {
                 if ((' ' + e.target.className + ' ').indexOf(' filter-dropdown-item ') > -1) {
                     e.stopPropagation();
                     activeFilters[filterType] = e.target.getAttribute('data-value');
-
-                    if(filterType === 'model') {
-                        activeFilters.color = 'todos';
-                        dom.colorHeader.querySelector('.filter-icon').classList.remove('active');
-                    }
-                    
+                    if(filterType === 'model') { activeFilters.color = 'todos'; dom.colorHeader.querySelector('.filter-icon').classList.remove('active'); }
                     applyAllFiltersAndRender();
                     dropdown.classList.add('hidden');
                     var icon = header.querySelector('.filter-icon');
                     var isActive = activeFilters[filterType] !== 'todos';
-                    if (isActive) icon.classList.add('active');
-                    else icon.classList.remove('active');
+                    if (isActive) icon.classList.add('active'); else icon.classList.remove('active');
                 }
             });
         };
-
         setupDropdownListener(dom.modeloHeader, dom.modeloDropdown, 'model');
         setupDropdownListener(dom.colorHeader, dom.colorDropdown, 'color');
-
-        window.addEventListener('click', function() {
-            dom.modeloDropdown.classList.add('hidden');
-            dom.colorDropdown.classList.add('hidden');
-        });
-
-        dom.newSearchButton.addEventListener('click', function() {
-            window.location.href = 'admin.html';
-        });
-
-        dom.exportExcelButton.addEventListener('click', function() {
-            var exportUrl = 'admin02.html' + window.location.search;
-            window.location.href = exportUrl;
-        });
-
-        dom.tableBody.addEventListener('change', function(e) {
-            if ((' ' + e.target.className + ' ').indexOf(' status-select ') > -1) {
-                var orderId = e.target.getAttribute('data-id');
-                var newStatus = e.target.value;
-                updateOrderStatus(orderId, newStatus);
-            }
-        });
+        window.addEventListener('click', function() { dom.modeloDropdown.classList.add('hidden'); dom.colorDropdown.classList.add('hidden'); });
+        dom.newSearchButton.addEventListener('click', function() { window.location.href = 'admin.html'; });
+        dom.exportExcelButton.addEventListener('click', function() { var exportUrl = 'admin02.html' + window.location.search; window.location.href = exportUrl; });
+        dom.tableBody.addEventListener('change', function(e) { if ((' ' + e.target.className + ' ').indexOf(' status-select ') > -1) { var orderId = e.target.getAttribute('data-id'); var newStatus = e.target.value; updateOrderStatus(orderId, newStatus); } });
 
         // --- INICIALIZACIÓN ---
         if(db) loadAndFilterOrders();
