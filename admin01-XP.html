@@ -16,7 +16,7 @@
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">Pedidos (Modo XP)</h2>
-            <p class="version-subtitle">V.1.02.03</p>
+            <p class="version-subtitle">V.1.02.04</p>
         </header>
         <main id="results-container">
             <div class="header-buttons">
@@ -169,8 +169,7 @@
                 img.onload = img.onerror = function() {
                     processedChanges++;
                     if (processedChanges === totalChanges) {
-                        alert('Todos los cambios han sido enviados. La página se recargará.');
-                        // Redirigimos a admin.html para un nuevo ciclo
+                        alert('Todos los cambios han sido enviados.');
                         window.location.href = "admin.html";
                     }
                 };
@@ -178,7 +177,9 @@
             }
         });
         
-        dom.exportExcelButton.href = 'admin02.html' + window.location.search;
+        // --- CAMBIO CLAVE ---
+        dom.exportExcelButton.href = 'admin02-XP.html' + window.location.search;
+        
         if(db) loadAndFilterOrders();
     });
     </script>

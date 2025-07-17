@@ -12,12 +12,13 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
         .font-formitas { font-family: 'Comic Neue', cursive; }
-        .form-input { margin-top: 0.25rem; display: block; width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.5rem 0.75rem; }
-        .btn { font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s; }
+        .form-input { margin-top: 0.25rem; display: block; width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.5rem 0.75rem; background-color: #e5e7eb; }
+        .btn { font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s; cursor: pointer; }
         .btn-green { background-color: #16a34a; color: white; border: 1px solid #14532d; }
         .btn-green:hover { background-color: #15803d; }
         .btn-red { background-color: #dc2626; color: white; border: 1px solid #991b1b; }
         .btn-red:hover { background-color: #b91c1c; }
+        .version-subtitle { font-size: 1rem; color: #4b5563; font-weight: 600; margin-top: 0.25rem; }
     </style>
 </head>
 <body class="py-12">
@@ -26,6 +27,7 @@
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
             <h2 class="text-3xl font-bold text-gray-700 mt-2">Baja Pedidos a Excel</h2>
+            <p class="version-subtitle">V.1.01.01</p>
         </header>
 
         <div class="bg-white p-8 rounded-xl shadow-lg mb-8">
@@ -33,11 +35,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label>
-                        <input type="date" id="start-date" class="form-input" disabled>
+                        <input type="date" id="start-date" class="form-input" readonly>
                     </div>
                     <div>
                         <label for="end-date" class="block text-sm font-medium text-gray-700">Fecha Hasta</label>
-                        <input type="date" id="end-date" class="form-input" disabled>
+                        <input type="date" id="end-date" class="form-input" readonly>
                     </div>
                 </div>
                 <div class="flex justify-end items-center space-x-4 pt-4">
@@ -51,13 +53,10 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, getDocs, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- CONFIGURACIÓN Y CONSTANTES ---
         const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
         const APP_ID = 'pet-tags-split-app';
-        
-        // --- INICIALIZACIÓN DE FIREBASE ---
         let db;
         try {
             const app = initializeApp(firebaseConfig);
@@ -67,7 +66,6 @@
             alert("Error de conexión. No se puede generar el archivo.");
         }
 
-        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
         const dom = {
             exportForm: document.getElementById('export-form'),
             startDateInput: document.getElementById('start-date'),
@@ -77,41 +75,27 @@
             loadingMessage: document.getElementById('loading-message')
         };
         
-        // --- LÓGICA DE NEGOCIO ---
-        const generateExcel = (orders, deliveryDate) => {
-            const formattedDeliveryDate = new Date(deliveryDate).toLocaleDateString('es-AR');
-            
+        const generateExcel = (orders, deliveryDateStr) => {
+            const deliveryDate = new Date(deliveryDateStr.replace(/-/g, '/'));
+            const formattedDeliveryDate = deliveryDate.toLocaleDateString('es-AR');
             const header1 = [`Entrega ${formattedDeliveryDate}`];
             const header2 = ["Ni", "Fecha", "Veterinaria", "Orden", null, "Modelo", "Color", "Nombre", "Telefono", "Atrás", "Observaciones", "Ext"];
-            
             const sheetData = [header1, header2];
             
             orders.forEach((order, index) => {
-                let statusText = '';
-                if (order.status === 'Realizado' || order.status === 'Completado') {
-                    statusText = 'OK';
-                }
-                
+                let statusText = (order.status === 'Realizado' || order.status === 'Completado') ? 'OK' : '';
                 const row = [
                     index + 1,
                     order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : '',
-                    order.vetName || '',
-                    index + 1,
-                    null, // Columna E vacía
-                    order.shape || '',
-                    order.color || '',
-                    order.petName || '',
-                    order.phone || '',
-                    order.extraLine || '',
-                    order.observations || '',
-                    statusText
+                    order.vetName || '', index + 1, null, order.shape || '', order.color || '',
+                    order.petName || '', order.phone || '', order.extraLine || '',
+                    order.observations || '', statusText
                 ];
                 sheetData.push(row);
             });
 
             const ws = XLSX.utils.aoa_to_sheet(sheetData);
             ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: header2.length - 1 } }];
-            
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Pedidos");
             XLSX.writeFile(wb, `Pedidos_Formitas_${formattedDeliveryDate.replace(/\//g, '-')}.xlsx`);
@@ -123,36 +107,29 @@
             dom.loadingMessage.classList.remove('hidden');
 
             try {
-                const pedidosRef = collection(db, `/artifacts/${APP_ID}/public/data/pedidos`);
-                // NOTA: Similar a admin01, se trae todo y se filtra en cliente.
-                // Para una app grande, esto debería optimizarse.
-                const q = query(pedidosRef);
+                const q = query(collection(db, `/artifacts/${APP_ID}/public/data/pedidos`));
                 const querySnapshot = await getDocs(q);
                 const allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // 1. Filtra por fecha
                 const filteredByDate = allOrders.filter(order => {
                     if (!order.timestamp) return false;
                     const orderDate = new Date(order.timestamp.seconds * 1000);
                     return orderDate >= filters.startDate && orderDate <= filters.endDate;
                 });
                 
-                // 2. Excluye pedidos cancelados
                 const nonCancelledOrders = filteredByDate.filter(order => {
                     const status = order.status || 'Pendiente';
                     return status !== 'Cancelado' && status !== 'Entregado';
                 });
                 
-                // 3. Ordena los pedidos restantes
                 nonCancelledOrders.sort((a, b) => {
-                    // Primero por fecha, luego por nombre de veterinaria
                     const dateA = a.timestamp?.seconds || 0;
                     const dateB = b.timestamp?.seconds || 0;
                     if (dateA !== dateB) return dateA - dateB;
                     return (a.vetName || '').localeCompare(b.vetName || '');
                 });
 
-                generateExcel(nonCancelledOrders, filters.endDate);
+                generateExcel(nonCancelledOrders, dom.endDateInput.value);
 
             } catch (error) {
                 console.error("Error al generar el archivo Excel:", error);
@@ -164,32 +141,26 @@
             }
         };
 
-        // --- MANEJADORES DE EVENTOS ---
         dom.cancelButton.addEventListener('click', () => {
-            window.history.back(); // Vuelve a la página anterior (admin01.html)
+            window.history.back();
         });
 
         dom.exportForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            if (!db) {
-                alert("Error de conexión, no se puede generar el archivo.");
-                return;
-            }
+            if (!db) { alert("Error de conexión, no se puede generar el archivo."); return; }
 
-            const startDate = new Date(dom.startDateInput.value);
-            startDate.setUTCHours(0, 0, 0, 0);
+            const startDate = new Date(dom.startDateInput.value.replace(/-/g, '/'));
+            startDate.setHours(0, 0, 0, 0);
             
-            const endDate = new Date(dom.endDateInput.value);
-            endDate.setUTCHours(23, 59, 59, 999);
+            const endDate = new Date(dom.endDateInput.value.replace(/-/g, '/'));
+            endDate.setHours(23, 59, 59, 999);
 
             const filters = { startDate, endDate };
             fetchAndProcessOrders(filters);
         });
         
-        // --- INICIALIZACIÓN ---
         const main = () => {
             const params = new URLSearchParams(window.location.search);
-            // Tomamos las fechas de los parámetros de la URL para que el usuario no tenga que reingresarlas
             const startDateFromParams = params.get('startDate');
             const endDateFromParams = params.get('endDate');
 
