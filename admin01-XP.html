@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body, html { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; } * { box-sizing: border-box; } .container { max-width: 1280px; margin: 0 auto; padding: 3rem 1rem; } .text-center { text-align: center; } .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3rem; font-weight: 700; color: #ef4444; } #main-title { font-size: 1.875rem; font-weight: 700; color: #374151; margin-top: 0.5rem; } .version-subtitle { font-size: 1rem; color: #4b5563; font-weight: 600; margin-top: 0.25rem; } .header-buttons { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1.5rem; } .btn { font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s, opacity 0.2s; cursor: pointer; border-style: solid; text-decoration: none; display: inline-block; } .btn-secondary { background-color: #e5e7eb; color: #1f2937; border-width: 1px; border-color: #6b7280; } .btn-secondary:hover { background-color: #d1d5db; } .btn-success { background-color: #16a34a; color: white; border-width: 1px; border-color: #14532d; } .btn-success:hover { background-color: #15803d; } .btn-primary { background-color: #3b82f6; color: white; border-width: 1px; border-color: #1d4ed8; } .btn-primary:hover { background-color: #2563eb; } .btn:disabled { opacity: 0.5; cursor: not-allowed; background-color: #9ca3af; } .results-wrapper { background-color: white; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow-x: auto; } .excel-table { border-collapse: collapse; width: 100%; font-size: 0.875rem; } .excel-table th, .excel-table td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; vertical-align: middle; } .excel-table th { background-color: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #374151; } .dirty-row { background-color: #fef9c3 !important; } .status-column { min-width: 140px; text-align: center; } .status-actions button { margin: 0 2px; padding: 2px 6px; border-radius: 4px; text-decoration: none; font-weight: bold; color: white; font-size: 0.8rem; border: 1px solid rgba(0,0,0,0.2); } .status-P-btn { background-color: #f59e0b; } .status-R-btn { background-color: #16a34a; } .status-C-btn { background-color: #dc2626; } .status-text { font-weight: bold; padding: 3px 8px; border-radius: 999px; color: white; display: inline-block; min-width: 80px; } .status-P-text { background-color: #f59e0b; } .status-R-text { background-color: #16a34a; } .status-C-text { background-color: #dc2626; }
+        body, html { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; } * { box-sizing: border-box; } .container { max-width: 1280px; margin: 0 auto; padding: 3rem 1rem; } .text-center { text-align: center; } .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3rem; font-weight: 700; color: #ef4444; } #main-title { font-size: 1.875rem; font-weight: 700; color: #374151; margin-top: 0.5rem; } .version-subtitle { font-size: 1rem; color: #4b5563; font-weight: 600; margin-top: 0.25rem; } .header-buttons { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1.5rem; } .btn { font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s, opacity 0.2s; cursor: pointer; border-style: solid; text-decoration: none; display: inline-block; } .btn-secondary { background-color: #e5e7eb; color: #1f2937; border-width: 1px; border-color: #6b7280; } .btn-secondary:hover { background-color: #d1d5db; } .btn-success { background-color: #16a34a; color: white; border-width: 1px; border-color: #14532d; } .btn-success:hover { background-color: #15803d; } .btn-primary { background-color: #3b82f6; color: white; border-width: 1px; border-color: #1d4ed8; } .btn-primary:hover { background-color: #2563eb; } .btn:disabled { opacity: 0.5; cursor: not-allowed; background-color: #9ca3af; } .results-wrapper { background-color: white; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow-x: auto; } .excel-table { border-collapse: collapse; width: 100%; font-size: 0.875rem; } .excel-table th, .excel-table td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; vertical-align: middle; } .excel-table th { background-color: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #374151; } .dirty-row { background-color: #fef9c3 !important; } .status-column { min-width: 140px; text-align: center; } .status-actions button { margin: 0 2px; padding: 2px 6px; border-radius: 4px; text-decoration: none; font-weight: bold; color: white; font-size: 0.8rem; border: 1px solid rgba(0,0,0,0.2); cursor: pointer; } .status-P-btn { background-color: #f59e0b; } .status-R-btn { background-color: #16a34a; } .status-C-btn { background-color: #dc2626; } .status-text { font-weight: bold; padding: 3px 8px; border-radius: 999px; color: white; display: inline-block; min-width: 80px; } .status-P-text { background-color: #f59e0b; } .status-R-text { background-color: #16a34a; } .status-C-text { background-color: #dc2626; }
     </style>
 </head>
 <body>
@@ -16,7 +16,7 @@
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">Pedidos (Modo XP)</h2>
-            <p class="version-subtitle">V.1.02.02</p>
+            <p class="version-subtitle">V.1.02.03</p>
         </header>
         <main id="results-container">
             <div class="header-buttons">
@@ -49,7 +49,7 @@
         } catch (error) { console.error(error); renderError("Error de conexión."); }
 
         var pedidosEnMemoria = [];
-        var cambiosParaGuardar = {}; // Usaremos un objeto para no duplicar IDs
+        var cambiosParaGuardar = {};
         var dom = { tableBody: document.getElementById('orders-table-body'), saveChangesButton: document.getElementById('save-changes-button'), exportExcelButton: document.getElementById('export-excel-button') };
         var functionUrl = 'https://us-central1-pedidos-formitas.cloudfunctions.net/realizarAccion';
 
@@ -149,28 +149,29 @@
             dom.saveChangesButton.disabled = true;
             dom.saveChangesButton.textContent = 'Guardando...';
 
-            var totalChanges = Object.keys(cambiosParaGuardar).length;
-            var processedChanges = 0;
+            var totalChanges = 0;
+            for (var key in cambiosParaGuardar) {
+                if (cambiosParaGuardar.hasOwnProperty(key)) totalChanges++;
+            }
 
             if (totalChanges === 0) {
                 dom.saveChangesButton.textContent = 'Guardar Cambios';
                 return;
             }
 
+            var processedChanges = 0;
             for (var orderId in cambiosParaGuardar) {
                 var newStatus = cambiosParaGuardar[orderId];
                 var cacheBuster = new Date().getTime() + processedChanges;
-                
                 var fullUrl = functionUrl + '?action=update&id=' + orderId + '&status=' + newStatus + '&cb=' + cacheBuster;
 
                 var img = new Image();
                 img.onload = img.onerror = function() {
                     processedChanges++;
                     if (processedChanges === totalChanges) {
-                        alert('Todos los cambios han sido enviados.');
-                        cambiosParaGuardar = {}; // Limpiar cambios
-                        dom.saveChangesButton.textContent = 'Guardar Cambios';
-                        loadAndFilterOrders(); // Recargar la tabla desde el servidor
+                        alert('Todos los cambios han sido enviados. La página se recargará.');
+                        // Redirigimos a admin.html para un nuevo ciclo
+                        window.location.href = "admin.html";
                     }
                 };
                 img.src = fullUrl;
