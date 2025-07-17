@@ -99,12 +99,12 @@
                     if (filters.startDate) {
                         const start = new Date(filters.startDate);
                         start.setHours(0, 0, 0, 0);
-                        if (orderDate < start) return false;
+                        if (orderDate.getTime() < start.getTime()) return false;
                     }
                     if (filters.endDate) {
                         const end = new Date(filters.endDate);
                         end.setHours(23, 59, 59, 999);
-                        if (orderDate > end) return false;
+                        if (orderDate.getTime() > end.getTime()) return false;
                     }
 
                     return true;
