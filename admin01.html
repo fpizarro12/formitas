@@ -17,12 +17,12 @@
         .excel-table th { background-color: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #374151; }
         .excel-table tr:nth-child(even) td { background-color: #f9fafb; }
         .status-select { display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; padding: 0.25rem 0.5rem; background-color: white; cursor: pointer; }
-        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; transition: background-color 0.2s; }
+        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; }
         .btn-secondary:hover { background-color: #d1d5db; }
-        .btn-success { background-color: #16a34a; color: white; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #14532d; transition: background-color 0.2s; }
+        .btn-success { background-color: #16a34a; color: white; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #14532d; }
         .btn-success:hover { background-color: #15803d; }
         .filter-header { position: relative; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-        .filter-icon { width: 1rem; height: 1rem; margin-left: 0.5rem; color: #9ca3af; transition: color 0.2s; }
+        .filter-icon { width: 1rem; height: 1rem; margin-left: 0.5rem; color: #9ca3af; }
         .filter-header:hover .filter-icon { color: #374151; }
         .filter-icon.active { color: #2563eb; }
         .filter-dropdown { position: absolute; top: 100%; left: 0; background-color: white; border: 1px solid #d1d5db; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto; min-width: 150px; }
@@ -36,10 +36,10 @@
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
             <h2 id="main-title" class="text-3xl font-bold text-gray-700 mt-2">Pedidos</h2>
-            <p class="version-subtitle">V.1.01.04</p>
+            <p class="version-subtitle">V.1.01.05</p>
             <div class="flex justify-center items-center space-x-4 mt-4">
-                <button id="new-search-button" class="btn-secondary">Nueva Búsqueda</button>
-                <button id="export-excel-button" class="btn-success">Baja a Excel</button>
+                <a href="admin.html" class="btn-secondary">Nueva Búsqueda</a>
+                <a id="export-excel-button" href="#" class="btn-success">Baja a Excel</a>
             </div>
         </header>
 
@@ -47,12 +47,9 @@
             <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
                 <table class="excel-table">
                     <thead>
-                        <tr>
-                            <th>Fecha</th><th>Veterinaria</th><th id="modelo-header"><div class="filter-header"><span>Modelo (Forma)</span><svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg><div id="modelo-filter-dropdown" class="filter-dropdown hidden"></div></div></th><th id="color-header"><div class="filter-header"><span>Color</span><svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg><div id="color-filter-dropdown" class="filter-dropdown hidden"></div></div></th><th>Mascota</th><th>Telefono</th><th>Atrás (Linea Extra)</th><th>Observaciones</th><th>Estado</th>
-                        </tr>
+                        <tr><th>Fecha</th><th>Veterinaria</th><th id="modelo-header"><div class="filter-header"><span>Modelo (Forma)</span><svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg><div id="modelo-filter-dropdown" class="filter-dropdown hidden"></div></div></th><th id="color-header"><div class="filter-header"><span>Color</span><svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg><div id="color-filter-dropdown" class="filter-dropdown hidden"></div></div></th><th>Mascota</th><th>Telefono</th><th>Atrás (Linea Extra)</th><th>Observaciones</th><th>Estado</th></tr>
                     </thead>
-                    <tbody id="orders-table-body">
-                    </tbody>
+                    <tbody id="orders-table-body"></tbody>
                 </table>
             </div>
         </main>
@@ -62,31 +59,73 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- CÓDIGO JAVASCRIPT MODERNO (SIN CAMBIOS FUNCIONALES) ---
         const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
         const APP_ID = 'pet-tags-split-app';
         let db;
         try { const app = initializeApp(firebaseConfig); db = getFirestore(app); } catch (error) { console.error(error); renderError("Error de conexión."); }
-        let initialFilteredOrders = []; let activeFilters = { model: 'todos', color: 'todos' };
+
+        let initialFilteredOrders = [];
+        let activeFilters = { model: 'todos', color: 'todos' };
         const dom = { tableBody: document.getElementById('orders-table-body'), newSearchButton: document.getElementById('new-search-button'), exportExcelButton: document.getElementById('export-excel-button'), modeloHeader: document.getElementById('modelo-header'), colorHeader: document.getElementById('color-header'), modeloDropdown: document.getElementById('modelo-filter-dropdown'), colorDropdown: document.getElementById('color-filter-dropdown') };
+        
         const renderError = (message) => { dom.tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-red-500 font-semibold">${message}</td></tr>`; };
         const renderTable = (orders) => { dom.tableBody.innerHTML = ''; if (orders.length === 0) { dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No se encontraron pedidos.</td></tr>'; return; } orders.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds); const rowsHTML = orders.map(order => { const fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A'; const status = order.status || 'Pendiente'; return `<tr><td>${fecha}</td><td>${order.vetName || ''}</td><td>${order.shape || ''}</td><td>${order.color || ''}</td><td>${order.petName || ''}</td><td>${order.phone || ''}</td><td>${order.extraLine || ''}</td><td>${order.observations || ''}</td><td><select class="status-select" data-id="${order.id}"><option value="Pendiente" ${status === 'Pendiente' ? 'selected' : ''}>Pendiente</option><option value="Realizado" ${status === 'Realizado' || status === 'Completado' ? 'selected' : ''}>Realizado</option><option value="Cancelado" ${status === 'Cancelado' || status === 'Entregado' ? 'selected' : ''}>Cancelado</option></select></td></tr>`; }).join(''); dom.tableBody.innerHTML = rowsHTML; };
         const populateDropdown = (element, items) => { const sortedItems = [...new Set(items)].sort((a, b) => a.localeCompare(b)); const uniqueItems = ['todos', ...sortedItems]; element.innerHTML = uniqueItems.map(item => `<div class="filter-dropdown-item" data-value="${item}">${item === 'todos' ? 'Ver Todos' : item}</div>`).join(''); };
         const applyAllFiltersAndRender = () => { let ordersToRender = [...initialFilteredOrders]; if (activeFilters.model !== 'todos') { ordersToRender = ordersToRender.filter(o => o.shape === activeFilters.model); } populateDropdown(dom.colorDropdown, ordersToRender.map(o => o.color).filter(Boolean)); if (activeFilters.color !== 'todos') { ordersToRender = ordersToRender.filter(o => o.color === activeFilters.color); } renderTable(ordersToRender); };
         const updateOrderStatus = async (orderId, newStatus) => { const orderRef = doc(db, `/artifacts/${APP_ID}/public/data/pedidos`, orderId); try { await updateDoc(orderRef, { status: newStatus }); const orderInArray = initialFilteredOrders.find(o => o.id === orderId); if (orderInArray) orderInArray.status = newStatus; } catch (error) { console.error("Error al actualizar estado:", error); alert("Error al actualizar."); } };
-        const loadAndFilterOrders = async () => { dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">Cargando pedidos...</td></tr>'; const params = new URLSearchParams(window.location.search); const filters = { startDate: params.get('startDate'), endDate: params.get('endDate'), vetFrom: params.get('vetFrom')?.toUpperCase() || '', vetTo: params.get('vetTo')?.toUpperCase() || 'ZZZZZZ', status: params.get('status') }; try { const q = query(collection(db, `/artifacts/${APP_ID}/public/data/pedidos`)); const querySnapshot = await getDocs(q); let allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); const filtered = allOrders.filter(order => { const orderDate = order.timestamp ? new Date(order.timestamp.seconds * 1000) : null; if (filters.startDate && orderDate) { const start = new Date(filters.startDate); start.setHours(0,0,0,0); if(orderDate < start) return false; } if (filters.endDate && orderDate) { const end = new Date(filters.endDate); end.setHours(23,59,59,999); if(orderDate > end) return false; } const statusMap = { Realizado: ['Realizado', 'Completado'], Cancelado: ['Cancelado', 'Entregado'], Pendiente: ['Pendiente'] }; if (filters.status && filters.status !== 'todos') { if (!statusMap[filters.status]?.includes(order.status || 'Pendiente')) return false; } if (filters.vetFrom && (order.vetName || '').toUpperCase() < filters.vetFrom) return false; if (filters.vetTo && (order.vetName || '').toUpperCase() > filters.vetTo) return false; return true; }); initialFilteredOrders = filtered; populateDropdown(dom.modeloDropdown, initialFilteredOrders.map(o => o.shape).filter(Boolean)); applyAllFiltersAndRender(); } catch (error) { console.error(error); renderError(`Error al cargar datos.`); } };
+        
+        const loadAndFilterOrders = async () => {
+            dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">Cargando pedidos...</td></tr>';
+            const params = new URLSearchParams(window.location.search);
+            const filters = { startDate: params.get('startDate'), endDate: params.get('endDate'), vetFrom: params.get('vetFrom')?.toUpperCase() || '', vetTo: params.get('vetTo')?.toUpperCase() || 'ZZZZZZ', status: params.get('status') };
+            try {
+                const q = query(collection(db, `/artifacts/${APP_ID}/public/data/pedidos`));
+                const querySnapshot = await getDocs(q);
+                let allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                const filtered = allOrders.filter(order => {
+                    const orderDate = order.timestamp ? new Date(order.timestamp.seconds * 1000) : null;
+                    
+                    // --- FIX PARA FECHAS ---
+                    if (filters.startDate && orderDate) {
+                        // Reemplazar guiones con barras para asegurar interpretación como fecha local
+                        const start = new Date(filters.startDate.replace(/-/g, '/'));
+                        start.setHours(0, 0, 0, 0);
+                        if(orderDate < start) return false;
+                    }
+                    if (filters.endDate && orderDate) {
+                        const end = new Date(filters.endDate.replace(/-/g, '/'));
+                        end.setHours(23, 59, 59, 999);
+                        if(orderDate > end) return false;
+                    }
+                    // --- FIN DEL FIX ---
+
+                    const statusMap = { Realizado: ['Realizado', 'Completado'], Cancelado: ['Cancelado', 'Entregado'], Pendiente: ['Pendiente'] };
+                    if (filters.status && filters.status !== 'todos') {
+                        if (!statusMap[filters.status]?.includes(order.status || 'Pendiente')) return false;
+                    }
+                    if (filters.vetFrom && (order.vetName || '').toUpperCase() < filters.vetFrom) return false;
+                    if (filters.vetTo && (order.vetName || '').toUpperCase() > filters.vetTo) return false;
+                    
+                    return true;
+                });
+                
+                initialFilteredOrders = filtered;
+                populateDropdown(dom.modeloDropdown, initialFilteredOrders.map(o => o.shape).filter(Boolean));
+                applyAllFiltersAndRender();
+            } catch (error) {
+                console.error("Error al cargar y filtrar los pedidos: ", error);
+                renderError(`Error al cargar datos.`);
+            }
+        };
+
         const setupDropdownListener = (header, dropdown, filterType) => { header.addEventListener('click', (e) => { e.stopPropagation(); const otherDropdown = filterType === 'model' ? dom.colorDropdown : dom.modeloDropdown; otherDropdown.classList.add('hidden'); dropdown.classList.toggle('hidden'); }); dropdown.addEventListener('click', (e) => { if (e.target.matches('.filter-dropdown-item')) { e.stopPropagation(); activeFilters[filterType] = e.target.dataset.value; if(filterType === 'model') { const currentlyVisibleColors = [...new Set(initialFilteredOrders.filter(o => activeFilters.model === 'todos' || o.shape === activeFilters.model).map(o => o.color))]; if (!currentlyVisibleColors.includes(activeFilters.color)) { activeFilters.color = 'todos'; dom.colorHeader.querySelector('.filter-icon').classList.remove('active'); } } applyAllFiltersAndRender(); dropdown.classList.add('hidden'); header.querySelector('.filter-icon').classList.toggle('active', activeFilters[filterType] !== 'todos'); } }); };
         setupDropdownListener(dom.modeloHeader, dom.modeloDropdown, 'model');
         setupDropdownListener(dom.colorHeader, dom.colorDropdown, 'color');
         window.addEventListener('click', () => { dom.modeloDropdown.classList.add('hidden'); dom.colorDropdown.classList.add('hidden'); });
-        
-        // --- CAMBIO CLAVE ---
-        dom.newSearchButton.addEventListener('click', () => { window.location.href = 'admin.html'; });
-        dom.exportExcelButton.addEventListener('click', () => {
-            // Este botón ahora apunta a la versión moderna del exportador
-            window.location.href = 'admin02.html' + window.location.search;
-        });
-        dom.tableBody.addEventListener('change', (e) => { if (e.target.classList.contains('status-select')) { const orderId = e.target.dataset.id; const newStatus = e.target.value; updateOrderStatus(orderId, newStatus); } });
+        document.getElementById('new-search-button').addEventListener('click', () => window.location.href = 'admin.html');
+        document.getElementById('export-excel-button').href = 'admin02.html' + window.location.search;
+        dom.tableBody.addEventListener('change', (e) => { if (e.target.classList.contains('status-select')) { updateOrderStatus(e.target.dataset.id, e.target.value); } });
         
         if(db) loadAndFilterOrders();
     </script>
