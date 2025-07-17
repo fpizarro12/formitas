@@ -4,161 +4,250 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eliminar Registros - Formitas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body, html { font-family: 'Inter', sans-serif; background-color: #fef2f2; margin: 0; padding: 0; } * { box-sizing: border-box; } .container { max-width: 896px; margin: 0 auto; padding: 3rem 1rem; } .text-center { text-align: center; } .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3rem; font-weight: 700; color: #dc2626; } #main-title { font-size: 1.875rem; font-weight: 700; color: #991b1b; margin-top: 0.5rem; } .version-subtitle { font-size: 1rem; color: #4b5563; font-weight: 600; margin-top: 0.25rem; } .btn { font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: all 0.2s; cursor: pointer; border-style: solid; } .btn-green { background-color: #16a34a; color: white; border-width: 1px; border-color: #14532d; } .btn-green:hover { background-color: #15803d; } .btn-red { background-color: #dc2626; color: white; border-width: 1px; border-color: #991b1b; } .btn-red:hover { background-color: #b91c1c; } .btn-gray { background-color: #6b7280; color: white; border-width: 1px; border-color: #4b5563; } .btn-gray:hover { background-color: #4b5563; } .btn:disabled { opacity: 0.6; cursor: not-allowed; } #filter-container { background-color: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-top: 2rem; border: 4px solid #ef4444; } .form-grid { margin-left: -0.5rem; margin-right: -0.5rem; } .form-grid:after { content: ""; display: table; clear: both; } .form-col { float: left; width: 50%; padding: 0 0.5rem; } .form-label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; } .form-input { display: block; width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; } .form-footer { display: flex; justify-content: flex-end; padding-top: 1.5rem; } .record-card { background-color: white; padding: 1rem; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; } .record-info p { margin: 0.25rem 0; } .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.7); z-index: 50; } .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); width: 90%; max-width: 24rem; text-align: center; border-top: 8px solid #dc2626; } .modal-title { font-size: 1.25rem; font-weight: 700; color: #b91c1c; margin-bottom: 1rem; } .modal-footer button { margin: 0 0.5rem; } .hidden { display: none; }
+        body { font-family: 'Inter', sans-serif; background-color: #fef2f2; } /* Fondo rojo muy claro */
+        .font-formitas { font-family: 'Comic Neue', cursive; }
+        .form-input { margin-top: 0.25rem; display: block; width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.5rem 0.75rem; }
+        .btn { font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: all 0.2s; cursor: pointer; }
+        .btn-green { background-color: #16a34a; color: white; border: 1px solid #14532d; }
+        .btn-green:hover { background-color: #15803d; }
+        .btn-red { background-color: #dc2626; color: white; border: 1px solid #991b1b; }
+        .btn-red:hover { background-color: #b91c1c; }
+        .btn-gray { background-color: #6b7280; color: white; border: 1px solid #4b5563; }
+        .btn-gray:hover { background-color: #4b5563; }
+        #confirmation-modal { transition: opacity 0.3s ease-in-out; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header class="text-center">
-            <h1 class="font-formitas">Formitas</h1>
-            <h2 id="main-title">⚠️ Eliminar Registros ⚠️</h2>
-            <p class="version-subtitle">V.1.01.06</p>
+<body class="py-12">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="font-formitas text-5xl font-bold text-red-600">Formitas</h1>
+            <h2 id="main-title" class="text-3xl font-bold text-red-800 mt-2">⚠️ Eliminar Registros ⚠️</h2>
         </header>
-        <div id="filter-container">
-            <form id="filter-form">
-                <div class="form-grid">
-                    <div class="form-col">
-                        <label for="start-date" class="form-label">Fecha Desde</label>
-                        <input type="text" id="start-date" class="form-input" placeholder="DD/MM/AAAA">
+
+        <div id="filter-container" class="bg-white p-8 rounded-xl shadow-lg mb-8 border-4 border-red-500">
+            <form id="filter-form" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="start-date" class="block text-sm font-medium text-gray-700">Fecha Desde</label>
+                        <input type="date" id="start-date" class="form-input">
                     </div>
-                    <div class="form-col">
-                        <label for="end-date" class="form-label">Fecha Hasta</label>
-                        <input type="text" id="end-date" class="form-input" placeholder="DD/MM/AAAA">
+                    <div>
+                        <label for="end-date" class="block text-sm font-medium text-gray-700">Fecha Hasta</label>
+                        <input type="date" id="end-date" class="form-input">
                     </div>
                 </div>
-                <div class="form-footer">
+                <div class="flex justify-end items-center pt-4">
                     <button type="submit" id="ok-button" class="btn btn-green">Buscar Registros</button>
                 </div>
             </form>
         </div>
+
         <div id="results-container" class="hidden">
-             <div class="text-center" style="margin-bottom: 1.5rem;"> <button id="new-search-button" class="btn btn-gray">Nueva Búsqueda</button> </div>
-            <div id="records-list"></div>
+             <div class="text-center mb-6">
+                <button id="new-search-button" class="btn btn-gray">Nueva Búsqueda</button>
+            </div>
+            <div id="records-list" class="space-y-3">
+                </div>
         </div>
     </div>
-    <div id="confirmation-modal" class="modal-backdrop hidden">
-        <div class="modal">
-            <h3 class="modal-title">Confirmar Eliminación</h3>
-            <p style="color: #4b5563; margin-bottom: 1.5rem;">¿Estás seguro de que deseas eliminar este registro? <br><strong style="font-weight: 700;">Esta acción no se puede deshacer.</strong></p>
-            <div class="modal-footer"> <button id="cancel-delete" class="btn btn-gray">Cancelar</button> <button id="confirm-delete" class="btn btn-red">SÍ, ELIMINAR</button> </div>
-        </div>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
-        var APP_ID = 'pet-tags-split-app';
-        var db;
-        try { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); } catch (error) { console.error(error); alert("Error de conexión."); }
-        var recordToDelete = { id: null };
-        var dom = { filterContainer: document.getElementById('filter-container'), resultsContainer: document.getElementById('results-container'), filterForm: document.getElementById('filter-form'), startDateInput: document.getElementById('start-date'), endDateInput: document.getElementById('end-date'), recordsList: document.getElementById('records-list'), newSearchButton: document.getElementById('new-search-button'), modal: document.getElementById('confirmation-modal'), confirmDeleteBtn: document.getElementById('confirm-delete'), cancelDeleteBtn: document.getElementById('cancel-delete'), okButton: document.getElementById('ok-button') };
+    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-8 rounded-lg shadow-2xl max-w-sm w-full text-center border-t-8 border-red-600">
+            <h3 class="text-xl font-bold text-red-700 mb-4">Confirmar Eliminación</h3>
+            <p class="text-gray-600 mb-6">¿Estás seguro de que deseas eliminar este registro? <br><strong class="font-bold">Esta acción no se puede deshacer.</strong></p>
+            <div class="flex justify-center space-x-4">
+                <button id="cancel-delete" class="btn btn-gray">Cancelar</button>
+                <button id="confirm-delete" class="btn btn-red">SÍ, ELIMINAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, getDocs, doc, deleteDoc, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- CONFIGURACIÓN Y CONSTANTES ---
+        const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
+        const APP_ID = 'pet-tags-split-app';
         
-        var renderError = function(message) {
-            dom.recordsList.innerHTML = '<p class="text-center" style="color: #dc2626;">' + message + '</p>';
-        };
+        // --- INICIALIZACIÓN DE FIREBASE ---
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (error) {
+            console.error("Fallo la inicializacion de Firebase:", error);
+            alert("Error de conexión. No se pueden cargar ni eliminar registros.");
+        }
 
-        var renderRecords = function(orders) {
+        // --- ESTADO DE LA APLICACIÓN ---
+        let recordToDelete = { id: null, element: null };
+
+        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
+        const dom = {
+            filterContainer: document.getElementById('filter-container'),
+            resultsContainer: document.getElementById('results-container'),
+            filterForm: document.getElementById('filter-form'),
+            startDateInput: document.getElementById('start-date'),
+            endDateInput: document.getElementById('end-date'),
+            recordsList: document.getElementById('records-list'),
+            newSearchButton: document.getElementById('new-search-button'),
+            modal: document.getElementById('confirmation-modal'),
+            confirmDeleteBtn: document.getElementById('confirm-delete'),
+            cancelDeleteBtn: document.getElementById('cancel-delete')
+        };
+        
+        // --- FUNCIONES DE RENDERIZADO Y UI ---
+        const renderRecords = (orders) => {
             dom.recordsList.innerHTML = '';
-            if (orders.length === 0) { dom.recordsList.innerHTML = '<p class="text-center" style="color: #6b7280;">No se encontraron registros.</p>'; return; }
-            orders.sort(function(a,b) { return b.timestamp.seconds - a.timestamp.seconds; });
-            for (var i = 0; i < orders.length; i++) {
-                var order = orders[i]; var card = document.createElement('div'); card.className = 'record-card'; card.setAttribute('data-record-id', order.id);
-                var fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'Sin fecha';
-                card.innerHTML = '<div class="record-info"><p style="font-weight: 700;">' + (order.petName || 'Sin Nombre') + '</p><p style="font-size: 0.875rem;">' + (order.vetName || 'Sin Veterinaria') + ' - ' + fecha + '</p><p style="font-size: 0.875rem;"><strong>Modelo:</strong> ' + (order.shape || 'N/A') + ' | <strong>Color:</strong> ' + (order.color || 'N/A') + '</p><p style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem;">ID: ' + order.id + '</p></div><div><button data-id="' + order.id + '" class="delete-btn btn btn-red" style="font-size: 0.875rem; padding: 0.25rem 0.75rem;">Eliminar</button></div>';
-                dom.recordsList.appendChild(card);
-            }
-        };
-        var toggleModal = function(show) { dom.modal.classList.toggle('hidden', !show); if (!show) { recordToDelete = { id: null }; } };
-
-        var parseDateString = function(dateStr) {
-            if (!dateStr || dateStr.length < 8) return null;
-            var parts = dateStr.split('/');
-            if (parts.length !== 3) return null;
-            var day = parseInt(parts[0], 10);
-            var month = parseInt(parts[1], 10) - 1;
-            var year = parseInt(parts[2], 10);
-            if (isNaN(day) || isNaN(month) || isNaN(year) || year < 1900) return null;
-            return new Date(year, month, day);
-        };
-
-        var loadRecords = function() {
-            dom.recordsList.innerHTML = '<p class="text-center" style="color: #6b7280;">Buscando...</p>';
-            
-            var startDate = parseDateString(dom.startDateInput.value);
-            var endDate = parseDateString(dom.endDateInput.value);
-
-            if (!startDate || !endDate) {
-                renderError("Formato de fecha inválido. Use DD/MM/AAAA.");
+            if (orders.length === 0) {
+                dom.recordsList.innerHTML = `<p class="text-center text-gray-500">No se encontraron registros en el rango de fechas seleccionado.</p>`;
                 return;
             }
-
-            startDate.setHours(0, 0, 0, 0);
-            endDate.setHours(23, 59, 59, 999);
-
-            db.collection('/artifacts/' + APP_ID + '/public/data/pedidos').get()
-                .then(function(querySnapshot){
-                    var allOrders = [];
-                    querySnapshot.forEach(function(doc){ var orderData = doc.data(); orderData.id = doc.id; allOrders.push(orderData); });
-                    var filtered = [];
-                     for(var i=0; i<allOrders.length; i++){
-                        var order = allOrders[i];
-                        if (!order.timestamp) continue;
-                        var orderDate = new Date(order.timestamp.seconds * 1000);
-                        if(orderDate >= startDate && orderDate <= endDate){ filtered.push(order); }
-                    }
-                    renderRecords(filtered);
-                }).catch(function(error){ console.error(error); renderError("Error al cargar los registros."); });
-        };
-        
-        var deleteRecord = function() {
-            if (!recordToDelete.id) return;
-            dom.confirmDeleteBtn.disabled = true;
-            dom.confirmDeleteBtn.textContent = "Procesando...";
             
-            var returnUrl = window.location.href;
-            var cacheBuster = new Date().getTime();
-            var deleteUrl = 'accion.html' + '?action=delete' + '&id=' + recordToDelete.id + '&returnUrl=' + encodeURIComponent(returnUrl) + '&cb=' + cacheBuster;
-            window.location.href = deleteUrl;
+            orders.sort((a,b) => b.timestamp.seconds - a.timestamp.seconds);
+
+            orders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-lg shadow flex items-start justify-between';
+                card.setAttribute('data-record-id', order.id);
+
+                const fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'Sin fecha';
+                
+                card.innerHTML = `
+                    <div class="flex-grow">
+                        <p class="font-bold text-gray-800">${order.petName || 'Sin Nombre'}</p>
+                        <p class="text-sm text-gray-600">${order.vetName || 'Sin Veterinaria'} - ${fecha}</p>
+                        <p class="text-sm text-gray-500 mt-1">
+                            <strong>Modelo:</strong> ${order.shape || 'N/A'} | <strong>Color:</strong> ${order.color || 'N/A'}
+                        </p>
+                        <p class="text-xs text-gray-400 mt-2">ID: ${order.id}</p>
+                    </div>
+                    <div class="flex-shrink-0 ml-4">
+                        <button data-id="${order.id}" class="delete-btn btn btn-red text-sm py-1 px-3">Eliminar</button>
+                    </div>
+                `;
+                dom.recordsList.appendChild(card);
+            });
+        };
+
+        const toggleModal = (show) => {
+            dom.modal.classList.toggle('hidden', !show);
+            if (!show) {
+                recordToDelete = { id: null, element: null };
+            }
+        };
+
+        // --- LÓGICA DE NEGOCIO ---
+        const loadRecords = async () => {
+            dom.recordsList.innerHTML = `<p class="text-center text-gray-500">Cargando registros...</p>`;
+            try {
+                const startDate = new Date(dom.startDateInput.value);
+                startDate.setUTCHours(0, 0, 0, 0);
+                const endDate = new Date(dom.endDateInput.value);
+                endDate.setUTCHours(23, 59, 59, 999);
+
+                const pedidosRef = collection(db, `/artifacts/${APP_ID}/public/data/pedidos`);
+                const q = query(pedidosRef);
+                const querySnapshot = await getDocs(q);
+                const allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                const filtered = allOrders.filter(order => {
+                    if (!order.timestamp) return false;
+                    const orderDate = new Date(order.timestamp.seconds * 1000);
+                    return orderDate >= startDate && orderDate <= endDate;
+                });
+                
+                renderRecords(filtered);
+
+            } catch (error) {
+                console.error("Error al cargar registros:", error);
+                dom.recordsList.innerHTML = `<p class="text-center text-red-500">Error al cargar los registros.</p>`;
+            }
         };
         
-        dom.filterForm.addEventListener('submit', function(e) {
+        const deleteRecord = async () => {
+            if (!recordToDelete.id) return;
+
+            dom.confirmDeleteBtn.disabled = true;
+            dom.confirmDeleteBtn.textContent = "Eliminando...";
+
+            try {
+                const orderRef = doc(db, `/artifacts/${APP_ID}/public/data/pedidos`, recordToDelete.id);
+                await deleteDoc(orderRef);
+                
+                // Efecto visual para eliminar de la lista
+                if (recordToDelete.element) {
+                    recordToDelete.element.style.transition = 'opacity 0.5s, transform 0.5s';
+                    recordToDelete.element.style.opacity = '0';
+                    recordToDelete.element.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        recordToDelete.element.remove();
+                        if (dom.recordsList.children.length === 0) {
+                            dom.recordsList.innerHTML = `<p class="text-center text-gray-500">No quedan más registros.</p>`;
+                        }
+                    }, 500);
+                }
+                
+            } catch (error) {
+                console.error("Error al eliminar el documento:", error);
+                alert("Error al eliminar el registro.");
+            } finally {
+                toggleModal(false);
+                dom.confirmDeleteBtn.disabled = false;
+                dom.confirmDeleteBtn.textContent = "SÍ, ELIMINAR";
+            }
+        };
+
+        // --- MANEJADORES DE EVENTOS ---
+        dom.filterForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            dom.okButton.disabled = true; dom.okButton.textContent = 'Buscando...';
+            const okButton = document.getElementById('ok-button');
+            okButton.disabled = true;
+            okButton.textContent = 'Buscando...';
+
+            await loadRecords();
+
             dom.filterContainer.classList.add('hidden');
             dom.resultsContainer.classList.remove('hidden');
-            loadRecords();
-            setTimeout(function() { dom.okButton.disabled = false; dom.okButton.textContent = 'Buscar Registros'; }, 500);
+            okButton.disabled = false;
+            okButton.textContent = 'Buscar Registros';
         });
-        dom.newSearchButton.addEventListener('click', function() { window.location.reload(); });
-        dom.recordsList.addEventListener('click', function(e) {
-            if ((' ' + e.target.className + ' ').indexOf(' delete-btn ') > -1) {
-                var recordId = e.target.getAttribute('data-id');
-                recordToDelete = { id: recordId };
+
+        dom.newSearchButton.addEventListener('click', () => {
+            dom.resultsContainer.classList.add('hidden');
+            dom.filterContainer.classList.remove('hidden');
+            dom.recordsList.innerHTML = '';
+        });
+
+        dom.recordsList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const recordId = e.target.dataset.id;
+                const recordElement = e.target.closest('[data-record-id]');
+                recordToDelete = { id: recordId, element: recordElement };
                 toggleModal(true);
             }
         });
-        dom.cancelDeleteBtn.addEventListener('click', function(){ toggleModal(false); });
+
+        dom.cancelDeleteBtn.addEventListener('click', () => toggleModal(false));
         dom.confirmDeleteBtn.addEventListener('click', deleteRecord);
 
-        var main = function() {
+        // --- INICIALIZACIÓN ---
+        const main = () => {
             if(!db) return;
-            var today = new Date();
-            var d = today.getDate();
-            var m = today.getMonth() + 1;
-            var y = today.getFullYear();
-            var todayStr = (d < 10 ? '0' : '') + d + '/' + (m < 10 ? '0' : '') + m + '/' + y;
-            dom.startDateInput.value = todayStr;
-            dom.endDateInput.value = todayStr;
+            // Establece la fecha de hoy por defecto en ambos campos
+            const today = new Date().toISOString().split('T')[0];
+            dom.startDateInput.value = today;
+            dom.endDateInput.value = today;
         };
+
         main();
-    });
     </script>
 </body>
 </html>
