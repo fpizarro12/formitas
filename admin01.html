@@ -35,7 +35,7 @@
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
             <h2 id="main-title" class="text-3xl font-bold text-gray-700 mt-2">Pedidos</h2>
-            <p class="version-subtitle">V.1.01.05</p>
+            <p class="version-subtitle">V.1.01.06</p>
             <div class="flex justify-center items-center space-x-4 mt-4">
                 <button id="new-search-button" class="btn-secondary">Nueva Búsqueda</button>
                 <button id="export-excel-button" class="btn-success">Baja a Excel</button>
@@ -58,50 +58,82 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = { /* config aquí */ };
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ",
+            authDomain: "pedidos-formitas.firebaseapp.com",
+            projectId: "pedidos-formitas",
+            storageBucket: "pedidos-formitas.appspot.com",
+            messagingSenderId: "745379401007",
+            appId: "1:745379401007:web:c41a2d3d33f4b8582365da"
+        };
+
         const APP_ID = 'pet-tags-split-app';
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const dom = { /* referencias a elementos */ };
+        const dom = {
+            tableBody: document.getElementById('orders-table-body'),
+            newSearchButton: document.getElementById('new-search-button'),
+            exportExcelButton: document.getElementById('export-excel-button')
+        };
 
         async function loadAndFilterOrders() {
+            dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">Cargando pedidos...</td></tr>';
+
             const params = new URLSearchParams(window.location.search);
             const filters = {
                 startDate: params.get('startDate'),
-                endDate: params.get('endDate'),
-                // ...
+                endDate: params.get('endDate')
             };
 
-            const q = query(collection(db, `/artifacts/${APP_ID}/public/data/pedidos`));
-            const querySnapshot = await getDocs(q);
+            try {
+                const q = query(collection(db, `/artifacts/${APP_ID}/public/data/pedidos`));
+                const querySnapshot = await getDocs(q);
 
-            let allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                let allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            const filtered = allOrders.filter(order => {
-                const orderDate = order.timestamp ? new Date(order.timestamp.seconds * 1000) : null;
-                if (!orderDate) return false;
+                const filtered = allOrders.filter(order => {
+                    const orderDate = order.timestamp ? new Date(order.timestamp.seconds * 1000) : null;
+                    if (!orderDate) return false;
 
-                if (filters.startDate) {
-                    const startDateOnly = new Date(filters.startDate);
-                    const orderDateOnly = new Date(orderDate);
-                    startDateOnly.setHours(0, 0, 0, 0);
-                    orderDateOnly.setHours(0, 0, 0, 0);
-                    if (orderDateOnly < startDateOnly) return false;
+                    if (filters.startDate) {
+                        const start = new Date(filters.startDate);
+                        start.setHours(0, 0, 0, 0);
+                        if (orderDate < start) return false;
+                    }
+                    if (filters.endDate) {
+                        const end = new Date(filters.endDate);
+                        end.setHours(23, 59, 59, 999);
+                        if (orderDate > end) return false;
+                    }
+
+                    return true;
+                });
+
+                if (filtered.length === 0) {
+                    dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No se encontraron pedidos.</td></tr>';
+                    return;
                 }
-                if (filters.endDate) {
-                    const endDateOnly = new Date(filters.endDate);
-                    const orderDateOnly = new Date(orderDate);
-                    endDateOnly.setHours(0, 0, 0, 0);
-                    orderDateOnly.setHours(0, 0, 0, 0);
-                    if (orderDateOnly > endDateOnly) return false;
-                }
 
-                return true;
-            });
+                dom.tableBody.innerHTML = filtered.map(order => {
+                    const fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
+                    const status = order.status || 'Pendiente';
+                    return `<tr><td>${fecha}</td><td>${order.vetName || ''}</td><td>${order.shape || ''}</td><td>${order.color || ''}</td><td>${order.petName || ''}</td><td>${order.phone || ''}</td><td>${order.extraLine || ''}</td><td>${order.observations || ''}</td><td><select class="status-select" data-id="${order.id}"><option value="Pendiente" ${status === 'Pendiente' ? 'selected' : ''}>Pendiente</option><option value="Realizado" ${status === 'Realizado' ? 'selected' : ''}>Realizado</option><option value="Cancelado" ${status === 'Cancelado' ? 'selected' : ''}>Cancelado</option></select></td></tr>`;
+                }).join('');
 
-            // render(filtered)
+            } catch (err) {
+                console.error(err);
+                dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-red-500 font-semibold">Error al cargar pedidos.</td></tr>';
+            }
         }
+
+        dom.newSearchButton.addEventListener('click', () => {
+            window.location.href = 'admin.html';
+        });
+
+        dom.exportExcelButton.addEventListener('click', () => {
+            window.location.href = 'admin02.html' + window.location.search;
+        });
 
         loadAndFilterOrders();
     </script>
