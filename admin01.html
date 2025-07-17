@@ -4,173 +4,318 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultados de Pedidos - Formitas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body, html { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; } * { box-sizing: border-box; } .container { max-width: 1280px; margin: 0 auto; padding: 3rem 1rem; } .text-center { text-align: center; } .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3rem; font-weight: 700; color: #ef4444; } #main-title { font-size: 1.875rem; font-weight: 700; color: #374151; margin-top: 0.5rem; } .version-subtitle { font-size: 1rem; color: #4b5563; font-weight: 600; margin-top: 0.25rem; } .header-buttons { margin-top: 1rem; } .btn { font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s; cursor: pointer; border-style: solid; margin: 0 0.5rem; } .btn-secondary { background-color: #e5e7eb; color: #1f2937; border-width: 1px; border-color: #6b7280; } .btn-secondary:hover { background-color: #d1d5db; } .btn-success { background-color: #16a34a; color: white; border-width: 1px; border-color: #14532d; } .btn-success:hover { background-color: #15803d; } .results-wrapper { background-color: white; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow-x: auto; } .excel-table { border-collapse: collapse; width: 100%; font-size: 0.875rem; } .excel-table th, .excel-table td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; vertical-align: middle; } .excel-table th { background-color: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #374151; } .excel-table tr:nth-child(even) { background-color: #f9fafb; } .status-column { min-width: 130px; text-align: center; } .status-actions { margin-top: 4px; } .status-actions a { margin: 0 4px; padding: 2px 6px; border-radius: 4px; text-decoration: none; font-weight: bold; color: white; font-size: 0.8rem; } .status-P { background-color: #f59e0b; } .status-R { background-color: #16a34a; } .status-C { background-color: #dc2626; } .status-text { font-weight: bold; padding: 3px 8px; border-radius: 4px; color: white; } .filter-header { position: relative; cursor: pointer; display: flex; align-items: center; justify-content: space-between; } .filter-icon { width: 1rem; height: 1rem; margin-left: 0.5rem; color: #9ca3af; } .filter-header:hover .filter-icon { color: #374151; } .filter-icon.active { color: #2563eb; } .filter-dropdown { position: absolute; top: 100%; left: 0; background-color: white; border: 1px solid #d1d5db; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto; min-width: 150px; } .filter-dropdown-item { padding: 0.5rem 1rem; cursor: pointer; } .filter-dropdown-item:hover { background-color: #f3f4f6; } .hidden { display: none; }
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
+        .font-formitas { font-family: 'Comic Neue', cursive; }
+        .excel-table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
+        .excel-table th, .excel-table td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; vertical-align: middle; }
+        .excel-table th { background-color: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #374151; }
+        .excel-table tr:nth-child(even) td { background-color: #f9fafb; }
+        .status-select { display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; padding: 0.25rem 0.5rem; background-color: white; cursor: pointer; }
+        
+        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; transition: background-color 0.2s; }
+        .btn-secondary:hover { background-color: #d1d5db; }
+        .btn-success { background-color: #16a34a; color: white; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #14532d; transition: background-color 0.2s; }
+        .btn-success:hover { background-color: #15803d; }
+        
+        .filter-header { position: relative; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .filter-icon { width: 1rem; height: 1rem; margin-left: 0.5rem; color: #9ca3af; transition: color 0.2s; }
+        .filter-header:hover .filter-icon { color: #374151; }
+        .filter-icon.active { color: #2563eb; }
+        .filter-dropdown { position: absolute; top: 100%; left: 0; background-color: white; border: 1px solid #d1d5db; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto; min-width: 150px; }
+        .filter-dropdown-item { padding: 0.5rem 1rem; cursor: pointer; }
+        .filter-dropdown-item:hover { background-color: #f3f4f6; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header class="text-center" style="margin-bottom: 2rem;">
-            <h1 class="font-formitas">Formitas</h1>
-            <h2 id="main-title">Pedidos</h2>
-            <p class="version-subtitle">V.1.01.09</p>
-        </header>
-        <main id="results-container">
-            <div class="header-buttons" style="margin-bottom: 1.5rem;">
-                <button id="new-search-button" class="btn btn-secondary">Nueva Búsqueda</button>
-                <button id="export-excel-button" class="btn btn-success">Baja a Excel</button>
+<body class="py-12">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
+            <h2 id="main-title" class="text-3xl font-bold text-gray-700 mt-2">Pedidos - V1.01.02</h2>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+                <button id="new-search-button" class="btn-secondary">Nueva Búsqueda</button>
+                <button id="export-excel-button" class="btn-success">Baja a Excel</button>
             </div>
-            <div class="results-wrapper">
+        </header>
+
+        <main id="results-container">
+            <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
                 <table class="excel-table">
                     <thead>
                         <tr>
-                            <th>Fecha</th><th>Veterinaria</th><th id="modelo-header"><div class="filter-header"><span>Modelo (Forma)</span><svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg><div id="modelo-filter-dropdown" class="filter-dropdown hidden"></div></div></th><th id="color-header"><div class="filter-header"><span>Color</span><svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg><div id="color-filter-dropdown" class="filter-dropdown hidden"></div></div></th><th>Mascota</th><th>Telefono</th><th>Atrás (Linea Extra)</th><th>Observaciones</th><th class="status-column">Estado</th>
+                            <th>Fecha</th>
+                            <th>Veterinaria</th>
+                            <th id="modelo-header">
+                                <div class="filter-header">
+                                    <span>Modelo (Forma)</span>
+                                    <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div id="modelo-filter-dropdown" class="filter-dropdown hidden"></div>
+                                </div>
+                            </th>
+                            <th id="color-header">
+                                <div class="filter-header">
+                                    <span>Color</span>
+                                    <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div id="color-filter-dropdown" class="filter-dropdown hidden"></div>
+                                </div>
+                            </th>
+                            <th>Mascota</th>
+                            <th>Telefono</th>
+                            <th>Atrás (Linea Extra)</th>
+                            <th>Observaciones</th>
+                            <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody id="orders-table-body">
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </main>
     </div>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
-        var APP_ID = 'pet-tags-split-app';
-        var db;
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, getDocs, doc, updateDoc, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- CONFIGURACIÓN Y CONSTANTES ---
+        const firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
+        const APP_ID = 'pet-tags-split-app';
+        
+        // --- INICIALIZACIÓN DE FIREBASE ---
+        let db;
         try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-        } catch (error) { console.error(error); renderError("Error de conexión."); }
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (error) {
+            console.error("Fallo la inicializacion de Firebase:", error);
+            renderError("Error de conexión con la base de datos.");
+        }
 
-        var initialFilteredOrders = [];
-        var activeFilters = { model: 'todos', color: 'todos' };
-        var dom = { tableBody: document.getElementById('orders-table-body'), newSearchButton: document.getElementById('new-search-button'), exportExcelButton: document.getElementById('export-excel-button'), modeloHeader: document.getElementById('modelo-header'), colorHeader: document.getElementById('color-header'), modeloDropdown: document.getElementById('modelo-filter-dropdown'), colorDropdown: document.getElementById('color-filter-dropdown') };
+        // --- ESTADO DE LA APLICACIÓN ---
+        let initialFilteredOrders = [];
+        let activeFilters = {
+            model: 'todos',
+            color: 'todos'
+        };
+
+        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
+        const dom = {
+            tableBody: document.getElementById('orders-table-body'),
+            newSearchButton: document.getElementById('new-search-button'),
+            exportExcelButton: document.getElementById('export-excel-button'),
+            modeloHeader: document.getElementById('modelo-header'),
+            colorHeader: document.getElementById('color-header'),
+            modeloDropdown: document.getElementById('modelo-filter-dropdown'),
+            colorDropdown: document.getElementById('color-filter-dropdown')
+        };
         
-        var renderError = function(m){ dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #dc2626; font-weight: 600;">' + m + '</td></tr>'; };
-        
-        var renderTable = function(orders) {
+        // --- FUNCIONES DE RENDERIZADO Y UI ---
+        const renderError = (message) => {
+            dom.tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-red-500 font-semibold">${message}</td></tr>`;
+        };
+
+        const renderTable = (orders) => {
             dom.tableBody.innerHTML = '';
-            if (orders.length === 0) { dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem; color: #6b7280;">No se encontraron pedidos.</td></tr>'; return; }
-            orders.sort(function(a, b) { return b.timestamp.seconds - a.timestamp.seconds; });
-            
-            var returnUrl = encodeURIComponent(window.location.href);
-            
-            var rowsHTML = '';
-            for (var i = 0; i < orders.length; i++) {
-                var order = orders[i];
-                var cacheBuster = new Date().getTime() + i; // Cache buster único por fila
-                var status = order.status || 'Pendiente';
-                var statusClass = 'status-P';
-                if (status === 'Realizado' || status === 'Completado') statusClass = 'status-R';
-                if (status === 'Cancelado' || status === 'Entregado') statusClass = 'status-C';
-
-                var actionLinks = 
-                    '<a href="accion.html?action=update&id=' + order.id + '&status=Pendiente&returnUrl=' + returnUrl + '&cb=' + cacheBuster + '" class="status-P">P</a>' +
-                    '<a href="accion.html?action=update&id=' + order.id + '&status=Realizado&returnUrl=' + returnUrl + '&cb=' + cacheBuster + '" class="status-R">R</a>' +
-                    '<a href="accion.html?action=update&id=' + order.id + '&status=Cancelado&returnUrl=' + returnUrl + '&cb=' + cacheBuster + '" class="status-C">C</a>';
-                
-                rowsHTML += '<tr>' +
-                    '<td>' + (order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A') + '</td>' +
-                    '<td>' + (order.vetName || '') + '</td>' + '<td>' + (order.shape || '') + '</td>' + '<td>' + (order.color || '') + '</td>' +
-                    '<td>' + (order.petName || '') + '</td>' + '<td>' + (order.phone || '') + '</td>' + '<td>' + (order.extraLine || '') + '</td>' +
-                    '<td>' + (order.observations || '') + '</td>' +
-                    '<td class="status-column">' + '<span class="status-text ' + statusClass + '">' + status + '</span>' + '<div class="status-actions">' + actionLinks + '</div>' + '</td>' +
-                '</tr>';
+            if (orders.length === 0) {
+                dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No se encontraron pedidos que coincidan con los filtros.</td></tr>';
+                return;
             }
+            // Ordenamos por fecha descendente
+            orders.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
+            
+            const rowsHTML = orders.map(order => {
+                const fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
+                const status = order.status || 'Pendiente';
+                return `
+                    <tr>
+                        <td>${fecha}</td>
+                        <td>${order.vetName || ''}</td>
+                        <td>${order.shape || ''}</td>
+                        <td>${order.color || ''}</td>
+                        <td>${order.petName || ''}</td>
+                        <td>${order.phone || ''}</td>
+                        <td>${order.extraLine || ''}</td>
+                        <td>${order.observations || ''}</td>
+                        <td>
+                            <select class="status-select" data-id="${order.id}">
+                                <option value="Pendiente" ${status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                                <option value="Realizado" ${status === 'Realizado' || status === 'Completado' ? 'selected' : ''}>Realizado</option>
+                                <option value="Cancelado" ${status === 'Cancelado' || status === 'Entregado' ? 'selected' : ''}>Cancelado</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
             dom.tableBody.innerHTML = rowsHTML;
         };
         
-        var populateDropdown = function(element, items) {
-            var uniqueItemsObj = {};
-            for(var i=0; i < items.length; i++) { if(items[i]) uniqueItemsObj[items[i]] = true; }
-            var sortedItems = Object.keys(uniqueItemsObj).sort();
-            var dropdownHTML = '<div class="filter-dropdown-item" data-value="todos">Ver Todos</div>';
-            for (var j=0; j < sortedItems.length; j++){ dropdownHTML += '<div class="filter-dropdown-item" data-value="' + sortedItems[j] + '">' + sortedItems[j] + '</div>'; }
-            element.innerHTML = dropdownHTML;
+        const populateDropdown = (element, items) => {
+            const sortedItems = [...new Set(items)].sort((a, b) => a.localeCompare(b));
+            const uniqueItems = ['todos', ...sortedItems];
+            element.innerHTML = uniqueItems.map(item => 
+                `<div class="filter-dropdown-item" data-value="${item}">${item === 'todos' ? 'Ver Todos' : item}</div>`
+            ).join('');
         };
 
-        var applyAllFiltersAndRender = function() {
-            var ordersToRender = [];
-            var colorsForNextDropdown = [];
-            for(var i=0; i < initialFilteredOrders.length; i++){
-                var order = initialFilteredOrders[i];
-                if (activeFilters.model === 'todos' || order.shape === activeFilters.model) {
-                    ordersToRender.push(order);
-                    colorsForNextDropdown.push(order.color);
-                }
+        const applyAllFiltersAndRender = () => {
+            let ordersToRender = [...initialFilteredOrders];
+
+            if (activeFilters.model !== 'todos') {
+                ordersToRender = ordersToRender.filter(o => o.shape === activeFilters.model);
             }
-            populateDropdown(dom.colorDropdown, colorsForNextDropdown);
-            var finalOrders = [];
-            for(var j=0; j < ordersToRender.length; j++){
-                var orderToRender = ordersToRender[j];
-                if (activeFilters.color === 'todos' || orderToRender.color === activeFilters.color) {
-                    finalOrders.push(orderToRender);
-                }
+            
+            // Re-populamos el dropdown de color con opciones válidas tras el filtro de modelo
+            populateDropdown(dom.colorDropdown, ordersToRender.map(o => o.color).filter(Boolean));
+
+            if (activeFilters.color !== 'todos') {
+                ordersToRender = ordersToRender.filter(o => o.color === activeFilters.color);
             }
-            renderTable(finalOrders);
+            
+            renderTable(ordersToRender);
         };
 
-        var loadAndFilterOrders = function() {
-            dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 2rem;">Cargando pedidos...</td></tr>';
+        // --- LÓGICA DE NEGOCIO ---
+        const updateOrderStatus = async (orderId, newStatus) => {
+            const orderRef = doc(db, `/artifacts/${APP_ID}/public/data/pedidos`, orderId);
+            try {
+                await updateDoc(orderRef, { status: newStatus });
+                // Actualiza el estado en el array local para no tener que recargar de Firebase
+                const orderInArray = initialFilteredOrders.find(o => o.id === orderId);
+                if (orderInArray) orderInArray.status = newStatus;
+                alert(`El estado del pedido ha sido actualizado a "${newStatus}".`);
+            } catch (error) {
+                console.error("Error al actualizar el estado: ", error);
+                alert("Error al actualizar. Revisa la consola.");
+            }
+        };
+
+        const loadAndFilterOrders = async () => {
+            dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">Cargando pedidos...</td></tr>';
             
-            var params = {};
-            window.location.search.substring(1).split('&').forEach(function (pair) { var parts = pair.split('='); if(parts.length === 2) params[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]); });
-            var filters = { startDateString: params['startDate'], endDateString: params['endDate'], vetFrom: (params['vetFrom'] || '').toUpperCase(), vetTo: (params['vetTo'] || 'ZZZZZZ').toUpperCase(), status: params['status'] };
-            
-            // --- FIX FINAL: Usar onSnapshot en lugar de .get() ---
-            var query = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos');
-            var unsubscribe = query.onSnapshot(function(querySnapshot) {
-                unsubscribe(); // Nos aseguramos que solo se ejecute una vez
-                
-                var allOrders = [];
-                querySnapshot.forEach(function(doc){ var orderData = doc.data(); orderData.id = doc.id; allOrders.push(orderData); });
-                
-                var start = null;
-                if (filters.startDateString) { var startDateLocalString = filters.startDateString.replace(/-/g, '/'); start = new Date(startDateLocalString); start.setHours(0, 0, 0, 0); }
-                var end = null;
-                if (filters.endDateString) { var endDateLocalString = filters.endDateString.replace(/-/g, '/'); end = new Date(endDateLocalString); end.setHours(23, 59, 59, 999); }
-                
-                var filtered = [];
-                var statusMap = { Realizado: ['Realizado', 'Completado'], Cancelado: ['Cancelado', 'Entregado'], Pendiente: ['Pendiente'] };
-                for(var i=0; i < allOrders.length; i++) {
-                    var order = allOrders[i];
-                    if (start && (order.timestamp.seconds * 1000) < start.getTime()) continue;
-                    if (end && (order.timestamp.seconds * 1000) > end.getTime()) continue;
-                    if (filters.status && filters.status !== 'todos' && (!statusMap[filters.status] || statusMap[filters.status].indexOf(order.status || 'Pendiente') === -1)) continue;
-                    if (filters.vetFrom && (order.vetName || '').toUpperCase() < filters.vetFrom) continue;
-                    if (filters.vetTo && (order.vetName || '').toUpperCase() > filters.vetTo) continue;
-                    filtered.push(order);
-                }
+            const params = new URLSearchParams(window.location.search);
+            // Creamos un objeto de filtros para mejor manejo
+            const filters = {
+                startDate: params.get('startDate'),
+                endDate: params.get('endDate'),
+                vetFrom: params.get('vetFrom')?.toUpperCase() || '',
+                vetTo: params.get('vetTo')?.toUpperCase() || 'ZZZZZZ',
+                status: params.get('status')
+            };
+
+            try {
+                const pedidosRef = collection(db, `/artifacts/${APP_ID}/public/data/pedidos`);
+                // NOTA: Las queries complejas con rangos en múltiples campos requieren índices compuestos en Firestore.
+                // Para simplificar, traemos todos los documentos y filtramos en el cliente.
+                // En una app a gran escala, esto debería optimizarse con queries más específicas o un backend.
+                const q = query(pedidosRef);
+                const querySnapshot = await getDocs(q);
+                let allOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                const filtered = allOrders.filter(order => {
+                    const orderDate = order.timestamp ? new Date(order.timestamp.seconds * 1000) : null;
+                    const vetName = (order.vetName || '').toUpperCase();
+                    const status = order.status || 'Pendiente';
+                    
+                    if (filters.status && filters.status !== 'todos') {
+                        const statusMap = {
+                            Realizado: ['Realizado', 'Completado'],
+                            Cancelado: ['Cancelado', 'Entregado'],
+                            Pendiente: ['Pendiente']
+                        };
+                        if (!statusMap[filters.status]?.includes(status)) return false;
+                    }
+
+                    if (filters.startDate && orderDate) {
+                        const start = new Date(filters.startDate);
+                        start.setHours(0, 0, 0, 0);
+                        if(orderDate < start) return false;
+                    }
+                    if (filters.endDate && orderDate) {
+                        const end = new Date(filters.endDate);
+                        end.setHours(23, 59, 59, 999);
+                        if(orderDate > end) return false;
+                    }
+                    if (filters.vetFrom && vetName < filters.vetFrom) return false;
+                    if (filters.vetTo && vetName > filters.vetTo) return false;
+                    
+                    return true;
+                });
                 
                 initialFilteredOrders = filtered;
-                populateDropdown(dom.modeloDropdown, initialFilteredOrders.map(function(o){ return o.shape; }));
+                populateDropdown(dom.modeloDropdown, initialFilteredOrders.map(o => o.shape).filter(Boolean));
                 applyAllFiltersAndRender();
 
-            }, function(error){
-                unsubscribe();
-                console.error("Error al cargar datos con onSnapshot:", error);
-                renderError("Error de conexión al cargar datos.");
+            } catch (error) {
+                console.error("Error al cargar y filtrar los pedidos: ", error);
+                renderError(`Error al cargar datos: ${error.message}`);
+            }
+        };
+
+        // --- MANEJADORES DE EVENTOS ---
+        const setupDropdownListener = (header, dropdown, filterType) => {
+            header.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Ocultar el otro dropdown si está abierto
+                const otherDropdown = filterType === 'model' ? dom.colorDropdown : dom.modeloDropdown;
+                otherDropdown.classList.add('hidden');
+                dropdown.classList.toggle('hidden');
+            });
+
+            dropdown.addEventListener('click', (e) => {
+                if (e.target.matches('.filter-dropdown-item')) {
+                    e.stopPropagation();
+                    activeFilters[filterType] = e.target.dataset.value;
+
+                    // Lógica para resetear el filtro dependiente si es necesario
+                    if(filterType === 'model') {
+                        const currentlyVisibleColors = [...new Set(initialFilteredOrders.filter(o => activeFilters.model === 'todos' || o.shape === activeFilters.model).map(o => o.color))];
+                        if (!currentlyVisibleColors.includes(activeFilters.color)) {
+                            activeFilters.color = 'todos';
+                            dom.colorHeader.querySelector('.filter-icon').classList.remove('active');
+                        }
+                    }
+                    
+                    applyAllFiltersAndRender();
+                    dropdown.classList.add('hidden');
+                    header.querySelector('.filter-icon').classList.toggle('active', activeFilters[filterType] !== 'todos');
+                }
             });
         };
-        
-        var setupDropdownListener = function(header, dropdown, filterType) {
-            header.addEventListener('click', function(e) { /* ... */ });
-            dropdown.addEventListener('click', function(e) { /* ... */ });
-        };
-        // ... El resto del script no necesita cambios ...
-        
-        dom.newSearchButton.addEventListener('click', function() { window.location.href = 'admin.html'; });
-        dom.exportExcelButton.addEventListener('click', function() { window.location.href = 'admin02.html' + window.location.search; });
+
+        setupDropdownListener(dom.modeloHeader, dom.modeloDropdown, 'model');
+        setupDropdownListener(dom.colorHeader, dom.colorDropdown, 'color');
+
+        window.addEventListener('click', () => {
+            dom.modeloDropdown.classList.add('hidden');
+            dom.colorDropdown.classList.add('hidden');
+        });
+
+        dom.newSearchButton.addEventListener('click', () => {
+            window.location.href = 'admin.html';
+        });
+
+        dom.exportExcelButton.addEventListener('click', () => {
+            const params = new URLSearchParams(window.location.search);
+            const exportUrl = new URL('admin02.html', window.location.href);
+            exportUrl.search = params.toString();
+            window.location.href = exportUrl.href;
+        });
+
+        dom.tableBody.addEventListener('change', (e) => {
+            if (e.target.classList.contains('status-select')) {
+                const orderId = e.target.dataset.id;
+                const newStatus = e.target.value;
+                updateOrderStatus(orderId, newStatus);
+            }
+        });
+
+        // --- INICIALIZACIÓN ---
         if(db) loadAndFilterOrders();
-    });
     </script>
 </body>
 </html>
