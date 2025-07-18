@@ -16,7 +16,7 @@
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">Pedidos (Modo XP)</h2>
-            <p class="version-subtitle">V.1.02.06</p>
+            <p class="version-subtitle">V.1.02.07</p>
         </header>
         <main id="results-container">
             <div class="header-buttons">
@@ -145,16 +145,14 @@
             }
         });
 
-        // --- BLOQUE DE GUARDADO CORREGIDO ---
+        // --- BLOQUE DE GUARDADO CORREGIDO Y ROBUSTO ---
         dom.saveChangesButton.addEventListener('click', function() {
             dom.saveChangesButton.disabled = true;
             dom.saveChangesButton.textContent = 'Guardando...';
 
             var totalChanges = 0;
             for (var key in cambiosParaGuardar) {
-                if (cambiosParaGuardar.hasOwnProperty(key)) {
-                    totalChanges++;
-                }
+                if (cambiosParaGuardar.hasOwnProperty(key)) totalChanges++;
             }
             
             if (totalChanges === 0) {
@@ -163,12 +161,15 @@
             }
 
             var processedChanges = 0;
-            var onComplete = function() {
+            var onComplete = function(scriptElement) {
                 processedChanges++;
+                // Limpia la etiqueta de script del DOM para no dejar basura
+                if (scriptElement && scriptElement.parentNode) {
+                    scriptElement.parentNode.removeChild(scriptElement);
+                }
                 if (processedChanges === totalChanges) {
-                    // Se ejecuta solo cuando la ÚLTIMA petición ha terminado
                     alert('¡Éxito! Todos los cambios han sido guardados.');
-                    window.location.href = "admin.html"; // Ahora es seguro redirigir
+                    window.location.href = "admin.html";
                 }
             };
             
@@ -176,26 +177,27 @@
             for (var orderId in cambiosParaGuardar) {
                 if (cambiosParaGuardar.hasOwnProperty(orderId)) {
                     var newStatus = cambiosParaGuardar[orderId];
-                    // Usamos un índice para que cada URL sea única y evitar problemas de caché
                     var cacheBuster = new Date().getTime() + changeIndex;
                     var fullUrl = functionUrl + '?action=update&id=' + orderId + '&status=' + newStatus + '&cb=' + cacheBuster;
                     changeIndex++;
                     
-                    // Usamos el método de la Imagen, que es compatible y evita problemas de CORS
-                    var img = new Image();
+                    // Se crea una etiqueta SCRIPT dinámicamente (técnica JSONP)
+                    var script = document.createElement('script');
+                    script.type = 'text/javascript';
                     
-                    // Contamos la petición como "procesada" tanto si tiene éxito (onload) como si falla (onerror)
-                    // Esto evita que el contador se quede atascado si una petición falla.
-                    img.onload = onComplete;
-                    img.onerror = onComplete;
-                    
-                    // Esta acción envía la petición al servidor
-                    img.src = fullUrl;
+                    // Se usan funciones autoejecutables para capturar la variable 'script' correctamente en el bucle
+                    (function(currentScript) {
+                        currentScript.onload = function() { onComplete(currentScript); };
+                        currentScript.onerror = function() { onComplete(currentScript); };
+                    })(script);
+
+                    script.src = fullUrl;
+                    // Se añade la etiqueta al head para ejecutar la petición
+                    document.getElementsByTagName('head')[0].appendChild(script);
                 }
             }
         });
         
-        // --- CAMBIO CLAVE ---
         dom.exportExcelButton.href = 'admin02-XP.html' + window.location.search;
         
         if(db) loadAndFilterOrders();

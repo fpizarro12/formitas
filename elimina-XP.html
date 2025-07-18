@@ -54,7 +54,7 @@
         <header class="header text-center" style="margin-bottom: 2rem;">
             <h1>Formitas</h1>
             <h2>⚠️ Eliminar Registros ⚠️</h2>
-            <p>V.1.02.02</p>
+            <p>V.1.02.03</p>
         </header>
 
         <div id="filter-container" class="card">
@@ -135,8 +135,7 @@
 
         function parseDate(dateString) { // Handles yyyy-mm-dd format from <input type="date">
             if (!dateString) return null;
-            // Adding T00:00:00 avoids timezone issues, treating the date as local
-            return new Date(dateString + 'T00:00:00');
+            return new Date(dateString + 'T00:00:00'); // Avoid timezone issues
         }
         
         function renderTable(orders) {
@@ -185,8 +184,9 @@
 
             var query = db.collection('/artifacts/' + APP_ID + '/public/data/pedidos');
             
-            // Use get() for a one-time fetch which is better for this use case
-            query.get().then(function(querySnapshot) {
+            var unsubscribe = query.onSnapshot(function(querySnapshot) {
+                unsubscribe(); // Make it a one-time fetch
+                
                 var allOrders = [];
                 querySnapshot.forEach(function(doc) {
                     var data = doc.data();
@@ -213,7 +213,8 @@
                 dom.searchButton.disabled = false;
                 dom.searchButton.textContent = 'Buscar Registros';
 
-            }).catch(function(error) {
+            }, function(error) {
+                unsubscribe();
                 console.error("Error al cargar:", error);
                 dom.recordsList.innerHTML = '<p class="text-center" style="color:red;">Error al cargar los registros.</p>';
                 dom.searchButton.disabled = false;
@@ -233,12 +234,16 @@
             var onComplete = function() {
                 completedDeletions++;
                 if (completedDeletions === totalToDelete) {
-                    alert('¡Éxito! Se eliminaron ' + totalToDelete + ' registros.');
+                    // --- CORRECT ORDER OF OPERATIONS ---
+                    // 1. First, hide the modal to unblock the UI
                     dom.modal.classList.add('hidden');
                     dom.confirmDeleteBtn.disabled = false;
                     dom.confirmDeleteBtn.textContent = 'SÍ, ELIMINAR';
                     
-                    // Clear the selection and reload the list with the same filters
+                    // 2. Then, show the success message
+                    alert('¡Éxito! Se eliminaron ' + totalToDelete + ' registros.');
+                    
+                    // 3. Finally, reset state and reload the data
                     recordsToDelete = [];
                     updateDeleteButton();
                     loadRecords(); 
@@ -260,7 +265,6 @@
 
         dom.filterForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            // Store the current filters before loading
             currentFilters.startDate = dom.startDateInput.value;
             currentFilters.endDate = dom.endDateInput.value;
             loadRecords();
@@ -308,7 +312,7 @@
         // --- Initialization ---
         function main() {
             if (!db) return;
-            // Set default dates in yyyy-mm-dd format
+            // Set default dates in yyyy-mm-dd format for <input type="date">
             var today = new Date();
             var year = today.getFullYear();
             var month = ('0' + (today.getMonth() + 1)).slice(-2);
