@@ -17,7 +17,7 @@
         <header class="header text-center" style="margin-bottom: 2rem;">
             <h1>Formitas</h1>
             <h2>⚠️ Eliminar Registros ⚠️</h2>
-            <p>V.1.02.04</p>
+            <p>V.1.02.05</p>
         </header>
         <div id="filter-container" class="card">
             <form id="filter-form">
@@ -168,38 +168,51 @@
             });
         }
         
-        function performDeletion() {
-            var totalToDelete = recordsToDelete.length;
-            if (totalToDelete === 0) return;
+        // --- BLOQUE DE ELIMINACIÓN EN CADENA (CHAINED REQUESTS) ---
+        var deletionsToProcess = [];
+        var totalDeletionsInBatch = 0;
 
-            dom.confirmDeleteBtn.disabled = true;
-            dom.confirmDeleteBtn.textContent = 'Eliminando...';
-            
-            var completedDeletions = 0;
-            var callbackName = 'formitasDeleteCallback' + new Date().getTime();
+        window.jsonpCallbackElimina = function(response) {
+            // This function is called by the server's response.
+            // It triggers the next request in the chain.
+            processNextDeletion();
+        };
 
-            window[callbackName] = function(response) {
-                completedDeletions++;
-                if (completedDeletions === totalToDelete) {
-                    dom.modal.classList.add('hidden');
-                    dom.confirmDeleteBtn.disabled = false;
-                    dom.confirmDeleteBtn.textContent = 'SÍ, ELIMINAR';
-                    alert('¡Éxito! Se eliminaron ' + totalToDelete + ' registros.');
-                    try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; }
-                    recordsToDelete = [];
-                    updateDeleteButton();
-                    loadRecords(); 
-                }
-            };
-            
-            for (var i = 0; i < totalToDelete; i++) {
-                var recordId = recordsToDelete[i];
-                var fullUrl = functionUrl + '?action=delete&id=' + recordId + '&callback=' + callbackName;
+        function processNextDeletion() {
+            if (deletionsToProcess.length > 0) {
+                var recordId = deletionsToProcess.shift(); // Get the next ID
+                var fullUrl = functionUrl + '?action=delete&id=' + recordId + '&callback=jsonpCallbackElimina';
                 var script = document.createElement('script');
                 script.src = fullUrl;
                 document.getElementsByTagName('head')[0].appendChild(script);
+            } else {
+                // All deletions are done
+                if (totalDeletionsInBatch > 0) {
+                    dom.modal.classList.add('hidden');
+                    dom.confirmDeleteBtn.disabled = false;
+                    dom.confirmDeleteBtn.textContent = 'SÍ, ELIMINAR';
+                    alert('¡Éxito! Se eliminaron ' + totalDeletionsInBatch + ' registros.');
+                    recordsToDelete = []; // Clear original list
+                    updateDeleteButton();
+                    loadRecords(); 
+                }
             }
         }
+
+        dom.confirmDeleteBtn.addEventListener('click', function() {
+            if (recordsToDelete.length === 0) return;
+
+            dom.confirmDeleteBtn.disabled = true;
+            dom.confirmDeleteBtn.textContent = 'Eliminando...';
+
+            // Copy the array of IDs to a new array for processing
+            deletionsToProcess = [].concat(recordsToDelete);
+            totalDeletionsInBatch = deletionsToProcess.length;
+            
+            // Start the first request in the chain
+            processNextDeletion();
+        });
+
 
         dom.filterForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -243,8 +256,6 @@
         dom.cancelDeleteBtn.addEventListener('click', function() {
             dom.modal.classList.add('hidden');
         });
-        
-        dom.confirmDeleteBtn.addEventListener('click', performDeletion);
         
         function main() {
             if (!db) return;

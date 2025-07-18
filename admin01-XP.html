@@ -16,7 +16,7 @@
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">Pedidos (Modo XP)</h2>
-            <p class="version-subtitle">V.1.02.08</p>
+            <p class="version-subtitle">V.1.02.09</p>
         </header>
         <main id="results-container">
             <div class="header-buttons">
@@ -145,49 +145,54 @@
             }
         });
 
-        // --- BLOQUE DE GUARDADO CON JSONP ---
+        // --- BLOQUE DE GUARDADO EN CADENA (CHAINED REQUESTS) ---
+        var changesToProcess = [];
+        var totalChangesInBatch = 0;
+
+        window.jsonpCallbackAdmin = function(response) {
+            // This function is called by the server's response.
+            // It triggers the next request in the chain.
+            processNextUpdate();
+        };
+
+        function processNextUpdate() {
+            if (changesToProcess.length > 0) {
+                var change = changesToProcess.shift(); // Get the next change
+                var fullUrl = functionUrl + '?action=update&id=' + change.id + '&status=' + change.status + '&callback=jsonpCallbackAdmin';
+                
+                var script = document.createElement('script');
+                script.src = fullUrl;
+                document.getElementsByTagName('head')[0].appendChild(script);
+            } else {
+                // All changes have been processed
+                if (totalChangesInBatch > 0) {
+                    alert('¡Éxito! Todos los ' + totalChangesInBatch + ' cambios han sido guardados.');
+                    window.location.href = "admin.html";
+                }
+            }
+        }
+
         dom.saveChangesButton.addEventListener('click', function() {
             dom.saveChangesButton.disabled = true;
             dom.saveChangesButton.textContent = 'Guardando...';
 
-            var totalChanges = 0;
-            for (var key in cambiosParaGuardar) {
-                if (cambiosParaGuardar.hasOwnProperty(key)) totalChanges++;
+            // Populate the list of changes to process
+            changesToProcess = [];
+            for (var orderId in cambiosParaGuardar) {
+                if (cambiosParaGuardar.hasOwnProperty(orderId)) {
+                    changesToProcess.push({ id: orderId, status: cambiosParaGuardar[orderId] });
+                }
             }
             
-            if (totalChanges === 0) {
+            totalChangesInBatch = changesToProcess.length;
+
+            if (totalChangesInBatch === 0) {
                 dom.saveChangesButton.textContent = 'Guardar Cambios';
-                dom.saveChangesButton.disabled = false; // Re-enable if no changes
                 return;
             }
 
-            var processedChanges = 0;
-            var callbackName = 'formitasCallback' + new Date().getTime();
-
-            // 1. Define the callback function globally
-            window[callbackName] = function(response) {
-                processedChanges++;
-                if (processedChanges === totalChanges) {
-                    alert('¡Éxito! Todos los cambios han sido guardados.');
-                    // Clean up the global function
-                    try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; }
-                    window.location.href = "admin.html";
-                }
-            };
-            
-            var changeIndex = 0;
-            for (var orderId in cambiosParaGuardar) {
-                if (cambiosParaGuardar.hasOwnProperty(orderId)) {
-                    var newStatus = cambiosParaGuardar[orderId];
-                    // Add the callback parameter to the URL
-                    var fullUrl = functionUrl + '?action=update&id=' + orderId + '&status=' + newStatus + '&callback=' + callbackName;
-                    
-                    // 2. Create and inject the script tag
-                    var script = document.createElement('script');
-                    script.src = fullUrl;
-                    document.getElementsByTagName('head')[0].appendChild(script);
-                }
-            }
+            // Start the first request in the chain
+            processNextUpdate();
         });
         
         dom.exportExcelButton.href = 'admin02-XP.html' + window.location.search;
