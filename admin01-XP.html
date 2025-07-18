@@ -16,7 +16,7 @@
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">Pedidos (Modo XP)</h2>
-            <p class="version-subtitle">V.1.02.04</p>
+            <p class="version-subtitle">V.1.02.05</p>
         </header>
         <main id="results-container">
             <div class="header-buttons">
@@ -26,11 +26,11 @@
             </div>
             <div class="results-wrapper">
                 <table class="excel-table">
-                     <thead>
-                        <tr><th>Fecha</th><th>Veterinaria</th><th>Modelo (Forma)</th><th>Color</th><th>Mascota</th><th>Telefono</th><th>Atrás (Linea Extra)</th><th>Observaciones</th><th class="status-column">Estado</th></tr>
-                    </thead>
-                    <tbody id="orders-table-body">
-                    </tbody>
+                        <thead>
+                            <tr><th>Fecha</th><th>Veterinaria</th><th>Modelo (Forma)</th><th>Color</th><th>Mascota</th><th>Telefono</th><th>Atrás (Linea Extra)</th><th>Observaciones</th><th class="status-column">Estado</th></tr>
+                        </thead>
+                        <tbody id="orders-table-body">
+                        </tbody>
                 </table>
             </div>
         </main>
@@ -149,31 +149,52 @@
             dom.saveChangesButton.disabled = true;
             dom.saveChangesButton.textContent = 'Guardando...';
 
-            var totalChanges = 0;
-            for (var key in cambiosParaGuardar) {
-                if (cambiosParaGuardar.hasOwnProperty(key)) totalChanges++;
+            // Convertimos los cambios a un array para poder iterarlo
+            var changesArray = [];
+            for (var orderId in cambiosParaGuardar) {
+                if (cambiosParaGuardar.hasOwnProperty(orderId)) {
+                    changesArray.push({ id: orderId, status: cambiosParaGuardar[orderId] });
+                }
             }
+            
+            var requestsToSend = changesArray.length;
+            var requestsCompleted = 0;
 
-            if (totalChanges === 0) {
+            if (requestsToSend === 0) {
                 dom.saveChangesButton.textContent = 'Guardar Cambios';
                 return;
             }
 
-            var processedChanges = 0;
-            for (var orderId in cambiosParaGuardar) {
-                var newStatus = cambiosParaGuardar[orderId];
-                var cacheBuster = new Date().getTime() + processedChanges;
-                var fullUrl = functionUrl + '?action=update&id=' + orderId + '&status=' + newStatus + '&cb=' + cacheBuster;
+            // Función que se llamará cuando cada petición termine
+            var onComplete = function() {
+                requestsCompleted++;
+                // Solo cuando la última petición haya terminado, mostramos el mensaje y redirigimos
+                if (requestsCompleted === requestsToSend) {
+                    alert('¡Éxito! Todos los cambios han sido guardados.');
+                    window.location.href = "admin.html";
+                }
+            };
+            
+            // Iteramos sobre los cambios y enviamos una petición por cada uno
+            for (var i = 0; i < requestsToSend; i++) {
+                var change = changesArray[i];
+                var cacheBuster = new Date().getTime() + i;
+                var fullUrl = functionUrl + '?action=update&id=' + change.id + '&status=' + change.status + '&cb=' + cacheBuster;
 
-                var img = new Image();
-                img.onload = img.onerror = function() {
-                    processedChanges++;
-                    if (processedChanges === totalChanges) {
-                        alert('Todos los cambios han sido enviados.');
-                        window.location.href = "admin.html";
+                // Creamos la petición AJAX compatible con navegadores antiguos
+                var xhr = new XMLHttpRequest();
+                
+                // El evento onreadystatechange se dispara varias veces, nos interesa el estado 4 (completado)
+                xhr.onreadystatechange = function() {
+                    // Verificamos que la petición haya finalizado (estado 4)
+                    if (this.readyState === 4) {
+                        // Una vez que finaliza (con éxito o error), la contamos como completada
+                        onComplete();
                     }
                 };
-                img.src = fullUrl;
+                
+                xhr.open('GET', fullUrl, true); // true para que sea asíncrona
+                xhr.send(null);
             }
         });
         
