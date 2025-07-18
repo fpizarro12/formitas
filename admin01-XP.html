@@ -16,7 +16,7 @@
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">Pedidos (Modo XP)</h2>
-            <p class="version-subtitle">V.1.02.07</p>
+            <p class="version-subtitle">V.1.02.08</p>
         </header>
         <main id="results-container">
             <div class="header-buttons">
@@ -145,7 +145,7 @@
             }
         });
 
-        // --- BLOQUE DE GUARDADO CORREGIDO Y ROBUSTO ---
+        // --- BLOQUE DE GUARDADO CON JSONP ---
         dom.saveChangesButton.addEventListener('click', function() {
             dom.saveChangesButton.disabled = true;
             dom.saveChangesButton.textContent = 'Guardando...';
@@ -157,18 +157,20 @@
             
             if (totalChanges === 0) {
                 dom.saveChangesButton.textContent = 'Guardar Cambios';
+                dom.saveChangesButton.disabled = false; // Re-enable if no changes
                 return;
             }
 
             var processedChanges = 0;
-            var onComplete = function(scriptElement) {
+            var callbackName = 'formitasCallback' + new Date().getTime();
+
+            // 1. Define the callback function globally
+            window[callbackName] = function(response) {
                 processedChanges++;
-                // Limpia la etiqueta de script del DOM para no dejar basura
-                if (scriptElement && scriptElement.parentNode) {
-                    scriptElement.parentNode.removeChild(scriptElement);
-                }
                 if (processedChanges === totalChanges) {
                     alert('¡Éxito! Todos los cambios han sido guardados.');
+                    // Clean up the global function
+                    try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; }
                     window.location.href = "admin.html";
                 }
             };
@@ -177,22 +179,12 @@
             for (var orderId in cambiosParaGuardar) {
                 if (cambiosParaGuardar.hasOwnProperty(orderId)) {
                     var newStatus = cambiosParaGuardar[orderId];
-                    var cacheBuster = new Date().getTime() + changeIndex;
-                    var fullUrl = functionUrl + '?action=update&id=' + orderId + '&status=' + newStatus + '&cb=' + cacheBuster;
-                    changeIndex++;
+                    // Add the callback parameter to the URL
+                    var fullUrl = functionUrl + '?action=update&id=' + orderId + '&status=' + newStatus + '&callback=' + callbackName;
                     
-                    // Se crea una etiqueta SCRIPT dinámicamente (técnica JSONP)
+                    // 2. Create and inject the script tag
                     var script = document.createElement('script');
-                    script.type = 'text/javascript';
-                    
-                    // Se usan funciones autoejecutables para capturar la variable 'script' correctamente en el bucle
-                    (function(currentScript) {
-                        currentScript.onload = function() { onComplete(currentScript); };
-                        currentScript.onerror = function() { onComplete(currentScript); };
-                    })(script);
-
                     script.src = fullUrl;
-                    // Se añade la etiqueta al head para ejecutar la petición
                     document.getElementsByTagName('head')[0].appendChild(script);
                 }
             }
