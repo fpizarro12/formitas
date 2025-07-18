@@ -17,43 +17,37 @@
         .excel-table th { background-color: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #374151; }
         .excel-table tr:nth-child(even) td { background-color: #f9fafb; }
         .status-select { display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; padding: 0.25rem 0.5rem; background-color: white; cursor: pointer; }
-        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; transition: background-color 0.2s; }
+        .btn-secondary { background-color: #e5e7eb; color: #1f2937; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #6b7280; }
         .btn-secondary:hover { background-color: #d1d5db; }
-        .btn-success { background-color: #16a34a; color: white; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #14532d; transition: background-color 0.2s; }
+        .btn-success { background-color: #16a34a; color: white; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #14532d; }
         .btn-success:hover { background-color: #15803d; }
-        .filter-header { position: relative; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-        .filter-icon { width: 1rem; height: 1rem; margin-left: 0.5rem; color: #9ca3af; transition: color 0.2s; }
-        .filter-header:hover .filter-icon { color: #374151; }
-        .filter-icon.active { color: #2563eb; }
-        .filter-dropdown { position: absolute; top: 100%; left: 0; background-color: white; border: 1px solid #d1d5db; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto; min-width: 150px; }
-        .filter-dropdown-item { padding: 0.5rem 1rem; cursor: pointer; }
-        .filter-dropdown-item:hover { background-color: #f3f4f6; }
     </style>
 </head>
 <body class="py-12">
+
     <div class="container mx-auto p-4 md:p-8 max-w-7xl">
         <header class="text-center mb-8">
             <h1 class="font-formitas text-5xl font-bold text-red-500">Formitas</h1>
             <h2 id="main-title" class="text-3xl font-bold text-gray-700 mt-2">Pedidos</h2>
-            <p class="version-subtitle">V.1.01.07</p>
+            <p class="version-subtitle">V.1.01.08</p>
             <div class="flex justify-center items-center space-x-4 mt-4">
-                <button id="new-search-button" class="btn-secondary">Nueva Búsqueda</button>
-                <button id="export-excel-button" class="btn-success">Baja a Excel</button>
+                <a href="admin.html" class="btn-secondary">Nueva Búsqueda</a>
+                <a id="export-excel-button" href="#" class="btn-success">Baja a Excel</a>
             </div>
         </header>
+
         <main id="results-container">
             <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
                 <table class="excel-table">
                     <thead>
-                        <tr>
-                            <th>Fecha</th><th>Veterinaria</th><th id="modelo-header"><div class="filter-header"><span>Modelo (Forma)</span><svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg><div id="modelo-filter-dropdown" class="filter-dropdown hidden"></div></div></th><th id="color-header"><div class="filter-header"><span>Color</span><svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg><div id="color-filter-dropdown" class="filter-dropdown hidden"></div></div></th><th>Mascota</th><th>Telefono</th><th>Atrás (Linea Extra)</th><th>Observaciones</th><th>Estado</th>
-                        </tr>
+                        <tr><th>Fecha</th><th>Veterinaria</th><th>Modelo (Forma)</th><th>Color</th><th>Mascota</th><th>Telefono</th><th>Atrás (Linea Extra)</th><th>Observaciones</th><th>Estado</th></tr>
                     </thead>
                     <tbody id="orders-table-body"></tbody>
                 </table>
             </div>
         </main>
     </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, query, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -63,9 +57,58 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const dom = { tableBody: document.getElementById('orders-table-body'), newSearchButton: document.getElementById('new-search-button'), exportExcelButton: document.getElementById('export-excel-button') };
+        const dom = {
+            tableBody: document.getElementById('orders-table-body'),
+            newSearchButton: document.getElementById('new-search-button'),
+            exportExcelButton: document.getElementById('export-excel-button')
+        };
 
-        async function loadAndFilterOrders() {
+        const updateOrderStatus = async (orderId, newStatus) => {
+            const orderRef = doc(db, `/artifacts/${APP_ID}/public/data/pedidos`, orderId);
+            try {
+                await updateDoc(orderRef, { status: newStatus });
+            } catch (error) {
+                console.error("Error al actualizar el estado:", error);
+                alert("Hubo un error al guardar el cambio. Por favor, intente de nuevo.");
+            }
+        };
+
+        const renderTable = (orders) => {
+            dom.tableBody.innerHTML = '';
+            if (orders.length === 0) {
+                dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No se encontraron pedidos con los filtros aplicados.</td></tr>';
+                return;
+            }
+            
+            orders.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
+
+            const rowsHTML = orders.map(order => {
+                const fecha = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR') : 'N/A';
+                const status = order.status || 'Pendiente';
+                return `
+                    <tr>
+                        <td>${fecha}</td>
+                        <td>${order.vetName || ''}</td>
+                        <td>${order.shape || ''}</td>
+                        <td>${order.color || ''}</td>
+                        <td>${order.petName || ''}</td>
+                        <td>${order.phone || ''}</td>
+                        <td>${order.extraLine || ''}</td>
+                        <td>${order.observations || ''}</td>
+                        <td>
+                            <select class="status-select" data-id="${order.id}">
+                                <option value="Pendiente" ${status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                                <option value="Realizado" ${status === 'Realizado' || status === 'Completado' ? 'selected' : ''}>Realizado</option>
+                                <option value="Cancelado" ${status === 'Cancelado' || status === 'Entregado' ? 'selected' : ''}>Cancelado</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            dom.tableBody.innerHTML = rowsHTML;
+        };
+
+        const loadAndFilterOrders = async () => {
             dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">Cargando pedidos...</td></tr>';
             const params = new URLSearchParams(window.location.search);
             const filters = {
@@ -82,9 +125,7 @@
                     const orderDate = order.timestamp ? new Date(order.timestamp.seconds * 1000) : null;
                     if (!orderDate) return false;
 
-                    // --- FIX PARA FECHAS ---
                     if (filters.startDate) {
-                        // Reemplazar guiones con barras para asegurar interpretación como fecha local
                         const start = new Date(filters.startDate.replace(/-/g, '/'));
                         start.setHours(0, 0, 0, 0);
                         if (orderDate < start) return false;
@@ -94,37 +135,30 @@
                         end.setHours(23, 59, 59, 999);
                         if (orderDate > end) return false;
                     }
-                    // --- FIN DEL FIX ---
-
                     return true;
                 });
-
-                if (filtered.length === 0) {
-                    dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No se encontraron pedidos.</td></tr>';
-                    return;
-                }
                 
-                // Ordenamos por fecha descendente
-                filtered.sort((a,b) => b.timestamp.seconds - a.timestamp.seconds);
-
-                dom.tableBody.innerHTML = filtered.map(order => {
-                    const fecha = new Date(order.timestamp.seconds * 1000).toLocaleDateString('es-AR');
-                    const status = order.status || 'Pendiente';
-                    return `<tr><td>${fecha}</td><td>${order.vetName || ''}</td><td>${order.shape || ''}</td><td>${order.color || ''}</td><td>${order.petName || ''}</td><td>${order.phone || ''}</td><td>${order.extraLine || ''}</td><td>${order.observations || ''}</td><td><select class="status-select" data-id="${order.id}"><option value="Pendiente" ${status === 'Pendiente' ? 'selected' : ''}>Pendiente</option><option value="Realizado" ${status === 'Realizado' ? 'selected' : ''}>Realizado</option><option value="Cancelado" ${status === 'Cancelado' ? 'selected' : ''}>Cancelado</option></select></td></tr>`;
-                }).join('');
+                renderTable(filtered);
 
             } catch (err) {
                 console.error(err);
-                dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-red-500 font-semibold">Error al cargar pedidos.</td></tr>';
+                dom.tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-red-500">Error al cargar pedidos.</td></tr>';
             }
-        }
+        };
 
         dom.newSearchButton.addEventListener('click', () => {
             window.location.href = 'admin.html';
         });
 
-        dom.exportExcelButton.addEventListener('click', () => {
-            window.location.href = 'admin02.html' + window.location.search;
+        dom.exportExcelButton.href = 'admin02.html' + window.location.search;
+
+        // --- MANEJADOR DE EVENTO RESTAURADO ---
+        dom.tableBody.addEventListener('change', (e) => {
+            if (e.target.classList.contains('status-select')) {
+                const orderId = e.target.dataset.id;
+                const newStatus = e.target.value;
+                updateOrderStatus(orderId, newStatus);
+            }
         });
 
         loadAndFilterOrders();
