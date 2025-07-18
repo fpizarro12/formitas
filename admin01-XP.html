@@ -16,7 +16,7 @@
         <header class="text-center" style="margin-bottom: 2rem;">
             <h1 class="font-formitas">Formitas</h1>
             <h2 id="main-title">Pedidos (Modo XP)</h2>
-            <p class="version-subtitle">V.1.02.05</p>
+            <p class="version-subtitle">V.1.02.06</p>
         </header>
         <main id="results-container">
             <div class="header-buttons">
@@ -145,56 +145,53 @@
             }
         });
 
+        // --- BLOQUE DE GUARDADO CORREGIDO ---
         dom.saveChangesButton.addEventListener('click', function() {
             dom.saveChangesButton.disabled = true;
             dom.saveChangesButton.textContent = 'Guardando...';
 
-            // Convertimos los cambios a un array para poder iterarlo
-            var changesArray = [];
-            for (var orderId in cambiosParaGuardar) {
-                if (cambiosParaGuardar.hasOwnProperty(orderId)) {
-                    changesArray.push({ id: orderId, status: cambiosParaGuardar[orderId] });
+            var totalChanges = 0;
+            for (var key in cambiosParaGuardar) {
+                if (cambiosParaGuardar.hasOwnProperty(key)) {
+                    totalChanges++;
                 }
             }
             
-            var requestsToSend = changesArray.length;
-            var requestsCompleted = 0;
-
-            if (requestsToSend === 0) {
+            if (totalChanges === 0) {
                 dom.saveChangesButton.textContent = 'Guardar Cambios';
                 return;
             }
 
-            // Función que se llamará cuando cada petición termine
+            var processedChanges = 0;
             var onComplete = function() {
-                requestsCompleted++;
-                // Solo cuando la última petición haya terminado, mostramos el mensaje y redirigimos
-                if (requestsCompleted === requestsToSend) {
+                processedChanges++;
+                if (processedChanges === totalChanges) {
+                    // Se ejecuta solo cuando la ÚLTIMA petición ha terminado
                     alert('¡Éxito! Todos los cambios han sido guardados.');
-                    window.location.href = "admin.html";
+                    window.location.href = "admin.html"; // Ahora es seguro redirigir
                 }
             };
             
-            // Iteramos sobre los cambios y enviamos una petición por cada uno
-            for (var i = 0; i < requestsToSend; i++) {
-                var change = changesArray[i];
-                var cacheBuster = new Date().getTime() + i;
-                var fullUrl = functionUrl + '?action=update&id=' + change.id + '&status=' + change.status + '&cb=' + cacheBuster;
-
-                // Creamos la petición AJAX compatible con navegadores antiguos
-                var xhr = new XMLHttpRequest();
-                
-                // El evento onreadystatechange se dispara varias veces, nos interesa el estado 4 (completado)
-                xhr.onreadystatechange = function() {
-                    // Verificamos que la petición haya finalizado (estado 4)
-                    if (this.readyState === 4) {
-                        // Una vez que finaliza (con éxito o error), la contamos como completada
-                        onComplete();
-                    }
-                };
-                
-                xhr.open('GET', fullUrl, true); // true para que sea asíncrona
-                xhr.send(null);
+            var changeIndex = 0;
+            for (var orderId in cambiosParaGuardar) {
+                if (cambiosParaGuardar.hasOwnProperty(orderId)) {
+                    var newStatus = cambiosParaGuardar[orderId];
+                    // Usamos un índice para que cada URL sea única y evitar problemas de caché
+                    var cacheBuster = new Date().getTime() + changeIndex;
+                    var fullUrl = functionUrl + '?action=update&id=' + orderId + '&status=' + newStatus + '&cb=' + cacheBuster;
+                    changeIndex++;
+                    
+                    // Usamos el método de la Imagen, que es compatible y evita problemas de CORS
+                    var img = new Image();
+                    
+                    // Contamos la petición como "procesada" tanto si tiene éxito (onload) como si falla (onerror)
+                    // Esto evita que el contador se quede atascado si una petición falla.
+                    img.onload = onComplete;
+                    img.onerror = onComplete;
+                    
+                    // Esta acción envía la petición al servidor
+                    img.src = fullUrl;
+                }
             }
         });
         
