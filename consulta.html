@@ -30,13 +30,23 @@
         .btn-cancel:hover { background-color: #dc2626; }
         .btn-link { text-decoration: none; display: inline-block; }
 
-        /* Contenedor de Filtros */
+        /* Contenedor de Filtros (MODIFICADO) */
         #filter-container { background-color: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 2rem; }
         .filter-title { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; }
-        .filter-form-grid { /* Usando floats para compatibilidad */ }
-        .filter-group { float: left; width: 20%; padding: 0 0.5rem; }
-        .filter-group-btn { float: left; width: 20%; padding: 0 0.5rem; padding-top: 1.25rem; /* Alineación vertical */ }
-        .filter-form-grid:after { content: ""; display: table; clear: both; }
+        .filter-form-grid {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -0.5rem; /* Compensa el padding de los hijos */
+        }
+        .filter-group {
+            width: calc(50% - 1rem); /* 50% menos el padding horizontal */
+            margin: 0 0.5rem 1rem;    /* Margen horizontal y vertical */
+        }
+        .filter-group-btn {
+            width: 100%;
+            text-align: center;
+            margin-top: 1rem; /* Espacio sobre el botón */
+        }
         .form-label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; }
         .form-input { display: block; width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; }
         
@@ -100,7 +110,7 @@
                         <input type="text" id="end-name" class="form-input" value="ZZZZZZ">
                     </div>
                     <div class="filter-group-btn">
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">Aplicar Filtros</button>
+                        <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
                     </div>
                 </div>
             </form>
