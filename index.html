@@ -188,26 +188,28 @@
         var VET_NAME_KEY = 'veterinaryName';
         var SETUP_PASSWORD = 'formitaspets2025';
 
-        // --- DICCIONARIO DE CÓDIGOS DE VETERINARIAS (NUEVO) ---
+        // --- DICCIONARIO DE CÓDIGOS DE VETERINARIAS (VERSIÓN FINAL Y VERIFICADA) ---
         var vetCodes = {
-            '1250': '27 Vet', '1277': 'Agro 21', '1278': 'Amaru', '1296': 'Animal Shop', '1298': 'Animal Shop - Bell Ville', '1301': 'Azul Mascotas',
-            '1312': 'Bayer', '1330': 'Biovet', '1356': 'Bono', '1358': 'Cemvet', '1367': 'Centauro', '1376': 'Chucaro',
-            '1382': 'Como perro y gato', '1401': 'Dino R. B.', '1424': 'Galletto', '1427': 'Happy Vet', '1429': 'Hakuna Matata',
-            '1438': 'Hiper G.P. - Frias', '1447': 'Hiper GP - Lima', '1455': 'Hiper GP - Salta', '1465': 'Hiper R.B',
-            '1478': 'Hiper R.B. - Villa Allende', '1483': 'Hospital Mascotas', '1487': 'I-vet', '1509': 'Janpix', '1519': 'Kalinka', '1527': 'Kalinka',
-            '1538': 'Kiron', '1545': 'Ks Pits', '1554': 'Kymascotas', '1563': 'La Huella', '1581': 'La Reserva',
-            '1587': 'Locos x las mascotas Costa', '1590': 'Locos x las mascotas Valle', '1607': 'Mandinga Pet', '1616': 'Maskoteka',
-            '1627': 'Maskoteka Gral Paz', '1634': 'Maskoteka O`Higgins', '1642': 'Mevet', '1652': 'Mis Amigos', '1661': 'Natura',
-            '1670': 'Neo Alta Cba', '1681': 'Neo Colon', '1698': 'Neo Humberto I', '1701': 'Neo Nueva Cordoba', '1714': 'Neo Paseo Rivera',
-            '1721': 'Neo San Vicente', '1732': 'Neo Urca-Cian', '1741': 'Obispo Oro', '1759': 'Patagon', '1768': 'Pet One - 6997',
-            '1778': 'Pet One - 8182', '1787': 'Pet One - Villa Allende', '1796': 'Pet planet La Tropolita', '1803': 'Pet planet Yadarola',
-            '1812': 'Pippo', '1821': 'Pipolos Pet', '1842': 'Plan B', '1849': 'Plaza Mascotas', '1859': 'Puppy Vet', '1867': 'Rio Ceballos',
-            '1871': 'Roca - Sabattini', '1885': 'Salud Animal', '1891': 'San Cayetano', '1901': 'San Jose 1 - Rev Mayo', '1910': 'San Juan esq Corro',
-            '1929': 'Santa Clara', '1938': 'Serca', '1947': 'Soriano', '1956': 'Summa', '1968': 'V y L - A. Roca 1485', '1974': 'Tacuru',
-            '1982': 'Tacuru - Sabattini', '2002': 'Tadicor', '2009': 'Tierraviva', '2017': 'Ucle - Falda del Carmen', '2027': 'Ucle 1 - M. T de A.',
-            '2035': 'Ucle 2 - F.A. 2465', '2042': 'Ucle 3 - F.A. 2858 - CPC', '2053': 'Ucle 5 - Malagueño', '2064': 'Ucle 7 - F.A. CPC Colon',
-            '2071': 'Ucle 8 - puerredon', '2081': 'Ucle 9 - o`neil - Tropezon', '2099': 'Vet Planet', '2109': 'Victor', '2115': 'Vital Vet',
-            '2124': 'Walmart Colon', '2132': 'Walmart Jardin', '2142': 'Walmart Talleres', '2151': 'Zama'
+            '1269': 'Agma 1', '1287': 'Animal Shop', '1289': 'Animal Shop - Bell Ville', '1303': 'Argüello', '1312': 'Azul Mascotas',
+            '1321': 'Bigotes', '1341': 'Biovet', '1349': 'Bones', '1358': 'Cemvet', '1367': 'Centauro', '1376': 'Chacabuco',
+            '1382': 'Como perro y gato', '1385': 'Dino R.B.', '1404': 'Galletto', '1410': 'Hairy pet', '1429': 'Hakuna Matata',
+            '1438': 'Hiper Gp - Felix Frias', '1447': 'Hiper Gp - Lima', '1450': 'Hiper Gral Paz', '1455': 'Hiper R.B',
+            '1474': 'Hiper R.B - Villa Allende', '1483': 'Hospital Mascotas', '1492': 'Ina-Vet', '1509': 'Janpix',
+            '1518': 'Kairos', '1527': 'Kalinka', '1536': 'Kilian', '1545': 'Ks Pits', '1554': 'Kynos', '1563': 'La Huella',
+            '1572': 'La Reserva', '1587': 'Locos x las mascotas Costa', '1590': 'Locos x las mascotas Valle',
+            '1607': 'Masc - Roca 6455', '1616': 'Maskoteka', '1627': 'Maskoteka Gral Paz', '1634': 'Maskoteka O`Higgins',
+            '1643': 'Medivet', '1652': 'Mis Amigos', '1661': 'Munay', '1670': 'Neo Alta Cba', '1689': 'Neo Cofico',
+            '1698': 'Neo Humberto I', '1705': 'Neo Nueva Cordoba', '1714': 'Neo Paseo Rivera', '1723': 'Neo San Vicente',
+            '1732': 'Neo Urca-Cian', '1741': 'Obispo Oro', '1759': 'Patagon', '1769': 'Pet One - 6973', '1778': 'Pet One - 8182',
+            '1787': 'Pet One - Villa Allende', '1796': 'Pet planet - Bv Homesa', '1803': 'Pet planet Yadarola', '1812': 'Pippo',
+            '1821': 'Pipolos Pet', '1842': 'Planeta', '1849': 'Plaza Mascotas', '1859': 'Puppy-Vet', '1867': 'Rio Ceballos',
+            '1876': 'Roca - Sabattini', '1885': 'Salud Animal', '1894': 'San Carlos', '1901': 'San Jose 1 - Rev Mayo',
+            '1910': 'San Juan esq Corro', '1929': 'Santa Clara', '1938': 'Serca', '1947': 'Soriano', '1956': 'Summa',
+            '1968': 'V y L - A. Roca 1485', '1974': 'Tacurú', '1982': 'Tacurú - Sabattini', '1992': 'Tadicor', '2009': 'Tomi',
+            '2017': 'Ucle - Falda del Carmen', '2027': 'Ucle 1 - M. T de A.', '2035': 'Ucle 2 - F.A. 2465',
+            '2042': 'Ucle 3 - F.A. 2858 - CPC', '2053': 'Ucle 5 - Malagueño', '2064': 'Ucle 7 - San Nicolas',
+            '2071': 'Ucle 8 - puerredon', '2081': 'Ucle 9 - shell - Tropezon', '2099': 'Vet Planet', '2109': 'Victor',
+            '2115': 'Vital Vet', '2124': 'Walmart Colon', '2132': 'Walmart Jardin', '2142': 'Walmart Talleres', '2151': 'Zama'
         };
 
 
