@@ -58,6 +58,11 @@
         .form-buttons button:first-child { margin-left: 0; }
         .form-buttons button:last-child { margin-right: 0; }
         
+        /* Contenedor para input con ícono (NUEVO) */
+        .input-icon-wrapper { position: relative; }
+        .input-icon-wrapper .form-input { padding-right: 2.5rem; /* Espacio para el ícono */ }
+        .input-icon-toggle { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280; background: transparent; border: none; padding: 0.25rem; display: flex; align-items: center; justify-content: center;}
+
         /* Modal */
         .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(17, 24, 39, 0.6); z-index: 40; }
         .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; border-radius: 0.5rem; padding: 1.5rem; width: 90%; max-width: 24rem; z-index: 50; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 4px solid #06b6d4; }
@@ -152,7 +157,21 @@
         <div data-step="password">
             <h3 class="modal-header">Configuracion</h3>
             <p class="modal-body">Por favor, ingrese la clave de configuracion.</p>
-            <input type="password" id="passwordInput" class="form-input">
+            <div class="input-icon-wrapper">
+                <input type="password" id="passwordInput" class="form-input">
+                <button id="togglePasswordVisibility" class="input-icon-toggle" aria-label="Mostrar u ocultar clave">
+                    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                    </svg>
+                    <svg id="eyeSlashIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="hidden" viewBox="0 0 16 16">
+                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.94 5.94 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
+                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.288.822.822.073.073.026.026a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829l.822.822-.073.073-.026.026z"/>
+                        <path d="M2.35 12.456A13.134 13.134 0 0 1 1.172 8a13.134 13.134 0 0 1 1.465-2.997l.708.709a12.134 12.134 0 0 0-1.258 2.288c.18.33.417.653.697.942l.707.707-.073.073-.026.026A13.134 13.134 0 0 1 8 11.5c.66 0 1.29-.093 1.885-.262l.707.707a8.5 8.5 0 0 1-2.592.422A7.028 7.028 0 0 1 8 12.5c-2.12 0-3.879-1.168-5.168-2.457L2.35 12.456zM8 5.5a2.5 2.5 0 0 0-2.5 2.5l.522.522a1.5 1.5 0 0 1 1.978-1.978L8 5.5z"/>
+                        <path d="M4.541 1.059A7.028 7.028 0 0 1 8 0.5c3.182 0 5.955 2.214 7.498 5.176l.708.709a8.5 8.5 0 0 0-2.592-2.162l.707.707a12.134 12.134 0 0 1 2.227 2.227l.707-.707A13.134 13.134 0 0 0 8 2.5c-1.065 0-2.076.24-2.997.668l.708.709a7.028 7.028 0 0 1 2.289-.588l.707.707a5.94 5.94 0 0 0-2.227 2.227l.707.707a3.5 3.5 0 0 1 2.829 2.829l.708.708a3.5 3.5 0 0 1-4.474 4.474l.707.707a5.94 5.94 0 0 0 4.474-4.474l.707-.707a2.5 2.5 0 0 0-2.829-2.829l.707-.707a1.5 1.5 0 0 1 1.978 1.978l.707-.707a3.5 3.5 0 0 0-2.829-2.829l-.708-.708A8.5 8.5 0 0 0 8 12.5c-1.065 0-2.076-.24-2.997-.668l.708-.708a7.028 7.028 0 0 1 2.289.588l.707-.707a5.94 5.94 0 0 0 2.227-2.227l-.707-.707a3.5 3.5 0 0 1-2.829-2.829L5.25 4.541zM2.022 1.022a8.5 8.5 0 0 0-1.022 1.022l.707.707a7.028 7.028 0 0 1 1.022-1.022l-.707-.707z"/>
+                    </svg>
+                </button>
+            </div>
             <p id="passwordError" class="hidden">Clave incorrecta.</p>
         </div>
         <div class="hidden" data-step="vetName">
@@ -212,7 +231,6 @@
             '2115': 'Vital Vet', '2124': 'Walmart Colon', '2132': 'Walmart Jardin', '2142': 'Walmart Talleres', '2151': 'Zama'
         };
 
-
         // --- INICIALIZACIÓN DE FIREBASE ---
         var db;
         try {
@@ -235,7 +253,7 @@
         var pendingOrderData = null;
         var currentModalStep = 'password';
 
-        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
+        // --- SELECCIÓN DE ELEMENTOS DEL DOM (MODIFICADO) ---
         var dom = {
             orderForm: document.getElementById('orderForm'),
             submitButton: document.getElementById('submitButton'),
@@ -252,7 +270,10 @@
                 newVetNameInput: document.getElementById('newVetNameInput'),
                 passwordError: document.getElementById('passwordError'),
                 passwordStep: document.querySelector('[data-step="password"]'),
-                vetNameStep: document.querySelector('[data-step="vetName"]')
+                vetNameStep: document.querySelector('[data-step="vetName"]'),
+                togglePasswordButton: document.getElementById('togglePasswordVisibility'),
+                eyeIcon: document.getElementById('eyeIcon'),
+                eyeSlashIcon: document.getElementById('eyeSlashIcon')
             },
             confirmationModal: {
                 element: document.getElementById('confirmationModal'),
@@ -377,7 +398,6 @@
             if (currentModalStep === 'password') {
                 var enteredValue = dom.setupModal.passwordInput.value.trim();
                 
-                // Opción 1: Clave maestra
                 if (enteredValue === SETUP_PASSWORD) {
                     currentModalStep = 'vetName';
                     dom.setupModal.passwordStep.classList.add('hidden');
@@ -386,7 +406,6 @@
                     dom.setupModal.confirmButton.textContent = 'Guardar';
                     dom.setupModal.newVetNameInput.focus();
                 
-                // Opción 2: Código numérico de veterinaria
                 } else if (vetCodes[enteredValue]) {
                     var vetName = vetCodes[enteredValue];
                     localStorage.setItem(VET_NAME_KEY, vetName);
@@ -394,7 +413,6 @@
                     checkAndSetupVeterinaryName();
                     toggleModal(dom.setupModal.element, false);
 
-                // Opción 3: Clave incorrecta
                 } else {
                     dom.setupModal.passwordError.classList.remove('hidden');
                 }
@@ -446,6 +464,17 @@
             dom.setupButton.addEventListener('click', handleSetupClick);
             dom.setupModal.cancelButton.addEventListener('click', function() { toggleModal(dom.setupModal.element, false); });
             dom.setupModal.confirmButton.addEventListener('click', handleModalConfirmClick);
+            
+            // Listener para el ícono de visibilidad de la clave (NUEVO)
+            dom.setupModal.togglePasswordButton.addEventListener('click', function() {
+                const passwordInput = dom.setupModal.passwordInput;
+                const isPassword = passwordInput.getAttribute('type') === 'password';
+                
+                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                dom.setupModal.eyeIcon.classList.toggle('hidden', isPassword);
+                dom.setupModal.eyeSlashIcon.classList.toggle('hidden', !isPassword);
+            });
+
             dom.confirmationModal.confirmButton.addEventListener('click', sendOrderToFirebase);
             dom.confirmationModal.cancelButton.addEventListener('click', function() { toggleModal(dom.confirmationModal.element, false); });
             dom.cancelOrderButton.addEventListener('click', clearForm);
