@@ -1,0 +1,21 @@
+{
+  "name": "Formitas",
+  "short_name": "Formitas",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ef4444",
+  "description": "Aplicación para realizar pedidos de medallas para veterinarias.",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/EyqPrSq.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.imgur.com/RGXyzjh.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
