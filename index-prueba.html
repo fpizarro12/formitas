@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Pedido de Medalla</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ef4444">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pedidos Vet">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/EyqPrSq.png">
+
+    <style>
+        /* Estilos Generales y Reset */
+        body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
+        * { box-sizing: border-box; }
+        .container { max-width: 512px; margin: 0 auto; padding: 2rem 1rem; }
+        .text-center { text-align: center; }
+
+        /* Encabezado */
+        .header-container { position: relative; margin-bottom: 1.5rem; }
+        .font-formitas { font-family: 'Comic Neue', cursive; font-size: 3.75rem; font-weight: 700; color: #ef4444; }
+        .header-subtitle { color: #4b5563; margin-top: -0.5rem; font-size: 1.125rem; }
+        .header-main-title { font-size: 1.875rem; font-weight: 700; color: #374151; margin-top: 1.5rem; }
+        .dog-icon, .cat-icon { position: absolute; bottom: 45px; width: 70px; height: 70px; pointer-events: none; }
+        .dog-icon { left: -20px; }
+        .cat-icon { right: -20px; }
+
+        /* Botones */
+        .btn { font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.3s ease; border-style: solid; border-width: 2px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); cursor: pointer; width: 100%; font-size: 1rem; }
+        .btn-primary { background-color: #16a34a; color: white; border-color: #14532d; }
+        .btn-primary:hover { background-color: #15803d; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-danger { background-color: #ef4444; color: white; border-color: #b91c1c; }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-secondary { background-color: #e5e7eb; color: #1f2937; border: 1px solid #6b7280; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); font-weight: 600; padding: 0.5rem 1rem; }
+        .btn-secondary:hover { background-color: #d4d6da; }
+        .btn-link { display: inline-block; text-decoration: none; }
+
+        /* Formulario */
+        .form-container { border: 4px solid #06b6d4; position: relative; background-color: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+        .form-container-watermark { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐾</text></svg>'); background-repeat: repeat; background-size: 120px; opacity: 0.05; z-index: 0; }
+        .form-content { position: relative; z-index: 10; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; }
+        .form-input, .form-select, .form-textarea { display: block; width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #16a34a; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.3); }
+        .form-input-readonly { background-color: #f3f4f6; }
+        #vetNameStatus { font-size: 0.75rem; color: #dc2626; margin-top: 0.25rem; }
+        .form-buttons { margin-top: 2rem; display: flex; }
+        .form-buttons button { margin: 0 0.5rem; }
+        .form-buttons button:first-child { margin-left: 0; }
+        .form-buttons button:last-child { margin-right: 0; }
+        
+        /* Contenedor para input con ícono (NUEVO) */
+        .input-icon-wrapper { position: relative; }
+        .input-icon-wrapper .form-input { padding-right: 2.5rem; /* Espacio para el ícono */ }
+        .input-icon-toggle { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280; background: transparent; border: none; padding: 0.25rem; display: flex; align-items: center; justify-content: center;}
+
+        /* Modal */
+        .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(17, 24, 39, 0.6); z-index: 40; }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; border-radius: 0.5rem; padding: 1.5rem; width: 90%; max-width: 24rem; z-index: 50; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 4px solid #06b6d4; }
+        .modal-header { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem; }
+        .modal-body { color: #4b5563; margin-bottom: 1rem; }
+        .modal-footer { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
+        .modal-footer button { margin-left: 1rem; }
+        #passwordError { font-size: 0.75rem; color: #dc2626; margin-top: 0.25rem; }
+        .hidden { display: none; }
+        
+        /* Confirmation Summary */
+        #confirmationSummary ul { list-style: none; padding: 0; margin: 0; }
+        #confirmationSummary li { border-bottom: 1px solid #e5e7eb; padding: 0.5rem 0; }
+        #confirmationSummary li strong { font-weight: 600; color: #374151; }
+
+        /* Toast */
+        .toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: 30px; opacity: 0; transition: all 0.5s ease-in-out; }
+        .toast.show { visibility: visible; opacity: 1; }
+
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen py-12">
+    <div class="container">
+        <header id="mainHeader" class="header-container text-center">
+            <div class="dog-icon"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M5,80 C5,70 25,70 25,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M95,80 C95,70 75,70 75,80" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M10,70 Q50,10 90,70" fill="#f4a261" stroke="#A67B5B" stroke-width="2"/><path d="M10,50 C-10,50 0,20 20,30" fill="#A67B5B"/><path d="M90,50 C110,50 100,20 80,30" fill="#A67B5B"/><circle cx="35" cy="55" r="5" fill="#2c2c2c"/><circle cx="65" cy="55" r="5" fill="#2c2c2c"/><ellipse cx="50" cy="65" rx="8" ry="5" fill="#2c2c2c"/></svg></div>
+            <div class="cat-icon"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M5,80 C5,70 25,70 25,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M95,80 C95,70 75,70 75,80" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M10,70 Q50,20 90,70" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M10,40 L30,15 L40,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><path d="M90,40 L70,15 L60,40 Z" fill="#d1d5db" stroke="#6b7280" stroke-width="2"/><circle cx="38" cy="55" r="4" fill="#2c2c2c"/><circle cx="62" cy="55" r="4" fill="#2c2c2c"/><path d="M45,65 Q50,70 55,65" stroke="#2c2c2c" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M20,60 L35,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M22,65 L35,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M80,60 L65,62" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/><path d="M78,65 L65,65" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <h1 class="font-formitas">Formitas</h1>
+            <p class="header-subtitle">bijou para mascotas</p>
+            <h2 class="header-main-title">Nuevo Pedido de Medalla</h2>
+        </header>
+
+        <div class="text-center" style="margin-bottom: 1.5rem;">
+            <a href="consulta.html" class="btn-secondary btn-link">Consulta Pedidos</a>
+        </div>
+
+        <div id="mainContent" class="form-container">
+            <div class="form-container-watermark"></div>
+            <div class="form-content">
+                <form id="orderForm">
+                    <div class="form-group">
+                        <label for="vetName" class="form-label">Veterinaria</label>
+                        <input type="text" id="vetName" name="vetName" required readonly class="form-input form-input-readonly">
+                        <p id="vetNameStatus"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="petName" class="form-label">Nombre de la Mascota</label>
+                        <input type="text" id="petName" name="petName" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Telefono / Texto</label>
+                        <input type="text" id="phone" name="phone" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="extraLine" class="form-label">Linea Extra</label>
+                        <input type="text" id="extraLine" name="extraLine" class="form-input" placeholder="(Opcional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="shape" class="form-label">Forma de la Medalla <span style="color: #ef4444;">*</span></label>
+                        <select id="shape" name="shape" required class="form-select">
+                            <option value="">Seleccione una forma</option>
+                            <option>Bulldog</option><option>Cat</option><option>Collar</option><option>Corazon</option><option>Estrella</option><option>H. Chico</option><option>H. Grande</option><option>Huella</option><option>Mini</option><option>Pez</option><option>Recta</option><option>Redonda</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="color" class="form-label">Color de la Medalla <span style="color: #ef4444;">*</span></label>
+                        <select id="color" name="color" required class="form-select">
+                            <option value="">Seleccione un color</option>
+                            <option>Azul</option><option>Negro</option><option>Oro</option><option>Plata</option><option>Rojo</option><option>Violeta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="observations" class="form-label">Observaciones</label>
+                        <textarea id="observations" name="observations" rows="2" class="form-textarea" placeholder="(Opcional)"></textarea>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" id="cancelOrderButton" class="btn btn-danger">Cancelar Pedido</button>
+                        <button type="submit" id="submitButton" class="btn btn-primary">Enviar Pedido</button>
+                    </div>
+                </form>
+                <div class="text-center" style="margin-top: 1rem;">
+                    <button id="setupButton" class="btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">FORMITAS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <div id="modalBackdrop" class="modal-backdrop hidden"></div>
+    
+    <div id="setupModal" class="modal hidden">
+        <div data-step="password">
+            <h3 class="modal-header">Configuracion</h3>
+            <p class="modal-body">Por favor, ingrese la clave de configuracion.</p>
+            <div class="input-icon-wrapper">
+                <input type="password" id="passwordInput" class="form-input">
+                <button id="togglePasswordVisibility" class="input-icon-toggle" aria-label="Mostrar u ocultar clave">
+                    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                    </svg>
+                    <svg id="eyeSlashIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="hidden" viewBox="0 0 16 16">
+                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.94 5.94 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
+                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.288.822.822.073.073.026.026a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829l.822.822-.073.073-.026.026z"/>
+                        <path d="M2.35 12.456A13.134 13.134 0 0 1 1.172 8a13.134 13.134 0 0 1 1.465-2.997l.708.709a12.134 12.134 0 0 0-1.258 2.288c.18.33.417.653.697.942l.707.707-.073.073-.026.026A13.134 13.134 0 0 1 8 11.5c.66 0 1.29-.093 1.885-.262l.707.707a8.5 8.5 0 0 1-2.592.422A7.028 7.028 0 0 1 8 12.5c-2.12 0-3.879-1.168-5.168-2.457L2.35 12.456zM8 5.5a2.5 2.5 0 0 0-2.5 2.5l.522.522a1.5 1.5 0 0 1 1.978-1.978L8 5.5z"/>
+                        <path d="M4.541 1.059A7.028 7.028 0 0 1 8 0.5c3.182 0 5.955 2.214 7.498 5.176l.708.709a8.5 8.5 0 0 0-2.592-2.162l.707.707a12.134 12.134 0 0 1 2.227 2.227l.707-.707A13.134 13.134 0 0 0 8 2.5c-1.065 0-2.076.24-2.997.668l.708.709a7.028 7.028 0 0 1 2.289-.588l.707.707a5.94 5.94 0 0 0-2.227 2.227l.707.707a3.5 3.5 0 0 1 2.829 2.829l.708.708a3.5 3.5 0 0 1-4.474 4.474l.707.707a5.94 5.94 0 0 0 4.474-4.474l.707-.707a2.5 2.5 0 0 0-2.829-2.829l.707-.707a1.5 1.5 0 0 1 1.978 1.978l.707-.707a3.5 3.5 0 0 0-2.829-2.829l-.708-.708A8.5 8.5 0 0 0 8 12.5c-1.065 0-2.076-.24-2.997-.668l.708-.708a7.028 7.028 0 0 1 2.289.588l.707-.707a5.94 5.94 0 0 0 2.227-2.227l-.707-.707a3.5 3.5 0 0 1-2.829-2.829L5.25 4.541zM2.022 1.022a8.5 8.5 0 0 0-1.022 1.022l.707.707a7.028 7.028 0 0 1 1.022-1.022l-.707-.707z"/>
+                    </svg>
+                </button>
+            </div>
+            <p id="passwordError" class="hidden">Clave incorrecta.</p>
+        </div>
+        <div class="hidden" data-step="vetName">
+            <h3 class="modal-header">Nombre de la Veterinaria</h3>
+            <p class="modal-body">Clave correcta. Ahora ingrese el nombre.</p>
+            <input type="text" id="newVetNameInput" class="form-input" required>
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="modalCancel" class="btn-secondary">Cancelar</button>
+            <button type="button" id="modalConfirm" class="btn-primary">Siguiente</button>
+        </div>
+    </div>
+    
+    <div id="confirmationModal" class="modal hidden">
+        <h3 class="modal-header">Confirmar Pedido</h3>
+        <div id="confirmationSummary" class="modal-body" style="text-align: left;"></div>
+        <div class="modal-footer">
+            <button type="button" id="cancelSendButton" class="btn btn-danger">CANCELA</button>
+            <button type="button" id="confirmSendButton" class="btn btn-primary">OK</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // --- CONFIGURACIÓN Y CONSTANTES ---
+        var firebaseConfig = { apiKey: "AIzaSyCM7apkWZs6RiNdu5Y4GCtJxRr7Go2lhiQ", authDomain: "pedidos-formitas.firebaseapp.com", projectId: "pedidos-formitas", storageBucket: "pedidos-formitas.appspot.com", messagingSenderId: "745379401007", appId: "1:745379401007:web:c41a2d3d33f4b8582365da" };
+        var APP_ID = 'pet-tags-split-app';
+        var VET_NAME_KEY = 'veterinaryName';
+        var SETUP_PASSWORD = 'formitaspets2025';
+
+        // --- DICCIONARIO DE CÓDIGOS DE VETERINARIAS (VERSIÓN FINAL Y VERIFICADA) ---
+        var vetCodes = {
+         // -mal   '1269': 'Agma 1', '1287': 'Animal Shop', '1289': 'Animal Shop - Bell Ville', '1303': 'Argüello', '1312': 'Azul Mascotas',
+         // -mal   '1321': 'Bigotes', '1341': 'Biovet', '1349': 'Bones', '1358': 'Cemvet', '1367': 'Centauro', '1376': 'Chacabuco',
+         // -mal   '1382': 'Como perro y gato', '1385': 'Dino R.B.', '1404': 'Galletto', '1410': 'Hairy pet', '1429': 'Hakuna Matata',
+         // -mal   '1438': 'Hiper Gp - Felix Frias', '1447': 'Hiper Gp - Lima', '1450': 'Hiper Gral Paz', '1455': 'Hiper R.B',
+         // -mal   '1474': 'Hiper R.B - Villa Allende', '1483': 'Hospital Mascotas', '1492': 'Ina-Vet', '1509': 'Janpix',
+         // -mal   '1518': 'Kairos', '1527': 'Kalinka', '1536': 'Kilian', '1545': 'Ks Pits', '1554': 'Kynos', '1563': 'La Huella',
+         // -mal   '1572': 'La Reserva', '1587': 'Locos x las mascotas Costa', '1590': 'Locos x las mascotas Valle',
+         // -mal   '1607': 'Masc - Roca 6455', '1616': 'Maskoteka', '1627': 'Maskoteka Gral Paz', '1634': 'Maskoteka O`Higgins',
+         // -mal   '1643': 'Medivet', '1652': 'Mis Amigos', '1661': 'Munay', '1670': 'Neo Alta Cba', '1689': 'Neo Cofico',
+         // -mal   '1698': 'Neo Humberto I', '1705': 'Neo Nueva Cordoba', '1714': 'Neo Paseo Rivera', '1723': 'Neo San Vicente',
+         // -mal   '1732': 'Neo Urca-Cian', '1741': 'Obispo Oro', '1759': 'Patagon', '1769': 'Pet One - 6973', '1778': 'Pet One - 8182',
+         // -mal   '1787': 'Pet One - Villa Allende', '1796': 'Pet planet - Bv Homesa', '1803': 'Pet planet Yadarola', '1812': 'Pippo',
+         // -mal   '1821': 'Pipolos Pet', '1842': 'Planeta', '1849': 'Plaza Mascotas', '1859': 'Puppy-Vet', '1867': 'Rio Ceballos',
+         // -mal   '1876': 'Roca - Sabattini', '1885': 'Salud Animal', '1894': 'San Carlos', '1901': 'San Jose 1 - Rev Mayo',
+         // -mal   '1910': 'San Juan esq Corro', '1929': 'Santa Clara', '1938': 'Serca', '1947': 'Soriano', '1956': 'Summa',
+         // -mal    '1968': 'V y L - A. Roca 1485', '1974': 'Tacurú', '1982': 'Tacurú - Sabattini', '1992': 'Tadicor', '2009': 'Tomi',
+         // -mal   '2017': 'Ucle - Falda del Carmen', '2027': 'Ucle 1 - M. T de A.', '2035': 'Ucle 2 - F.A. 2465',
+         // -mal   '2042': 'Ucle 3 - F.A. 2858 - CPC', '2053': 'Ucle 5 - Malagueño', '2064': 'Ucle 7 - San Nicolas',
+         // -mal   '2071': 'Ucle 8 - puerredon', '2081': 'Ucle 9 - shell - Tropezon', '2099': 'Vet Planet', '2109': 'Victor',
+         // -mal   '2115': 'VetAme', '2124': 'Walmart Colon', '2132': 'Walmart Jardin', '2142': 'Walmart Talleres', '2151': 'Zama'
+
+         // ************* Estos codigos los puse yo a mano, si hay que agregar hacerlo al fondo
+			'1250' : '27 Vet', '1269' : 'Agma 1', '1278' : 'Amaru', '1287' : 'Animal Shop', '1296' : 'Animal Shop - Bell Ville', 
+			'1303' : 'Argüello', '1312' : 'Azul Mascotas', '1321' : 'Bigotes', '1330' : 'Biovet', '1349' : 'Bones', '1358' : 'Cemvet', 
+			'1367' : 'Centauro', '1376' : 'Chacabuco', '1385' : 'Como perro y gato', '1394' : 'Dino R.B.', '1401' : 'Galletto', 
+			'1410' : 'Hairy Pet', '1429' : 'Hakuna Matata', '1438' : 'Hiper GP - Felix Frias', '1447' : 'Hiper GP - Lima', 
+			'1456' : 'Hiper Gral Paz', '1465' : 'Hiper R.B', '1474' : 'Hiper R.B - Villa Allende', '1483' : 'Hospital Mascotas', 
+			'1492' : 'Ina Vet', '1509' : 'Janpix', '1518' : 'Kairos', '1527' : 'Kalinka', '1536' : 'Kilian', '1545' : 'Ks-Pits', 
+			'1554' : 'Kynos', '1563' : 'La Huella', '1572' : 'La Reserva', '1581' : 'Locos x las mascotas Costa', 
+			'1590' : 'Locos x las mascotas Valle', '1607' : 'MAC - Recta 6455', '1616' : 'Maskoteka', '1625' : 'Maskoteka Gral Paz', 
+			'1634' : 'Maskoteka O`Higgins', '1643' : 'Medivet', '1652' : 'Mis Amigos', '1661' : 'Munay', '1670' : 'Neo Alta Cba', 
+			'1689' : 'Neo Cofico', '1698' : 'Neo Humberto I', '1705' : 'Neo Nueva Córdoba', '1714' : 'Neo Paseo Rivera', '1723' : 'Neo San Vicente', 
+			'1732' : 'Neo Urgencias', '1741' : 'Obispo Oro', '1750' : 'Paraizoo', '1769' : 'Pet One - 6973', '1778' : 'Pet One - 8182', 
+			'1787' : 'Pet One - Villa Allende', '1796' : 'Pet Planet Col Tirolesa', '1803' : 'Pet Planet Yadarola', '1812' : 'Pigue', 
+			'1821' : 'Pipolos Pet', '1830' : 'Pixies', '1849' : 'Plaza Mascotas', '1858' : 'Puppys Vet', '1867' : 'Rio Ceballos', 
+			'1876' : 'Roma Sabattini', '1885' : 'Salud Animal', '1894' : 'San Carlos', '1901' : 'San Jose 1 - Rev Mayo ', '1910' : 'San Juan esq Corro', 
+			'1929' : 'Santa Clara', '1938' : 'Seres', '1947' : 'Soriano', '1956' : 'Summa', '1965' : 'SV - J. A. Roca 1485', '1974' : 'Tacurú', 
+			'1983' : 'Roma 2350', '1992' : 'Tadicor', '2008' : 'Tatas', '2017' : 'Ucle - Falda del Carmen', '2026' : 'Ucle 1 - M. Vidal', 
+			'2035' : 'Ucle 2 - F.A. 2465', '2044' : 'Ucle 3 - F.A. 4463 - CPC', '2053' : 'Ucle 5 - Malagueño', '2062' : 'Ucle 7 - San Nicolas', 
+			'2071' : 'Ucle 8 - Puyerredon', '2080' : 'Ucle 9 - Shell - Tropezon', '2099' : 'Vet Planet', '2106' : 'Vicor', '2115' : 'VetAme', 
+			'2124' : 'Walmart Colon', '2133' : 'Walmart Jardin', '2142' : 'Walmart Talleres', '2151' : 'Yagua', '2160' : 'Hiper R.B - Villa Allende Poli', 
+            '2188' : 'Neozoo 27'
+            
+         // ************** Reservado para agregar codigos al final, no ponerle coma al ultimo registro
+
+        };
+
+        // --- INICIALIZACIÓN DE FIREBASE ---
+        var db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            var auth = firebase.auth();
+            auth.onAuthStateChanged(function(user) {
+                if (!user) {
+                    auth.signInAnonymously().catch(function(error){
+                         console.error(error);
+                    });
+                }
+            });
+        } catch (error) {
+            console.error("Fallo la inicializacion de Firebase:", error);
+            showToast('Error de conexion. No se pueden enviar pedidos.', true);
+        }
+
+        // --- ESTADO DE LA APLICACIÓN ---
+        var pendingOrderData = null;
+        var currentModalStep = 'password';
+
+        // --- SELECCIÓN DE ELEMENTOS DEL DOM (MODIFICADO) ---
+        var dom = {
+            orderForm: document.getElementById('orderForm'),
+            submitButton: document.getElementById('submitButton'),
+            setupButton: document.getElementById('setupButton'),
+            vetNameInput: document.getElementById('vetName'),
+            vetNameStatus: document.getElementById('vetNameStatus'),
+            toast: document.getElementById('toast'),
+            modalBackdrop: document.getElementById('modalBackdrop'),
+            setupModal: {
+                element: document.getElementById('setupModal'),
+                cancelButton: document.getElementById('modalCancel'),
+                confirmButton: document.getElementById('modalConfirm'),
+                passwordInput: document.getElementById('passwordInput'),
+                newVetNameInput: document.getElementById('newVetNameInput'),
+                passwordError: document.getElementById('passwordError'),
+                passwordStep: document.querySelector('[data-step="password"]'),
+                vetNameStep: document.querySelector('[data-step="vetName"]'),
+                togglePasswordButton: document.getElementById('togglePasswordVisibility'),
+                eyeIcon: document.getElementById('eyeIcon'),
+                eyeSlashIcon: document.getElementById('eyeSlashIcon')
+            },
+            confirmationModal: {
+                element: document.getElementById('confirmationModal'),
+                summary: document.getElementById('confirmationSummary'),
+                confirmButton: document.getElementById('confirmSendButton'),
+                cancelButton: document.getElementById('cancelSendButton')
+            },
+            cancelOrderButton: document.getElementById('cancelOrderButton')
+        };
+        
+        // --- FUNCIONES UTILITARIAS ---
+        var showToast = function(message, isError) {
+            dom.toast.textContent = message;
+            dom.toast.style.backgroundColor = isError ? '#ef4444' : '#333';
+            dom.toast.classList.add('show');
+            setTimeout(function() { dom.toast.classList.remove('show'); }, 3000);
+        };
+
+        var toggleModal = function(modalElement, show) {
+            modalElement.classList.toggle('hidden', !show);
+            dom.modalBackdrop.classList.toggle('hidden', !show);
+        };
+
+        var toggleFormElements = function(disabled) {
+            var formElements = dom.orderForm.querySelectorAll('input, select, textarea, button');
+            for (var i = 0; i < formElements.length; i++) {
+                if (formElements[i].id !== 'vetName') {
+                    formElements[i].disabled = disabled;
+                }
+            }
+        };
+
+        // --- LÓGICA DE NEGOCIO ---
+        var checkAndSetupVeterinaryName = function() {
+            var savedVetName = localStorage.getItem(VET_NAME_KEY);
+            if (savedVetName) {
+                dom.vetNameInput.value = savedVetName;
+                dom.vetNameStatus.textContent = '';
+                dom.setupButton.classList.add('hidden');
+                toggleFormElements(false);
+            } else {
+                dom.vetNameStatus.textContent = 'Debe configurar el nombre de la veterinaria.';
+                dom.setupButton.classList.remove('hidden');
+                toggleFormElements(true);
+            }
+        };
+
+        var clearForm = function() {
+            dom.orderForm.reset();
+            checkAndSetupVeterinaryName();
+        };
+
+        var showConfirmation = function(orderData) {
+            pendingOrderData = orderData;
+            var labels = {
+                petName: 'Mascota', phone: 'Telefono', extraLine: 'Linea Extra',
+                shape: 'Forma', color: 'Color', observations: 'Obs'
+            };
+
+            var summaryHTML = '<ul>';
+            for (var key in orderData) {
+                if (labels[key] && orderData[key]) {
+                    summaryHTML += '<li><strong>' + labels[key] + ':</strong> ' + orderData[key] + '</li>';
+                }
+            }
+            summaryHTML += '</ul>';
+            
+            dom.confirmationModal.summary.innerHTML = summaryHTML;
+            toggleModal(dom.confirmationModal.element, true);
+        };
+
+        var sendOrderToFirebase = function() {
+            if (!pendingOrderData) return;
+
+            dom.submitButton.disabled = true;
+            dom.submitButton.textContent = 'Enviando...';
+            dom.confirmationModal.confirmButton.disabled = true;
+
+            if (!db) {
+                showToast("La base de datos no está inicializada.", true);
+                return;
+            }
+
+            var orderWithTimestamp = pendingOrderData;
+            orderWithTimestamp.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+            db.collection('/artifacts/' + APP_ID + '/public/data/pedidos')
+                .add(orderWithTimestamp)
+                .then(function() {
+                    showToast('Pedido enviado con exito!');
+                    clearForm();
+                    toggleModal(dom.confirmationModal.element, false);
+                })
+                .catch(function(error) {
+                    console.error("Error al agregar el pedido: ", error);
+                    showToast('Error al enviar el pedido. Revisa la consola.', true);
+                })
+                .finally(function() {
+                    if (localStorage.getItem(VET_NAME_KEY)) {
+                        dom.submitButton.disabled = false;
+                        dom.submitButton.textContent = 'Enviar Pedido';
+                    }
+                    dom.confirmationModal.confirmButton.disabled = false;
+                    pendingOrderData = null;
+                });
+        };
+        
+        // --- MANEJADORES DE EVENTOS ---
+        var handleSetupClick = function() {
+            currentModalStep = 'password';
+            dom.setupModal.passwordStep.classList.remove('hidden');
+            dom.setupModal.vetNameStep.classList.add('hidden');
+            dom.setupModal.passwordInput.value = '';
+            dom.setupModal.newVetNameInput.value = '';
+            dom.setupModal.passwordError.classList.add('hidden');
+            dom.setupModal.confirmButton.textContent = 'Siguiente';
+            toggleModal(dom.setupModal.element, true);
+            dom.setupModal.passwordInput.focus();
+        };
+
+        var handleModalConfirmClick = function() {
+            if (currentModalStep === 'password') {
+                var enteredValue = dom.setupModal.passwordInput.value.trim();
+                
+                if (enteredValue === SETUP_PASSWORD) {
+                    currentModalStep = 'vetName';
+                    dom.setupModal.passwordStep.classList.add('hidden');
+                    dom.setupModal.vetNameStep.classList.remove('hidden');
+                    dom.setupModal.passwordError.classList.add('hidden');
+                    dom.setupModal.confirmButton.textContent = 'Guardar';
+                    dom.setupModal.newVetNameInput.focus();
+                
+                } else if (vetCodes[enteredValue]) {
+                    var vetName = vetCodes[enteredValue];
+                    localStorage.setItem(VET_NAME_KEY, vetName);
+                    showToast('Configuración guardada: ' + vetName);
+                    checkAndSetupVeterinaryName();
+                    toggleModal(dom.setupModal.element, false);
+
+                } else {
+                    dom.setupModal.passwordError.classList.remove('hidden');
+                }
+            } else if (currentModalStep === 'vetName') {
+                var newVetName = dom.setupModal.newVetNameInput.value.trim();
+                if (newVetName) {
+                    localStorage.setItem(VET_NAME_KEY, newVetName);
+                    showToast('Configuracion guardada!');
+                    checkAndSetupVeterinaryName();
+                    toggleModal(dom.setupModal.element, false);
+                } else {
+                    showToast('El nombre no puede estar vacio.', true);
+                }
+            }
+        };
+
+        var handleOrderFormSubmit = function(e) {
+            e.preventDefault();
+            
+            var orderData = {
+                vetName: dom.vetNameInput.value,
+                petName: document.getElementById('petName').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                extraLine: document.getElementById('extraLine').value.trim(),
+                shape: document.getElementById('shape').value,
+                color: document.getElementById('color').value,
+                observations: document.getElementById('observations').value.trim()
+            };
+
+            if (!orderData.shape || !orderData.color) {
+                showToast('Debe seleccionar una Forma y un Color.', true);
+                return;
+            }
+            
+            showConfirmation(orderData);
+        };
+
+        // --- INICIALIZACIÓN ---
+        var main = function() {
+            if (!db) {
+                toggleFormElements(true);
+                dom.submitButton.textContent = 'Error de Conexion';
+                return;
+            }
+
+            checkAndSetupVeterinaryName();
+
+            // Asignación de event listeners
+            dom.setupButton.addEventListener('click', handleSetupClick);
+            dom.setupModal.cancelButton.addEventListener('click', function() { toggleModal(dom.setupModal.element, false); });
+            dom.setupModal.confirmButton.addEventListener('click', handleModalConfirmClick);
+            
+            // Listener para el ícono de visibilidad de la clave (NUEVO)
+            dom.setupModal.togglePasswordButton.addEventListener('click', function() {
+                const passwordInput = dom.setupModal.passwordInput;
+                const isPassword = passwordInput.getAttribute('type') === 'password';
+                
+                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                dom.setupModal.eyeIcon.classList.toggle('hidden', isPassword);
+                dom.setupModal.eyeSlashIcon.classList.toggle('hidden', !isPassword);
+            });
+
+            dom.confirmationModal.confirmButton.addEventListener('click', sendOrderToFirebase);
+            dom.confirmationModal.cancelButton.addEventListener('click', function() { toggleModal(dom.confirmationModal.element, false); });
+            dom.cancelOrderButton.addEventListener('click', clearForm);
+            dom.orderForm.addEventListener('submit', handleOrderFormSubmit);
+        };
+        
+        main();
+    });
+    </script>
+</body>
+</html>
