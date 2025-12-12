@@ -73,6 +73,10 @@
         #passwordError { font-size: 0.75rem; color: #dc2626; margin-top: 0.25rem; }
         .hidden { display: none; }
         
+        /* Message Modal Specific Styles */
+        #messageModalContent { white-space: pre-wrap; font-size: 1rem; line-height: 1.5; color: #1f2937; }
+        #messageModal .modal-header { color: #ef4444; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        
         /* Confirmation Summary */
         #confirmationSummary ul { list-style: none; padding: 0; margin: 0; }
         #confirmationSummary li { border-bottom: 1px solid #e5e7eb; padding: 0.5rem 0; }
@@ -193,6 +197,15 @@
             <button type="button" id="confirmSendButton" class="btn btn-primary">OK</button>
         </div>
     </div>
+    
+    <!-- Modal para Mensajes del Sistema (NUEVO) -->
+    <div id="messageModal" class="modal hidden">
+        <h3 class="modal-header">MENSAJE IMPORTANTE</h3>
+        <div id="messageModalContent" class="modal-body"></div>
+        <div class="modal-footer" style="justify-content: center;">
+            <button type="button" id="messageContinueButton" class="btn btn-primary">CONTINUAR</button>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -305,6 +318,11 @@
                 summary: document.getElementById('confirmationSummary'),
                 confirmButton: document.getElementById('confirmSendButton'),
                 cancelButton: document.getElementById('cancelSendButton')
+            },
+            messageModal: {
+                element: document.getElementById('messageModal'),
+                content: document.getElementById('messageModalContent'),
+                continueButton: document.getElementById('messageContinueButton')
             },
             cancelOrderButton: document.getElementById('cancelOrderButton')
         };
@@ -504,6 +522,25 @@
             dom.confirmationModal.cancelButton.addEventListener('click', function() { toggleModal(dom.confirmationModal.element, false); });
             dom.cancelOrderButton.addEventListener('click', clearForm);
             dom.orderForm.addEventListener('submit', handleOrderFormSubmit);
+            
+            // Check for system messages (NUEVO)
+            db.collection('/artifacts/' + APP_ID + '/public/data/mensajes').doc('global').get()
+                .then(function(doc) {
+                    if (doc.exists) {
+                        var data = doc.data();
+                        if (data.activo && data.texto) {
+                            dom.messageModal.content.textContent = data.texto;
+                            toggleModal(dom.messageModal.element, true);
+                        }
+                    }
+                })
+                .catch(function(error) {
+                    console.error("Error checking messages:", error);
+                });
+                
+            dom.messageModal.continueButton.addEventListener('click', function() {
+                toggleModal(dom.messageModal.element, false);
+            });
         };
         
         main();
